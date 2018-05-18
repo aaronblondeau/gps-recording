@@ -18,7 +18,6 @@ class Settings {
         set {
             let defaults = UserDefaults.standard
             defaults.set(newValue, forKey: "useMetricUnits")
-            print("useMetricUnits set to \(newValue)")
         }
     }
     
@@ -33,7 +32,6 @@ class Settings {
         set {
             let defaults = UserDefaults.standard
             defaults.set(newValue, forKey: "distanceFilterInMeters")
-            print("distanceFilterInMeters set to \(newValue)")
         }
     }
     

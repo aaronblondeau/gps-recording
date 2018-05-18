@@ -53,6 +53,9 @@ class GPSRecordingStore {
                 containerReadyHandler(container)
             }
         })
+        
+        // Since we have shouldAddStoreAsynchronously = false above, we could do this here:
+        // return container
     }
     
     init (withContainer container: NSPersistentContainer) {

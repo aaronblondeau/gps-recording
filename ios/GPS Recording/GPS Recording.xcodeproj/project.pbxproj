@@ -46,6 +46,7 @@
 		1F5CD2C520AF6EAE001209A5 /* Line.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Line.swift; sourceTree = "<group>"; };
 		1F5CD2C720AF6EDF001209A5 /* Point.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Point.swift; sourceTree = "<group>"; };
 		1F5CD2C920AF7278001209A5 /* GPSRecordingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPSRecordingStore.swift; sourceTree = "<group>"; };
+		1F5CD2D120AF9975001209A5 /* BUILD_NOTES.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = BUILD_NOTES.md; sourceTree = "<group>"; };
 		1F8A1CEF20AB9BB400A48700 /* GPS Recording.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "GPS Recording.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F8A1CF220AB9BB400A48700 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1F8A1CF420AB9BB400A48700 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -123,6 +124,7 @@
 				1F8A1D0120AB9BB600A48700 /* Info.plist */,
 				1F8A1CF920AB9BB400A48700 /* GPS_Recording.xcdatamodeld */,
 				1F8A1D1520ABA0D400A48700 /* SettingsViewController.swift */,
+				1F5CD2D120AF9975001209A5 /* BUILD_NOTES.md */,
 			);
 			path = "GPS Recording";
 			sourceTree = "<group>";
