@@ -17,4 +17,5 @@ class Line: NSManagedObject {
     @NSManaged var totalDistanceInMeters: Double
     @NSManaged var inTrack: Track
     @NSManaged var points: NSSet?
+    
 }

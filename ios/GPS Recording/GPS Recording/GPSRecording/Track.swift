@@ -20,4 +20,5 @@ class Track: NSManagedObject {
     @NSManaged var totalDistanceInMeters: Double
     @NSManaged var totalDurationInMilliseconds: Double
     @NSManaged var lines: NSSet?
+    
 }
