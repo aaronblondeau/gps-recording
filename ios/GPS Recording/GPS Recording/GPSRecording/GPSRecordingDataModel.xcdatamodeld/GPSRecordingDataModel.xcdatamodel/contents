@@ -5,7 +5,7 @@
         <attribute name="startedAt" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="totalDistanceInMeters" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
         <relationship name="inTrack" maxCount="1" deletionRule="Nullify" destinationEntity="Track" inverseName="lines" inverseEntity="Track" syncable="YES"/>
-        <relationship name="points" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Point" inverseName="inLine" inverseEntity="Point" syncable="YES"/>
+        <relationship name="points" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="Point" inverseName="inLine" inverseEntity="Point" syncable="YES"/>
     </entity>
     <entity name="Point" representedClassName=".Point" syncable="YES">
         <attribute name="altitude" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
@@ -26,11 +26,11 @@
         <attribute name="startedAt" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="totalDistanceInMeters" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="totalDurationInMilliseconds" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
-        <relationship name="lines" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Line" inverseName="inTrack" inverseEntity="Line" syncable="YES"/>
+        <relationship name="lines" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="Line" inverseName="inTrack" inverseEntity="Line" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Track" positionX="-63" positionY="-18" width="128" height="165"/>
         <element name="Line" positionX="-54" positionY="45" width="128" height="120"/>
         <element name="Point" positionX="-36" positionY="63" width="128" height="180"/>
+        <element name="Track" positionX="-63" positionY="-18" width="128" height="165"/>
     </elements>
 </model>

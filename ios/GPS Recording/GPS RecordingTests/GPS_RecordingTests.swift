@@ -284,7 +284,7 @@ class GPS_RecordingTests: XCTestCase {
             XCTAssertEqual(line2.endedAt, pointTime6)
             XCTAssertEqual(track.totalDurationInMilliseconds, 6000)
             
-            // Distances should be 0
+            // Distances should be updated
             XCTAssertEqual(line1.totalDistanceInMeters, 26181.71, accuracy: 0.1)
             XCTAssertEqual(line2.totalDistanceInMeters, 33317.82, accuracy: 0.1)
             XCTAssertEqual(track.totalDistanceInMeters, 59499.54, accuracy: 0.1)
@@ -353,6 +353,41 @@ class GPS_RecordingTests: XCTestCase {
         }
     }
     
+    func testFindTrackWithURL() {
+        do {
+            let track = try store!.createTrack(name: "Please Find Me", note: "Ok", activity: "run")
+            
+            let id = track.objectID.uriRepresentation().absoluteString
+            
+            print("~~ Track's path is \(id)")
+            
+            let idURL = URL(string: id)
+            
+            // Then fetch it by id
+            if let found = store?.getTrack(atURL: idURL!) {
+                XCTAssertEqual(found.name, "Please Find Me")
+                XCTAssertEqual(found.note, "Ok")
+                XCTAssertEqual(found.activity, "run")
+            } else {
+                XCTFail("No track at url \(String(describing: idURL?.absoluteString))) found")
+            }
+            
+        } catch {
+            XCTFail(error.localizedDescription)
+        }
+    }
+    
+    func testFindTrackWithBadURL() {
+        let idURL = URL(string: "x-coredata://THINGS-AND-STUFF/Track/p9999")
+        
+        // Then fetch it by id
+        if let _ = store?.getTrack(atURL: idURL!) {
+            XCTFail("No track should be found at URL \(String(describing: idURL?.absoluteString)))")
+        } else {
+            XCTAssert(true)
+        }
+    }
+    
     func testAddPointDirectlyToTrack() {
         do {
             // Create a new track
@@ -401,6 +436,104 @@ class GPS_RecordingTests: XCTestCase {
         }
     }
     
+    func testGetLine() {
+        do {
+            // Create a new track
+            let track = try store!.createTrack(name: "Test Get Line", note: nil, activity: nil)
+            
+            // Add a line to the track
+            let line = try store!.addLine(toTrack: track)
+            
+            let id = line.objectID
+            
+            // Then fetch it by id
+            if let found = store?.getLine(withId: id) {
+                XCTAssertEqual(id.uriRepresentation().absoluteString, found.objectID.uriRepresentation().absoluteString)
+            } else {
+                XCTFail("No line with id \(id.uriRepresentation()) found (id lookup)")
+            }
+            
+            // Then fetch it by URL
+            let idURL = URL(string: id.uriRepresentation().absoluteString)
+            
+            // Then fetch it by id
+            if let found = store?.getLine(atURL: idURL!) {
+                XCTAssertEqual(id.uriRepresentation().absoluteString, found.objectID.uriRepresentation().absoluteString)
+            } else {
+                XCTFail("No line with id \(id.uriRepresentation()) found (URL lookup)")
+            }
+            
+            let badIdURL = URL(string: "x-coredata://THINGS-AND-STUFF/Line/p9999")
+            
+            // Then fetch it by id
+            if let _ = store?.getLine(atURL: badIdURL!) {
+                XCTFail("No line should be found at URL \(String(describing: idURL?.absoluteString)))")
+            } else {
+                XCTAssert(true)
+            }
+            
+        } catch {
+            XCTFail(error.localizedDescription)
+        }
+    }
+    
+    func testAddPointDirectlyToTrackWithMultipleLines() {
+        do {
+            // Create a new track
+            let track = try store!.createTrack(name: "Test Unmanaged Lines", note: nil, activity: nil)
+            
+            // DO NOT Add a line to the track
+            XCTAssertEqual(store?.countPoints(), 0)
+            XCTAssertEqual(store?.countLines(), 0)
+            
+            let pointTime1 = Date(timeIntervalSince1970: 1527275521)
+            let location1 = CLLocation(coordinate: CLLocationCoordinate2D(latitude: 38.5, longitude: -106.0), altitude: 2900, horizontalAccuracy: 15, verticalAccuracy: 20, course: 15.5, speed: 16.5, timestamp: pointTime1)
+            let _ = try store!.addPoint(toTrack: track, fromLocation: location1)
+            
+            let pointTime2 = Date(timeIntervalSince1970: 1527275522)
+            let location2 = CLLocation(coordinate: CLLocationCoordinate2D(latitude: 38.5, longitude: -106.1), altitude: 2900, horizontalAccuracy: 15, verticalAccuracy: 20, course: 15.5, speed: 16.5, timestamp: pointTime2)
+            let _ = try store!.addPoint(toTrack: track, fromLocation: location2)
+            
+            let pointTime3 = Date(timeIntervalSince1970: 1527275524)
+            let location3 = CLLocation(coordinate: CLLocationCoordinate2D(latitude: 38.5, longitude: -106.3), altitude: 2900, horizontalAccuracy: 15, verticalAccuracy: 20, course: 15.5, speed: 16.5, timestamp: pointTime3)
+            let _ = try store!.addPoint(toTrack: track, fromLocation: location3)
+            
+            // Points count should have increased
+            XCTAssertEqual(store?.countPoints(), 3)
+            XCTAssertEqual(store?.countLines(), 1)
+            
+            let _ = try store?.addLine(toTrack: track)
+            
+            let pointTime4 = Date(timeIntervalSince1970: 1527275525)
+            let location4 = CLLocation(coordinate: CLLocationCoordinate2D(latitude: 38.5, longitude: -106.0), altitude: 2900, horizontalAccuracy: 15, verticalAccuracy: 20, course: 15.5, speed: 16.5, timestamp: pointTime4)
+            let _ = try store!.addPoint(toTrack: track, fromLocation: location4)
+            
+            let pointTime5 = Date(timeIntervalSince1970: 1527275526)
+            let location5 = CLLocation(coordinate: CLLocationCoordinate2D(latitude: 38.6, longitude: -106.0), altitude: 2900, horizontalAccuracy: 15, verticalAccuracy: 20, course: 15.5, speed: 16.5, timestamp: pointTime5)
+            let _ = try store!.addPoint(toTrack: track, fromLocation: location5)
+            
+            let pointTime6 = Date(timeIntervalSince1970: 1527275528)
+            let location6 = CLLocation(coordinate: CLLocationCoordinate2D(latitude: 38.8, longitude: -106.0), altitude: 2900, horizontalAccuracy: 15, verticalAccuracy: 20, course: 15.5, speed: 16.5, timestamp: pointTime6)
+            let _ = try store!.addPoint(toTrack: track, fromLocation: location6)
+            
+            XCTAssertEqual(store?.countLines(), 2)
+            XCTAssertEqual(store?.countPoints(), 6)
+            
+            // startedAt should match first point's time
+            XCTAssertEqual(track.startedAt, pointTime1)
+            
+            // endedAt should match last point's line
+            XCTAssertEqual(track.endedAt, pointTime6)
+            XCTAssertEqual(track.totalDurationInMilliseconds, 6000)
+            
+            // Distances should be updated
+            XCTAssertEqual(track.totalDistanceInMeters, 59499.54, accuracy: 0.1)
+            
+        } catch {
+            XCTFail(error.localizedDescription)
+        }
+    }
+
     func testPerformanceExample() {
         // This is an example of a performance test case.
         self.measure {
