@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="FcI-oT-Y8w">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="FcI-oT-Y8w">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -28,7 +28,11 @@
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="g4p-Wg-iSA"/>
-                                    <barButtonItem title="Record" id="T3a-Oa-vDo"/>
+                                    <barButtonItem title="Record" id="T3a-Oa-vDo">
+                                        <connections>
+                                            <segue destination="ejM-8j-msR" kind="show" identifier="homeToRecord" id="0sK-36-5DJ"/>
+                                        </connections>
+                                    </barButtonItem>
                                 </items>
                             </toolbar>
                         </subviews>
@@ -40,6 +44,48 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="2167.1999999999998" y="35.532233883058474"/>
+        </scene>
+        <!--Record View Controller-->
+        <scene sceneID="Pvv-0s-vdg">
+            <objects>
+                <viewController id="ejM-8j-msR" customClass="RecordViewController" customModule="GPS_Recording" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Idb-wD-uGQ">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="539-49-WSj">
+                                <rect key="frame" x="16" y="72" width="343" height="30"/>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Z9a-Gj-S8N">
+                                <rect key="frame" x="16" y="110" width="343" height="30"/>
+                                <state key="normal" title="Save"/>
+                                <connections>
+                                    <action selector="buttonSaveTap:" destination="ejM-8j-msR" eventType="touchUpInside" id="Wfh-UG-WHh"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="539-49-WSj" firstAttribute="leading" secondItem="oAF-Ej-T9n" secondAttribute="leading" constant="16" id="1be-19-gsb"/>
+                            <constraint firstItem="oAF-Ej-T9n" firstAttribute="trailing" secondItem="Z9a-Gj-S8N" secondAttribute="trailing" constant="16" id="5BI-Qd-fFb"/>
+                            <constraint firstItem="Z9a-Gj-S8N" firstAttribute="leading" secondItem="oAF-Ej-T9n" secondAttribute="leading" constant="16" id="CMe-88-gqW"/>
+                            <constraint firstItem="Z9a-Gj-S8N" firstAttribute="top" secondItem="539-49-WSj" secondAttribute="bottom" constant="8" id="TQY-xa-BIh"/>
+                            <constraint firstItem="oAF-Ej-T9n" firstAttribute="trailing" secondItem="539-49-WSj" secondAttribute="trailing" constant="16" id="t3A-D9-y2q"/>
+                            <constraint firstItem="539-49-WSj" firstAttribute="top" secondItem="oAF-Ej-T9n" secondAttribute="top" constant="8" id="tkL-jd-0ax"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="oAF-Ej-T9n"/>
+                    </view>
+                    <connections>
+                        <outlet property="buttonSave" destination="Z9a-Gj-S8N" id="g7j-Hq-GBd"/>
+                        <outlet property="textTrackName" destination="539-49-WSj" id="wM5-Hc-NAY"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="kAm-hH-phR" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3106" y="44"/>
         </scene>
         <!--Settings View Controller-->
         <scene sceneID="w4E-pU-hJv">

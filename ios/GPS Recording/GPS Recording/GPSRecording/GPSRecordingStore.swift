@@ -14,6 +14,10 @@ enum GPSRecordingError: Error {
     case pointOutOfOrder()
 }
 
+extension Notification.Name {
+    static let gpsRecordingStoreReady = Notification.Name("gpsRecordingStoreReady")
+}
+
 class GPSRecordingStore {
     
     let container: NSPersistentContainer
