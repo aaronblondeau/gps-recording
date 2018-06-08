@@ -29,8 +29,10 @@ class GPSRecordingStore {
      
      - Parameter containerReadyHandler: Callback that will be called when the container is ready.
      */
-    class func buildContainer(containerReadyHandler: @escaping (NSPersistentContainer) -> Void) -> Void {
-        let container:NSPersistentContainer = NSPersistentContainer(name: storeIdentifier)
+    class func buildContainer(bundle: Bundle, containerReadyHandler: @escaping (NSPersistentContainer) -> Void) -> Void {
+        
+        let managedObjectModel = NSManagedObjectModel.mergedModel(from: [bundle] )!
+        let container:NSPersistentContainer = NSPersistentContainer(name: storeIdentifier, managedObjectModel: managedObjectModel)
         
         container.loadPersistentStores(completionHandler: {
             persistentStoreDescription, error in

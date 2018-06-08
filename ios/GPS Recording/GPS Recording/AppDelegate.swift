@@ -21,7 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Get access to the recording store
         let bundle = Bundle(for: type(of: self))
-        GPSRecordingStore.buildTestContainer(bundle: bundle) {
+        GPSRecordingStore.buildContainer(bundle: bundle) {
             (container: NSPersistentContainer) in
             self.store = GPSRecordingStore(withContainer: container)
             if let navigationViewController = self.window?.rootViewController as? UINavigationController {

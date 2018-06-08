@@ -24,7 +24,6 @@ class RecordViewController: UIViewController {
         if store != nil {
             buttonSave.isEnabled = true
         }
-        
     }
     
     @objc func storeLoaded(notification: NSNotification) {
@@ -40,8 +39,12 @@ class RecordViewController: UIViewController {
     
     @IBAction func buttonSaveTap(_ sender: Any) {
         if (self.store != nil) {
-            print("~~ Store has \(store!.countTracks()) tracks")
-            print("~~ Would create a new track with name \(textTrackName.text)")
+            do {
+                let _ = try store!.createTrack(name: textTrackName.text, note: "I am a fake track", activity: nil)
+            } catch {
+                print("Failed to create track : \(error.localizedDescription)")
+            }
+            navigationController?.popViewController(animated: true)
         } else {
             print("~~ Store is nil!")
         }
