@@ -19,6 +19,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     var fetchedResultsController: NSFetchedResultsController<Track>?
     
+    var selectedTrack: Track?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -90,6 +92,11 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             let destination = segue.destination as! RecordViewController
             destination.store = self.store
         }
+        if segue.identifier == "showTrack" {
+            let destination = segue.destination as! TrackViewController
+            destination.store = self.store
+            destination.track = self.selectedTrack
+        }
     }
     
     // MARK: TableView Data Source Methods
@@ -157,8 +164,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     // MARK: TableView Delegate Methods
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("~~ A row was selected!")
-        tableView.deselectRow(at: indexPath, animated: true)
+        if let track = self.fetchedResultsController?.object(at: indexPath) {
+            self.selectedTrack = track
+            performSegue(withIdentifier: "showTrack", sender: self)
+        }
     }
     
     // MARK: NSFetchedResultsController Delegate Methods

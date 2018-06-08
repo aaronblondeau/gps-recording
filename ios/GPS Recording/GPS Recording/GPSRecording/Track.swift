@@ -12,6 +12,9 @@ import CoreData
 class Track: NSManagedObject {
     static var entityName = "Track"
     
+    // These are code:displayName
+    static var activities = ["ride":"Ride", "hike":"Hike", "bike":"Bike", "ski":"Ski"]
+    
     @NSManaged var name: String?
     @NSManaged var note: String?
     @NSManaged var activity: String?
