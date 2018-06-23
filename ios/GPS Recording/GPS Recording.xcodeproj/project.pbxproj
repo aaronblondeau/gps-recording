@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1F4091B620DD4C6100C0DA3B /* GPSRecordingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4091B520DD4C6100C0DA3B /* GPSRecordingService.swift */; };
+		1F4091B820DD4D5100C0DA3B /* BackgroundGPSRecordingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4091B720DD4D5100C0DA3B /* BackgroundGPSRecordingService.swift */; };
 		1F49D0C320C9BE56000623E4 /* TrackTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F49D0C220C9BE56000623E4 /* TrackTableViewCell.swift */; };
 		1F4AA03520CB066600635A12 /* TrackViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4AA03420CB066600635A12 /* TrackViewController.swift */; };
 		1F5CD2BE20AF4F9D001209A5 /* DistanceFilterTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CD2BD20AF4F9D001209A5 /* DistanceFilterTableViewCell.swift */; };
@@ -43,6 +45,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1F4091B520DD4C6100C0DA3B /* GPSRecordingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPSRecordingService.swift; sourceTree = "<group>"; };
+		1F4091B720DD4D5100C0DA3B /* BackgroundGPSRecordingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundGPSRecordingService.swift; sourceTree = "<group>"; };
 		1F49D0C220C9BE56000623E4 /* TrackTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackTableViewCell.swift; sourceTree = "<group>"; };
 		1F4AA03420CB066600635A12 /* TrackViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackViewController.swift; sourceTree = "<group>"; };
 		1F5CD2BD20AF4F9D001209A5 /* DistanceFilterTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceFilterTableViewCell.swift; sourceTree = "<group>"; };
@@ -95,6 +99,8 @@
 				1F5CD2C520AF6EAE001209A5 /* Line.swift */,
 				1F5CD2C720AF6EDF001209A5 /* Point.swift */,
 				1F5CD2C920AF7278001209A5 /* GPSRecordingStore.swift */,
+				1F4091B520DD4C6100C0DA3B /* GPSRecordingService.swift */,
+				1F4091B720DD4D5100C0DA3B /* BackgroundGPSRecordingService.swift */,
 			);
 			path = GPSRecording;
 			sourceTree = "<group>";
@@ -254,6 +260,8 @@
 				1F5CD2BE20AF4F9D001209A5 /* DistanceFilterTableViewCell.swift in Sources */,
 				1FE6E4DC20C5FD8A00FC1AB4 /* RecordViewController.swift in Sources */,
 				1F5CD2C420AF6D9E001209A5 /* Track.swift in Sources */,
+				1F4091B820DD4D5100C0DA3B /* BackgroundGPSRecordingService.swift in Sources */,
+				1F4091B620DD4C6100C0DA3B /* GPSRecordingService.swift in Sources */,
 				1F49D0C320C9BE56000623E4 /* TrackTableViewCell.swift in Sources */,
 				1F8A1CFB20AB9BB400A48700 /* GPS_Recording.xcdatamodeld in Sources */,
 				1F5CD2CA20AF7278001209A5 /* GPSRecordingStore.swift in Sources */,

@@ -12,8 +12,13 @@ class RecordViewController: UIViewController {
 
     @IBOutlet weak var textTrackName: UITextField!
     @IBOutlet weak var buttonSave: UIButton!
+    @IBOutlet weak var buttonStart: UIButton!
+    @IBOutlet weak var buttonPause: UIButton!
+    @IBOutlet weak var buttonResume: UIButton!
+    @IBOutlet weak var buttonFinish: UIButton!
     
     var store: GPSRecordingStore?
+    var service: GPSRecordingService?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,6 +52,52 @@ class RecordViewController: UIViewController {
             navigationController?.popViewController(animated: true)
         } else {
             print("~~ Store is nil!")
+        }
+    }
+    
+    @IBAction func buttonStartTap(_ sender: Any) {
+        service?.start()
+        updateButtons()
+    }
+    
+    @IBAction func buttonPauseTap(_ sender: Any) {
+        service?.pause()
+        updateButtons()
+    }
+    
+    @IBAction func buttonResumeTap(_ sender: Any) {
+        service?.resume()
+        updateButtons()
+    }
+    
+    @IBAction func buttonFinishTap(_ sender: Any) {
+        service?.finish()
+        updateButtons()
+    }
+    
+    func updateButtons() {
+        if let service = service {
+            buttonStart.isEnabled = !service.recording
+            buttonStart.isHidden = service.hasCurrentTrack || service.recording
+            
+            buttonPause.isEnabled = service.recording
+            buttonPause.isHidden = !service.recording
+            
+            buttonResume.isEnabled = !service.recording && service.hasCurrentTrack
+            buttonResume.isHidden = service.recording || !service.hasCurrentTrack
+            
+            buttonFinish.isEnabled = service.hasCurrentTrack
+            buttonFinish.isHidden = !service.hasCurrentTrack
+        } else {
+            buttonStart.isEnabled = false
+            buttonPause.isEnabled = false
+            buttonResume.isEnabled = false
+            buttonFinish.isEnabled = false
+            
+            buttonStart.isHidden = false
+            buttonPause.isHidden = true
+            buttonResume.isHidden = true
+            buttonFinish.isHidden = true
         }
     }
     
