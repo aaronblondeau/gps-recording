@@ -15,6 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     var store: GPSRecordingStore?
+    var serviceManager: GPSRecordingServiceManager?
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -24,14 +25,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         GPSRecordingStore.buildContainer(bundle: bundle) {
             (container: NSPersistentContainer) in
             self.store = GPSRecordingStore(withContainer: container)
+            self.serviceManager = GPSRecordingServiceManager(self.store!)
             if let navigationViewController = self.window?.rootViewController as? UINavigationController {
                 if let firstViewController = navigationViewController.viewControllers.first as? ViewController {
                     firstViewController.store = self.store
+                    firstViewController.serviceManager = self.serviceManager
                 }
             }
             NotificationCenter.default.post(name: .gpsRecordingStoreReady, object: self.store)
         }
-        
         return true
     }
 
@@ -44,6 +46,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidEnterBackground(_ application: UIApplication) {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+        print("~~ App did enter background")
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {

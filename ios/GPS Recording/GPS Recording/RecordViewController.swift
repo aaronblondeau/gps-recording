@@ -18,7 +18,7 @@ class RecordViewController: UIViewController {
     @IBOutlet weak var buttonFinish: UIButton!
     
     var store: GPSRecordingStore?
-    var service: GPSRecordingService?
+    var serviceManager: GPSRecordingServiceManager?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,14 +26,34 @@ class RecordViewController: UIViewController {
         // Do any additional setup after loading the view.
     
         NotificationCenter.default.addObserver(self, selector: #selector(storeLoaded(notification:)), name: .gpsRecordingStoreReady, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(onRecordingStarted(notification:)), name: .gpsRecordingStarted, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(onRecordingStopped(notification:)), name: .gpsRecordingStopped, object: nil)
+        
+        // TODO - remove me:
         if store != nil {
             buttonSave.isEnabled = true
         }
+        
+        updateButtons()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     @objc func storeLoaded(notification: NSNotification) {
         self.store = notification.object as? GPSRecordingStore
         buttonSave.isEnabled = true
+    }
+    
+    @objc func onRecordingStarted(notification: NSNotification) {
+        updateButtons()
+    }
+    
+    @objc func onRecordingStopped(notification: NSNotification) {
+        updateButtons()
     }
 
     override func didReceiveMemoryWarning() {
@@ -56,27 +76,27 @@ class RecordViewController: UIViewController {
     }
     
     @IBAction func buttonStartTap(_ sender: Any) {
-        service?.start()
+        serviceManager?.service.start(self)
         updateButtons()
     }
     
     @IBAction func buttonPauseTap(_ sender: Any) {
-        service?.pause()
+        serviceManager?.service.pause()
         updateButtons()
     }
     
     @IBAction func buttonResumeTap(_ sender: Any) {
-        service?.resume()
+        serviceManager?.service.resume()
         updateButtons()
     }
     
     @IBAction func buttonFinishTap(_ sender: Any) {
-        service?.finish()
+        serviceManager?.service.finish()
         updateButtons()
     }
     
     func updateButtons() {
-        if let service = service {
+        if let service = serviceManager?.service {
             buttonStart.isEnabled = !service.recording
             buttonStart.isHidden = service.hasCurrentTrack || service.recording
             

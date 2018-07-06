@@ -8,10 +8,12 @@
 
 import UIKit
 import CoreData
+import UserNotifications
 
 class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, NSFetchedResultsControllerDelegate {
     
     var store: GPSRecordingStore?
+    var serviceManager: GPSRecordingServiceManager?
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var activityIndicatorView: UIActivityIndicatorView!
@@ -36,6 +38,19 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         
         NotificationCenter.default.addObserver(self, selector: #selector(storeLoaded(notification:)), name: .gpsRecordingStoreReady, object: nil)
         
+        setupLocalNotifications()
+        
+    }
+    
+    func setupLocalNotifications() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert])
+        { (success, error) in
+            if success {
+                print("Permission Granted")
+            } else {
+                print("There was a problem!")
+            }
+        }
     }
     
     @objc func storeLoaded(notification: NSNotification) {
@@ -91,6 +106,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         if segue.identifier == "homeToRecord" {
             let destination = segue.destination as! RecordViewController
             destination.store = self.store
+            destination.serviceManager = self.serviceManager
         }
         if segue.identifier == "showTrack" {
             let destination = segue.destination as! TrackViewController

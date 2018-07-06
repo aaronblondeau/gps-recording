@@ -31,6 +31,7 @@
 		1F8A1D0B20AB9BB600A48700 /* GPS_RecordingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8A1D0A20AB9BB600A48700 /* GPS_RecordingTests.swift */; };
 		1F8A1D1620ABA0D400A48700 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8A1D1520ABA0D400A48700 /* SettingsViewController.swift */; };
 		1F8A1D1820ACF1E600A48700 /* GPSRecordingSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8A1D1720ACF1E600A48700 /* GPSRecordingSettings.swift */; };
+		1FC0C1E520ED93E400D54171 /* GPSRecordingServiceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC0C1E420ED93E400D54171 /* GPSRecordingServiceManager.swift */; };
 		1FE6E4DC20C5FD8A00FC1AB4 /* RecordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE6E4DB20C5FD8A00FC1AB4 /* RecordViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -69,6 +70,7 @@
 		1F8A1D0C20AB9BB600A48700 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1F8A1D1520ABA0D400A48700 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		1F8A1D1720ACF1E600A48700 /* GPSRecordingSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPSRecordingSettings.swift; sourceTree = "<group>"; };
+		1FC0C1E420ED93E400D54171 /* GPSRecordingServiceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPSRecordingServiceManager.swift; sourceTree = "<group>"; };
 		1FE6E4DB20C5FD8A00FC1AB4 /* RecordViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -101,6 +103,7 @@
 				1F5CD2C920AF7278001209A5 /* GPSRecordingStore.swift */,
 				1F4091B520DD4C6100C0DA3B /* GPSRecordingService.swift */,
 				1F4091B720DD4D5100C0DA3B /* BackgroundGPSRecordingService.swift */,
+				1FC0C1E420ED93E400D54171 /* GPSRecordingServiceManager.swift */,
 			);
 			path = GPSRecording;
 			sourceTree = "<group>";
@@ -203,6 +206,11 @@
 				TargetAttributes = {
 					1F8A1CEE20AB9BB400A48700 = {
 						CreatedOnToolsVersion = 9.3.1;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
+						};
 					};
 					1F8A1D0520AB9BB600A48700 = {
 						CreatedOnToolsVersion = 9.3.1;
@@ -265,6 +273,7 @@
 				1F49D0C320C9BE56000623E4 /* TrackTableViewCell.swift in Sources */,
 				1F8A1CFB20AB9BB400A48700 /* GPS_Recording.xcdatamodeld in Sources */,
 				1F5CD2CA20AF7278001209A5 /* GPSRecordingStore.swift in Sources */,
+				1FC0C1E520ED93E400D54171 /* GPSRecordingServiceManager.swift in Sources */,
 				1F8A1D1620ABA0D400A48700 /* SettingsViewController.swift in Sources */,
 				1F5CD2C820AF6EDF001209A5 /* Point.swift in Sources */,
 				1F5CD2C620AF6EAE001209A5 /* Line.swift in Sources */,

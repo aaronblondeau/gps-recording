@@ -7,13 +7,19 @@
 //
 
 import Foundation
+import UIKit
 
 protocol GPSRecordingService {
     var recording: Bool {get set}
-    var currentTrack: Track? {get}
+    var currentTrack: Track? {get set}
     var hasCurrentTrack: Bool {get}
-    func start()
+    func start(_ viewController: UIViewController)
     func pause()
     func resume()
     func finish()
+}
+
+extension Notification.Name {
+    static let gpsRecordingStarted = Notification.Name("gpsRecordingStarted")
+    static let gpsRecordingStopped = Notification.Name("gpsRecordingStopped")
 }
