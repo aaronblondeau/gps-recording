@@ -13,12 +13,26 @@ import UserNotifications
 
 class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationManagerDelegate {
     var recording: Bool = false
-    var currentTrack: Track?
+    private var _currentTrack: Track?
     let store: GPSRecordingStore
     var shouldStartRecording: Bool = false
     var viewController: UIViewController?
     
     let locationManager = CLLocationManager()
+    
+    var currentTrack: Track? {
+        get {
+            return _currentTrack
+        }
+        set {
+            _currentTrack = newValue
+            if let track = newValue {
+                currentTrackUrl = track.objectID.uriRepresentation().absoluteString
+            } else {
+                currentTrackUrl = ""
+            }
+        }
+    }
     
     var currentTrackUrl: String {
         get {
@@ -46,14 +60,29 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
         if(self.currentTrackUrl != "") {
             let idURL = URL(string: self.currentTrackUrl)
             if let found = store.getTrack(atURL: idURL!) {
-                currentTrack = found
+                _currentTrack = found
             }
         }
         locationManager.delegate = self
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(managedObjectContextObjectsDidChange), name: NSNotification.Name.NSManagedObjectContextObjectsDidChange, object: store.container.viewContext)
+    }
+    
+    @objc func managedObjectContextObjectsDidChange() {
+        if let track = currentTrack {
+            if (track.isDeleted) {
+                if(recording) {
+                    print("~~ Current track deleted while recording!")
+                    finish()
+                } else {
+                    print("~~ Current track deleted!")
+                    currentTrack = nil
+                }
+            }
+        }
     }
     
     func start(_ viewController: UIViewController) {
-        // Create current track if there isn't one
         // Start location updates
         print("Background GPS Recording Start")
         
@@ -73,35 +102,52 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
         // Make sure current track is still valid
         // Start location updates
         print("Background GPS Recording Resume")
+        requestPermissions()
     }
     
     func finish() {
         // Stop location updates
         // Unset current track
         print("Background GPS Recording Stop")
+        currentTrack = nil
         stopRecording()
     }
     
     private func startRecording() {
         shouldStartRecording = false
-        recording = true
-        print("Would start recording")
+        
+        // Create a current track if there isn't one
+        if currentTrack == nil {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd HH:mm"
+            let trackName = formatter.string(from: Date())
+            
+            do {
+                currentTrack = try store.createTrack(name: trackName, note: "", activity: nil)
+            } catch {
+                if let vc = viewController {
+                    let alert = UIAlertController(title: "Unable to create track!", message: "\(error.localizedDescription)", preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+                    vc.present(alert, animated: true)
+                }
+                return;
+            }
+            
+        }
         
         locationManager.allowsBackgroundLocationUpdates = true
         locationManager.pausesLocationUpdatesAutomatically = false
         locationManager.distanceFilter = 10.0
         locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-        locationManager.startUpdatingLocation()
         
+        locationManager.startUpdatingLocation()
+        recording = true
         NotificationCenter.default.post(name: .gpsRecordingStarted, object: self.store)
     }
     
     private func stopRecording() {
-        recording = false
-        print("Would stop recording")
-        
         locationManager.stopUpdatingLocation()
-                
+        recording = false
         NotificationCenter.default.post(name: .gpsRecordingStopped, object: self.store)
     }
     
@@ -132,22 +178,20 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        print("~~ didChangeAuthorization status A")
         if(status == .authorizedAlways) {
-            print("~~ didChangeAuthorization status B")
             // The user granted the needed permissions - start recording
             if  (shouldStartRecording) {
                 startRecording()
             }
         } else {
-            print("~~ didChangeAuthorization status C")
             shouldStartRecording = false
             
             // Perms changed while recording!
             if(recording) {
+                // Stop recording
                 pause()
-                // Send a local notification to user to inform them that they interrupted recording
                 
+                // Send a local notification to user to inform them that they interrupted recording
                 let center = UNUserNotificationCenter.current()
                 center.getNotificationSettings { (settings) in
                     if(settings.authorizationStatus == .authorized)
@@ -171,29 +215,39 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
         if (locations.count > 0) {
             for location in locations {
                 print("~~ \(location.coordinate.latitude), \(location.coordinate.longitude)")
+                if let track = currentTrack {
+                    // Save the point
+                    do {
+                        if (!track.isDeleted) {
+                            let point = try store.addPoint(toTrack: track, fromLocation: location)
+                            NotificationCenter.default.post(name: .gpsRecordingNewPoint, object: point)
+                        }
+                    } catch {
+                        print("~~ Unable to save a point : \(error.localizedDescription)")
+                    }
+                } else {
+                    print("~~ Received a point, but no current track to store it in!")
+                }
             }
         }
     }
     
     func showManualPermissionsDialog() {
-        print("~~ showManualPermissionsDialog")
-        
-        let alert = UIAlertController(title: "GPS Permissions Needed!", message: "This app needs permission to 'Always' access GPS so that it can record even while you are using other apps.  The permission has previously been denied for this app.  You need to go to the device settings for this app and set Location to 'Always'.", preferredStyle: .alert)
-        
-        alert.addAction(UIAlertAction(title: "Take Me There", style: .default, handler: {
-            action in
-            self.shouldStartRecording = true
-            print("Would try to take user to app settings.")
-            if let url = NSURL(string: UIApplicationOpenSettingsURLString) as URL? {
-                UIApplication.shared.open(url, options: [:], completionHandler: nil)
-            }
-        }))
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: {
-            action in
-            self.shouldStartRecording = false
-        }))
-        
         if let vc = viewController {
+            let alert = UIAlertController(title: "GPS Permissions Needed!", message: "This app needs permission to 'Always' access GPS so that it can record even while you are using other apps.  The permission has previously been denied for this app.  You need to go to the device settings for this app and set Location to 'Always'.", preferredStyle: .alert)
+            
+            alert.addAction(UIAlertAction(title: "Take Me There", style: .default, handler: {
+                action in
+                self.shouldStartRecording = true
+                print("Would try to take user to app settings.")
+                if let url = NSURL(string: UIApplicationOpenSettingsURLString) as URL? {
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                }
+            }))
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: {
+                action in
+                self.shouldStartRecording = false
+            }))
             vc.present(alert, animated: true)
         }
     }

@@ -22,4 +22,5 @@ protocol GPSRecordingService {
 extension Notification.Name {
     static let gpsRecordingStarted = Notification.Name("gpsRecordingStarted")
     static let gpsRecordingStopped = Notification.Name("gpsRecordingStopped")
+    static let gpsRecordingNewPoint = Notification.Name("gpsRecordingNewPoint")
 }

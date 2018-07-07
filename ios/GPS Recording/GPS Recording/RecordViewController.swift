@@ -7,18 +7,21 @@
 //
 
 import UIKit
+import CoreData
 
 class RecordViewController: UIViewController {
 
-    @IBOutlet weak var textTrackName: UITextField!
-    @IBOutlet weak var buttonSave: UIButton!
     @IBOutlet weak var buttonStart: UIButton!
     @IBOutlet weak var buttonPause: UIButton!
     @IBOutlet weak var buttonResume: UIButton!
     @IBOutlet weak var buttonFinish: UIButton!
+    @IBOutlet weak var labelDistance: UILabel!
+    @IBOutlet weak var labelDuration: UILabel!
     
     var store: GPSRecordingStore?
     var serviceManager: GPSRecordingServiceManager?
+    var finishedTrack: Track?
+    var observingStore = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,21 +34,49 @@ class RecordViewController: UIViewController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(onRecordingStopped(notification:)), name: .gpsRecordingStopped, object: nil)
         
-        // TODO - remove me:
-        if store != nil {
-            buttonSave.isEnabled = true
-        }
-        
+        observeStore()
         updateButtons()
+        updateStats()
     }
     
     deinit {
         NotificationCenter.default.removeObserver(self)
+        observingStore = false
     }
     
     @objc func storeLoaded(notification: NSNotification) {
         self.store = notification.object as? GPSRecordingStore
-        buttonSave.isEnabled = true
+        observeStore()
+    }
+    
+    func observeStore() {
+        if let store = self.store {
+            if (!observingStore) {
+                NotificationCenter.default.addObserver(self, selector: #selector(managedObjectContextObjectsDidChange), name: NSNotification.Name.NSManagedObjectContextObjectsDidChange, object: store.container.viewContext)
+                observingStore = true
+            }
+        }
+    }
+    
+    @objc func managedObjectContextObjectsDidChange() {
+        updateStats()
+    }
+    
+    func updateStats() {
+        if let track = serviceManager?.service.currentTrack {
+            let formatter = DateComponentsFormatter()
+            formatter.allowedUnits = [.hour, .minute, .second]
+            formatter.unitsStyle = .full
+            
+            let formattedString = formatter.string(from: TimeInterval(track.totalDurationInMilliseconds / 1000))!
+            labelDuration.text = "\(formattedString)"
+            
+            let miles = Double(round(100*(track.totalDistanceInMeters * 0.000621371))/100)
+            labelDistance.text = "\(miles) miles"
+        } else {
+            labelDuration.text = "?s"
+            labelDistance.text = "?m"
+        }
     }
     
     @objc func onRecordingStarted(notification: NSNotification) {
@@ -60,19 +91,6 @@ class RecordViewController: UIViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
         self.title = "Record"
-    }
-    
-    @IBAction func buttonSaveTap(_ sender: Any) {
-        if (self.store != nil) {
-            do {
-                let _ = try store!.createTrack(name: textTrackName.text, note: "I am a fake track", activity: nil)
-            } catch {
-                print("Failed to create track : \(error.localizedDescription)")
-            }
-            navigationController?.popViewController(animated: true)
-        } else {
-            print("~~ Store is nil!")
-        }
     }
     
     @IBAction func buttonStartTap(_ sender: Any) {
@@ -91,8 +109,10 @@ class RecordViewController: UIViewController {
     }
     
     @IBAction func buttonFinishTap(_ sender: Any) {
+        finishedTrack = serviceManager?.service.currentTrack
         serviceManager?.service.finish()
         updateButtons()
+        performSegue(withIdentifier: "showFinishedTrack", sender: self)
     }
     
     func updateButtons() {
@@ -108,6 +128,9 @@ class RecordViewController: UIViewController {
             
             buttonFinish.isEnabled = service.hasCurrentTrack
             buttonFinish.isHidden = !service.hasCurrentTrack
+            
+            labelDistance.isHidden = !(service.hasCurrentTrack || service.recording)
+            labelDuration.isHidden = !(service.hasCurrentTrack || service.recording)
         } else {
             buttonStart.isEnabled = false
             buttonPause.isEnabled = false
@@ -118,17 +141,20 @@ class RecordViewController: UIViewController {
             buttonPause.isHidden = true
             buttonResume.isHidden = true
             buttonFinish.isHidden = true
+            
+            labelDistance.isHidden = true
+            labelDistance.isHidden = true
         }
     }
     
-    /*
     // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+        if segue.identifier == "showFinishedTrack" {
+            let destination = segue.destination as! TrackViewController
+            destination.store = self.store
+            destination.track = finishedTrack
+        }
     }
-    */
 
 }

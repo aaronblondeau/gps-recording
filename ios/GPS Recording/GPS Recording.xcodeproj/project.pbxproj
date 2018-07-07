@@ -32,6 +32,7 @@
 		1F8A1D1620ABA0D400A48700 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8A1D1520ABA0D400A48700 /* SettingsViewController.swift */; };
 		1F8A1D1820ACF1E600A48700 /* GPSRecordingSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8A1D1720ACF1E600A48700 /* GPSRecordingSettings.swift */; };
 		1FC0C1E520ED93E400D54171 /* GPSRecordingServiceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC0C1E420ED93E400D54171 /* GPSRecordingServiceManager.swift */; };
+		1FC0C1E720F01F6800D54171 /* TrackMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC0C1E620F01F6800D54171 /* TrackMapViewController.swift */; };
 		1FE6E4DC20C5FD8A00FC1AB4 /* RecordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE6E4DB20C5FD8A00FC1AB4 /* RecordViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -71,6 +72,7 @@
 		1F8A1D1520ABA0D400A48700 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		1F8A1D1720ACF1E600A48700 /* GPSRecordingSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPSRecordingSettings.swift; sourceTree = "<group>"; };
 		1FC0C1E420ED93E400D54171 /* GPSRecordingServiceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPSRecordingServiceManager.swift; sourceTree = "<group>"; };
+		1FC0C1E620F01F6800D54171 /* TrackMapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackMapViewController.swift; sourceTree = "<group>"; };
 		1FE6E4DB20C5FD8A00FC1AB4 /* RecordViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -143,6 +145,7 @@
 				1F5CD2D120AF9975001209A5 /* BUILD_NOTES.md */,
 				1F49D0C220C9BE56000623E4 /* TrackTableViewCell.swift */,
 				1F4AA03420CB066600635A12 /* TrackViewController.swift */,
+				1FC0C1E620F01F6800D54171 /* TrackMapViewController.swift */,
 			);
 			path = "GPS Recording";
 			sourceTree = "<group>";
@@ -279,6 +282,7 @@
 				1F5CD2C620AF6EAE001209A5 /* Line.swift in Sources */,
 				1F5CD2C220AF696F001209A5 /* GPSRecordingDataModel.xcdatamodeld in Sources */,
 				1F8A1D1820ACF1E600A48700 /* GPSRecordingSettings.swift in Sources */,
+				1FC0C1E720F01F6800D54171 /* TrackMapViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

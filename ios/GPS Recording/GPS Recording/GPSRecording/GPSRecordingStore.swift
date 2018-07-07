@@ -379,5 +379,4 @@ class GPSRecordingStore {
             return 0
         }
     }
-    
 }

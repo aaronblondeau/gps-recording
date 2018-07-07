@@ -15,6 +15,8 @@ class TrackViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
     @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var noteTextView: UITextView!
     @IBOutlet weak var activityPickerView: UIPickerView!
+    @IBOutlet weak var buttonGpxExport: UIButton!
+    @IBOutlet weak var buttonGeoJSONExport: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,13 +42,80 @@ class TrackViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
         // Dispose of any resources that can be recreated.
     }
     
+    @IBAction func doneAction(_ sender: Any) {
+        // navigationController?.popViewController(animated: true)
+        navigationController?.popToRootViewController(animated: true)
+    }
+    
+    @IBAction func exportGPXAction(_ sender: Any) {
+        if let track = self.track {
+            let trackFilename = "\(track.getFilenameBase()).gpx"
+            if let dir = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.documentDirectory, FileManager.SearchPathDomainMask.allDomainsMask, true).first {
+                let path = URL(fileURLWithPath: dir).appendingPathComponent(trackFilename)
+                
+                buttonGpxExport.isEnabled = false
+                
+                DispatchQueue.global(qos: .background).async {
+                    do {
+                        try track.toGpx(url: path)
+                        
+                        DispatchQueue.main.async {
+                            self.buttonGpxExport.isEnabled = true
+                            let activityViewController = UIActivityViewController(activityItems: [path, trackFilename], applicationActivities: nil)
+                            activityViewController.excludedActivityTypes = [UIActivityType.addToReadingList, UIActivityType.assignToContact, UIActivityType.copyToPasteboard, UIActivityType.print]
+                            self.present(activityViewController, animated: true, completion: nil)
+                        }
+                    } catch {
+                        DispatchQueue.main.async {
+                            self.buttonGpxExport.isEnabled = true
+                            let alert = UIAlertController(title: "Unable To Export GPX File", message: "Error : \(error)", preferredStyle: UIAlertControllerStyle.alert)
+                            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+                            self.present(alert, animated: true, completion: nil)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    @IBAction func exportGeoJSONAction(_ sender: Any) {
+        if let track = self.track {
+            let trackFilename = "\(track.getFilenameBase()).json"
+            if let dir = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.documentDirectory, FileManager.SearchPathDomainMask.allDomainsMask, true).first {
+                let path = URL(fileURLWithPath: dir).appendingPathComponent(trackFilename)
+                
+                buttonGeoJSONExport.isEnabled = false
+                
+                DispatchQueue.global(qos: .background).async {
+                    do {
+                        try track.toGeoJSON(url: path)
+                        
+                        DispatchQueue.main.async {
+                            self.buttonGeoJSONExport.isEnabled = true
+                            let activityViewController = UIActivityViewController(activityItems: [path, trackFilename], applicationActivities: nil)
+                            activityViewController.excludedActivityTypes = [UIActivityType.addToReadingList, UIActivityType.assignToContact, UIActivityType.copyToPasteboard, UIActivityType.print]
+                            self.present(activityViewController, animated: true, completion: nil)
+                        }
+                    } catch {
+                        DispatchQueue.main.async {
+                            self.buttonGeoJSONExport.isEnabled = true
+                            let alert = UIAlertController(title: "Unable To Export GeoJSON File", message: "Error : \(error)", preferredStyle: UIAlertControllerStyle.alert)
+                            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+                            self.present(alert, animated: true, completion: nil)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    
     @IBAction func saveAction(_ sender: Any) {
         if let store = self.store, let track = self.track {
             let codes = [String](Track.activities.keys)
             let code = codes[activityPickerView.selectedRow(inComponent: 0)]
             do {
                 try store.update(track: track, name: nameTextField.text, note: noteTextView.text, activity: code)
-                navigationController?.popViewController(animated: true)
             } catch {
                 let alertController = UIAlertController(title: "Save Track Failed",
                                                         message: "There was a problem saving the Track.",
@@ -72,14 +141,14 @@ class TrackViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
         return [String](Track.activities.values)[row]
     }
     
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
+    // MARK: Navigation
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+        if segue.identifier == "showTrackMap" {
+            let destination = segue.destination as! TrackMapViewController
+            destination.store = self.store
+            destination.track = self.track
+        }
     }
-    */
 
 }

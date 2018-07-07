@@ -189,12 +189,18 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     // MARK: NSFetchedResultsController Delegate Methods
     
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        self.tableView.beginUpdates()
+        let state = UIApplication.shared.applicationState
+        if state != .background {
+            self.tableView.beginUpdates()
+        }
     }
     
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        self.tableView.endUpdates()
-        updateViews()
+        let state = UIApplication.shared.applicationState
+        if state != .background {
+            self.tableView.endUpdates()
+            updateViews()
+        }
     }
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
