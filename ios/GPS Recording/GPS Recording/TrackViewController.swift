@@ -8,19 +8,20 @@
 
 import UIKit
 
-class TrackViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
+class TrackViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource, UITextFieldDelegate, UITextViewDelegate {
     
     var store: GPSRecordingStore?
     var track: Track?
+    
     @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var noteTextView: UITextView!
     @IBOutlet weak var activityPickerView: UIPickerView!
-    @IBOutlet weak var buttonGpxExport: UIButton!
-    @IBOutlet weak var buttonGeoJSONExport: UIButton!
+    @IBOutlet weak var gpxItem: UIBarButtonItem!
+    @IBOutlet weak var geojsonItem: UIBarButtonItem!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         // Do any additional setup after loading the view.
         self.title = track?.name
         nameTextField.text = track?.name
@@ -28,6 +29,10 @@ class TrackViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
         
         activityPickerView.delegate = self
         activityPickerView.dataSource = self
+        nameTextField.delegate = self
+        noteTextView.delegate = self
+        
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(doneTapped))
         
         if let activity = track?.activity {
             let codes = [String](Track.activities.keys)
@@ -42,32 +47,31 @@ class TrackViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
         // Dispose of any resources that can be recreated.
     }
     
-    @IBAction func doneAction(_ sender: Any) {
-        // navigationController?.popViewController(animated: true)
+    @objc func doneTapped() {
         navigationController?.popToRootViewController(animated: true)
     }
     
-    @IBAction func exportGPXAction(_ sender: Any) {
+    @IBAction func toolbarExportGPXAction(_ sender: Any) {
         if let track = self.track {
             let trackFilename = "\(track.getFilenameBase()).gpx"
             if let dir = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.documentDirectory, FileManager.SearchPathDomainMask.allDomainsMask, true).first {
                 let path = URL(fileURLWithPath: dir).appendingPathComponent(trackFilename)
                 
-                buttonGpxExport.isEnabled = false
+                gpxItem.isEnabled = false
                 
                 DispatchQueue.global(qos: .background).async {
                     do {
                         try track.toGpx(url: path)
                         
                         DispatchQueue.main.async {
-                            self.buttonGpxExport.isEnabled = true
+                            self.gpxItem.isEnabled = true
                             let activityViewController = UIActivityViewController(activityItems: [path, trackFilename], applicationActivities: nil)
                             activityViewController.excludedActivityTypes = [UIActivityType.addToReadingList, UIActivityType.assignToContact, UIActivityType.copyToPasteboard, UIActivityType.print]
                             self.present(activityViewController, animated: true, completion: nil)
                         }
                     } catch {
                         DispatchQueue.main.async {
-                            self.buttonGpxExport.isEnabled = true
+                            self.gpxItem.isEnabled = true
                             let alert = UIAlertController(title: "Unable To Export GPX File", message: "Error : \(error)", preferredStyle: UIAlertControllerStyle.alert)
                             alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
                             self.present(alert, animated: true, completion: nil)
@@ -78,27 +82,31 @@ class TrackViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
         }
     }
     
-    @IBAction func exportGeoJSONAction(_ sender: Any) {
+    @IBAction func exportGPXAction(_ sender: Any) {
+        
+    }
+    
+    @IBAction func toolbarExportGeoJSONAction(_ sender: Any) {
         if let track = self.track {
             let trackFilename = "\(track.getFilenameBase()).json"
             if let dir = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.documentDirectory, FileManager.SearchPathDomainMask.allDomainsMask, true).first {
                 let path = URL(fileURLWithPath: dir).appendingPathComponent(trackFilename)
                 
-                buttonGeoJSONExport.isEnabled = false
+                geojsonItem.isEnabled = false
                 
                 DispatchQueue.global(qos: .background).async {
                     do {
                         try track.toGeoJSON(url: path)
                         
                         DispatchQueue.main.async {
-                            self.buttonGeoJSONExport.isEnabled = true
+                            self.geojsonItem.isEnabled = true
                             let activityViewController = UIActivityViewController(activityItems: [path, trackFilename], applicationActivities: nil)
                             activityViewController.excludedActivityTypes = [UIActivityType.addToReadingList, UIActivityType.assignToContact, UIActivityType.copyToPasteboard, UIActivityType.print]
                             self.present(activityViewController, animated: true, completion: nil)
                         }
                     } catch {
                         DispatchQueue.main.async {
-                            self.buttonGeoJSONExport.isEnabled = true
+                            self.geojsonItem.isEnabled = true
                             let alert = UIAlertController(title: "Unable To Export GeoJSON File", message: "Error : \(error)", preferredStyle: UIAlertControllerStyle.alert)
                             alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
                             self.present(alert, animated: true, completion: nil)
@@ -109,8 +117,11 @@ class TrackViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
         }
     }
     
+    @IBAction func exportGeoJSONAction(_ sender: Any) {
+        
+    }
     
-    @IBAction func saveAction(_ sender: Any) {
+    func save() {
         if let store = self.store, let track = self.track {
             let codes = [String](Track.activities.keys)
             let code = codes[activityPickerView.selectedRow(inComponent: 0)]
@@ -139,6 +150,36 @@ class TrackViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         return [String](Track.activities.values)[row]
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        save()
+    }
+    
+    // MARK: Text Field Delegate
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        self.title = nameTextField.text
+        save()
+    }
+    
+    // MARK: Text View Delegate
+
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if(text == "\n") {
+            textView.resignFirstResponder()
+            return false
+        }
+        return true
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        save()
     }
     
     // MARK: Navigation

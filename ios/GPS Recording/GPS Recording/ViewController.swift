@@ -38,9 +38,19 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         
         NotificationCenter.default.addObserver(self, selector: #selector(storeLoaded(notification:)), name: .gpsRecordingStoreReady, object: nil)
         
+//        NotificationCenter.default.addObserver(self, selector: #selector(defaultsChanged), name: UserDefaults.didChangeNotification, object: nil)
+        
         setupLocalNotifications()
         
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        tableView.reloadData()
+    }
+    
+//    @objc func defaultsChanged() {
+//        tableView.reloadData()
+//    }
     
     func setupLocalNotifications() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert])
@@ -168,13 +178,27 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             cell.nameLabel!.text = formatter.string(from: track.startedAt)
         }
         
-        if let note = track.note {
-            cell.infoLabel!.text = note
+        if (serviceManager?.service.currentTrack?.objectID == track.objectID) {
+            cell.nameLabel!.font = UIFont.boldSystemFont(ofSize: 16.0)
         } else {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-            cell.infoLabel!.text = formatter.string(from: track.startedAt)
+            cell.nameLabel!.font = UIFont.systemFont(ofSize: 16.0)
         }
+        
+        var labelText = ""
+        if Settings.useMetricUnits {
+            let kilometers = Double(round(100*(track.totalDistanceInMeters / 1000))/100)
+            labelText = "\(kilometers) km"
+        } else {
+            let miles = Double(round(100*(track.totalDistanceInMeters * 0.000621371))/100)
+            labelText = "\(miles) miles"
+        }
+        
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm"
+        labelText = "\(labelText) - \(formatter.string(from: track.startedAt))"
+        
+        cell.infoLabel!.text = labelText
+
     }
     
     // MARK: TableView Delegate Methods

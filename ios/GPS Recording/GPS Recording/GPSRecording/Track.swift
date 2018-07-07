@@ -13,7 +13,7 @@ class Track: NSManagedObject {
     static var entityName = "Track"
     
     // These are code:displayName
-    static var activities = ["ride":"Ride", "hike":"Hike", "bike":"Bike", "ski":"Ski"]
+    static var activities = ["run":"Run","bike":"Bike","hike":"Hike","walk":"Walk","ski":"Ski"]
     
     @NSManaged var name: String?
     @NSManaged var note: String?

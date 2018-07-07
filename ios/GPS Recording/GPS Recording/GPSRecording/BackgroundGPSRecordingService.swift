@@ -66,6 +66,12 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
         locationManager.delegate = self
         
         NotificationCenter.default.addObserver(self, selector: #selector(managedObjectContextObjectsDidChange), name: NSNotification.Name.NSManagedObjectContextObjectsDidChange, object: store.container.viewContext)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(defaultsChanged), name: UserDefaults.didChangeNotification, object: nil)
+    }
+    
+    @objc func defaultsChanged() {
+        locationManager.distanceFilter = Double(Settings.distanceFilterInMeters)
     }
     
     @objc func managedObjectContextObjectsDidChange() {
@@ -99,8 +105,18 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
     }
     
     func resume() {
-        // Make sure current track is still valid
-        // Start location updates
+        
+        if let track = currentTrack {
+            do {
+                let _ = try store.addLine(toTrack: track)
+            } catch {
+                print("~~ Failed to add a new line for resume: \(error.localizedDescription)")
+                
+                // Don't start
+                return
+            }
+        }
+        
         print("Background GPS Recording Resume")
         requestPermissions()
     }
@@ -137,7 +153,7 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
         
         locationManager.allowsBackgroundLocationUpdates = true
         locationManager.pausesLocationUpdatesAutomatically = false
-        locationManager.distanceFilter = 10.0
+        locationManager.distanceFilter = Double(Settings.distanceFilterInMeters)
         locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
         
         locationManager.startUpdatingLocation()
@@ -214,11 +230,13 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if (locations.count > 0) {
             for location in locations {
-                print("~~ \(location.coordinate.latitude), \(location.coordinate.longitude) acc=\(location.horizontalAccuracy)")
+                print("~~ \(location.coordinate.latitude), \(location.coordinate.longitude) time=\(location.timestamp) acc=\(location.horizontalAccuracy)")
                 if let track = currentTrack {
                     // Save the point
                     do {
-                        if (!track.isDeleted) {
+                        // Don't try to record if track got deleted
+                        // Throw out points with low accuracy
+                        if ((!track.isDeleted) && (location.horizontalAccuracy <= 50)) {
                             let point = try store.addPoint(toTrack: track, fromLocation: location)
                             NotificationCenter.default.post(name: .gpsRecordingNewPoint, object: point)
                         }

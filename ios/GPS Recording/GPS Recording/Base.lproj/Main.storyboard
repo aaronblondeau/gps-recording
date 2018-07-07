@@ -22,7 +22,7 @@
                                 <rect key="frame" x="20" y="101" width="374" height="30"/>
                                 <nil key="textColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits"/>
+                                <textInputTraits key="textInputTraits" returnKeyType="done"/>
                             </textField>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="igF-LS-qPA">
                                 <rect key="frame" x="20" y="168" width="374" height="64"/>
@@ -32,7 +32,7 @@
                                 </constraints>
                                 <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences" returnKeyType="done"/>
                             </textView>
                             <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rQ0-p2-L31">
                                 <rect key="frame" x="0.0" y="240" width="414" height="64"/>
@@ -52,81 +52,54 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Exf-o3-Yj0">
-                                <rect key="frame" x="0.0" y="312" width="414" height="30"/>
-                                <state key="normal" title="Save"/>
-                                <connections>
-                                    <action selector="saveAction:" destination="qSx-7J-hvj" eventType="touchUpInside" id="ltI-74-L0E"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AHK-HS-2rU">
-                                <rect key="frame" x="0.0" y="350" width="414" height="30"/>
-                                <state key="normal" title="Export to GPX"/>
-                                <connections>
-                                    <action selector="exportGPXAction:" destination="qSx-7J-hvj" eventType="touchUpInside" id="GUp-NY-HBn"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4jH-JT-FfO">
-                                <rect key="frame" x="0.0" y="388" width="414" height="30"/>
-                                <state key="normal" title="Export to GeoJSON"/>
-                                <connections>
-                                    <action selector="exportGeoJSONAction:" destination="qSx-7J-hvj" eventType="touchUpInside" id="Nl0-Bk-4wE"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sqd-O1-eon">
-                                <rect key="frame" x="0.0" y="426" width="414" height="30"/>
-                                <state key="normal" title="Done"/>
-                                <connections>
-                                    <action selector="doneAction:" destination="qSx-7J-hvj" eventType="touchUpInside" id="jMz-wk-MHX"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pnK-FL-J8a">
-                                <rect key="frame" x="0.0" y="464" width="414" height="30"/>
-                                <state key="normal" title="Map"/>
-                                <connections>
-                                    <segue destination="lQ3-uj-vOT" kind="show" identifier="showTrackMap" id="wQ8-8l-AqS"/>
-                                </connections>
-                            </button>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XZ8-Nr-qov">
+                                <rect key="frame" x="0.0" y="692" width="414" height="44"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                <items>
+                                    <barButtonItem title="Map" id="1CS-rE-gS2">
+                                        <connections>
+                                            <segue destination="lQ3-uj-vOT" kind="show" identifier="showTrackMap" id="eDa-56-JDp"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="Oyc-hg-lTR"/>
+                                    <barButtonItem title="Export to GPX" id="gRw-4W-RtV">
+                                        <connections>
+                                            <action selector="toolbarExportGPXAction:" destination="qSx-7J-hvj" id="Khn-6j-LeF"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="hG6-sl-0kv"/>
+                                    <barButtonItem title="Export to GeoJSON" id="0Xu-Y0-ba0">
+                                        <connections>
+                                            <action selector="toolbarExportGeoJSONAction:" destination="qSx-7J-hvj" id="Snr-Wx-ZgV"/>
+                                        </connections>
+                                    </barButtonItem>
+                                </items>
+                            </toolbar>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="JfN-Er-zwg" firstAttribute="trailing" secondItem="Exf-o3-Yj0" secondAttribute="trailing" id="0km-3l-sAN"/>
-                            <constraint firstItem="sqd-O1-eon" firstAttribute="leading" secondItem="JfN-Er-zwg" secondAttribute="leading" id="3WA-e4-nkW"/>
                             <constraint firstItem="JfN-Er-zwg" firstAttribute="trailing" secondItem="igF-LS-qPA" secondAttribute="trailing" constant="20" id="4jp-h0-gfE"/>
                             <constraint firstItem="Eki-pE-umO" firstAttribute="leading" secondItem="JfN-Er-zwg" secondAttribute="leading" constant="20" id="68e-bp-Abz"/>
                             <constraint firstItem="7xP-Ub-jaD" firstAttribute="leading" secondItem="JfN-Er-zwg" secondAttribute="leading" constant="20" id="6QH-9o-VAF"/>
-                            <constraint firstItem="Exf-o3-Yj0" firstAttribute="top" secondItem="rQ0-p2-L31" secondAttribute="bottom" constant="8" id="8c1-Ed-a8p"/>
                             <constraint firstItem="dPm-vb-Xcn" firstAttribute="leading" secondItem="JfN-Er-zwg" secondAttribute="leading" constant="20" id="B2H-zu-XxZ"/>
-                            <constraint firstItem="4jH-JT-FfO" firstAttribute="top" secondItem="AHK-HS-2rU" secondAttribute="bottom" constant="8" id="DWh-8D-Cge"/>
-                            <constraint firstItem="AHK-HS-2rU" firstAttribute="top" secondItem="Exf-o3-Yj0" secondAttribute="bottom" constant="8" id="GxO-Hy-ulv"/>
                             <constraint firstItem="JfN-Er-zwg" firstAttribute="trailing" secondItem="7xP-Ub-jaD" secondAttribute="trailing" constant="20" id="JLi-Y6-XZo"/>
-                            <constraint firstItem="pnK-FL-J8a" firstAttribute="leading" secondItem="JfN-Er-zwg" secondAttribute="leading" id="Kbl-ee-JN1"/>
                             <constraint firstItem="JfN-Er-zwg" firstAttribute="trailing" secondItem="dPm-vb-Xcn" secondAttribute="trailing" constant="20" id="Lez-7u-x5H"/>
                             <constraint firstItem="Eki-pE-umO" firstAttribute="top" secondItem="dPm-vb-Xcn" secondAttribute="bottom" constant="8" id="Orz-9p-7t1"/>
                             <constraint firstItem="dPm-vb-Xcn" firstAttribute="top" secondItem="JfN-Er-zwg" secondAttribute="top" constant="8" id="RVq-FV-rRW"/>
-                            <constraint firstItem="JfN-Er-zwg" firstAttribute="trailing" secondItem="pnK-FL-J8a" secondAttribute="trailing" id="VeY-Y4-GgA"/>
-                            <constraint firstItem="pnK-FL-J8a" firstAttribute="top" secondItem="sqd-O1-eon" secondAttribute="bottom" constant="8" id="Vfg-aM-7n2"/>
                             <constraint firstItem="7xP-Ub-jaD" firstAttribute="top" secondItem="Eki-pE-umO" secondAttribute="bottom" constant="8" id="WpV-Br-Dnq"/>
                             <constraint firstItem="igF-LS-qPA" firstAttribute="top" secondItem="7xP-Ub-jaD" secondAttribute="bottom" constant="8" id="dMl-o4-uh5"/>
-                            <constraint firstItem="JfN-Er-zwg" firstAttribute="trailing" secondItem="sqd-O1-eon" secondAttribute="trailing" id="fyb-85-w53"/>
                             <constraint firstItem="rQ0-p2-L31" firstAttribute="leading" secondItem="5UK-gr-mGc" secondAttribute="leading" id="gOA-vp-0aK"/>
-                            <constraint firstItem="AHK-HS-2rU" firstAttribute="leading" secondItem="JfN-Er-zwg" secondAttribute="leading" id="jj6-2c-pjG"/>
-                            <constraint firstItem="JfN-Er-zwg" firstAttribute="trailing" secondItem="4jH-JT-FfO" secondAttribute="trailing" id="kpZ-09-4ef"/>
                             <constraint firstItem="rQ0-p2-L31" firstAttribute="centerX" secondItem="igF-LS-qPA" secondAttribute="centerX" id="lig-Bd-I27"/>
                             <constraint firstItem="igF-LS-qPA" firstAttribute="leading" secondItem="JfN-Er-zwg" secondAttribute="leading" constant="20" id="mwC-nF-8R2"/>
-                            <constraint firstItem="4jH-JT-FfO" firstAttribute="leading" secondItem="JfN-Er-zwg" secondAttribute="leading" id="n4k-z4-eFO"/>
-                            <constraint firstItem="Exf-o3-Yj0" firstAttribute="leading" secondItem="JfN-Er-zwg" secondAttribute="leading" id="pcT-v1-gcW"/>
                             <constraint firstItem="JfN-Er-zwg" firstAttribute="trailing" secondItem="Eki-pE-umO" secondAttribute="trailing" constant="20" id="tRa-qx-N2y"/>
-                            <constraint firstItem="sqd-O1-eon" firstAttribute="top" secondItem="4jH-JT-FfO" secondAttribute="bottom" constant="8" id="wcZ-7M-zmU"/>
                             <constraint firstItem="rQ0-p2-L31" firstAttribute="top" secondItem="igF-LS-qPA" secondAttribute="bottom" constant="8" id="yZc-rs-MAd"/>
-                            <constraint firstItem="JfN-Er-zwg" firstAttribute="trailing" secondItem="AHK-HS-2rU" secondAttribute="trailing" id="z8w-hf-tg9"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="JfN-Er-zwg"/>
                     </view>
                     <connections>
                         <outlet property="activityPickerView" destination="rQ0-p2-L31" id="Xwc-L9-1qo"/>
-                        <outlet property="buttonGeoJSONExport" destination="4jH-JT-FfO" id="GOQ-1i-Tj0"/>
-                        <outlet property="buttonGpxExport" destination="AHK-HS-2rU" id="488-UZ-hLW"/>
+                        <outlet property="geojsonItem" destination="0Xu-Y0-ba0" id="zuB-kZ-XX7"/>
+                        <outlet property="gpxItem" destination="gRw-4W-RtV" id="Z4R-UP-y0A"/>
                         <outlet property="nameTextField" destination="Eki-pE-umO" id="Tyy-M3-GRN"/>
                         <outlet property="noteTextView" destination="igF-LS-qPA" id="cSP-6g-z8A"/>
                     </connections>
@@ -294,56 +267,66 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="hE5-Vf-KbK">
-                                <rect key="frame" x="0.0" y="63.999999999999986" width="414" height="160.66666666666663"/>
+                                <rect key="frame" x="0.0" y="64" width="414" height="204"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="09u-g9-Cvr">
-                                        <rect key="frame" x="0.0" y="0.0" width="414" height="30"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="414" height="51"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="32"/>
                                         <state key="normal" title="Start"/>
                                         <connections>
                                             <action selector="buttonStartTap:" destination="ejM-8j-msR" eventType="touchUpInside" id="rlO-hl-fM4"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yqX-hJ-blc">
-                                        <rect key="frame" x="0.0" y="30" width="414" height="30"/>
+                                        <rect key="frame" x="0.0" y="51" width="414" height="51"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="32"/>
                                         <state key="normal" title="Pause"/>
                                         <connections>
                                             <action selector="buttonPauseTap:" destination="ejM-8j-msR" eventType="touchUpInside" id="INk-rQ-Hl4"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GhA-3l-pGP">
-                                        <rect key="frame" x="0.0" y="60" width="414" height="30"/>
+                                        <rect key="frame" x="0.0" y="102" width="414" height="51"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="32"/>
                                         <state key="normal" title="Finish"/>
                                         <connections>
                                             <action selector="buttonFinishTap:" destination="ejM-8j-msR" eventType="touchUpInside" id="XD1-QK-hLO"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WOv-cW-thY">
-                                        <rect key="frame" x="0.0" y="90" width="414" height="30"/>
+                                        <rect key="frame" x="0.0" y="153" width="414" height="51"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="32"/>
                                         <state key="normal" title="Resume"/>
                                         <connections>
                                             <action selector="buttonResumeTap:" destination="ejM-8j-msR" eventType="touchUpInside" id="Muw-4Z-Sky"/>
                                         </connections>
                                     </button>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Distance" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vyV-nU-tmD">
-                                        <rect key="frame" x="0.0" y="119.99999999999999" width="414" height="20.333333333333329"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Duration" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HuI-X9-MUn">
-                                        <rect key="frame" x="0.0" y="140.33333333333334" width="414" height="20.333333333333343"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
                                 </subviews>
                             </stackView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Distance" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vyV-nU-tmD">
+                                <rect key="frame" x="0.0" y="280" width="414" height="38.333333333333314"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="32"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Duration" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HuI-X9-MUn">
+                                <rect key="frame" x="0.0" y="330.33333333333331" width="414" height="38.333333333333314"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="32"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="hE5-Vf-KbK" firstAttribute="top" secondItem="oAF-Ej-T9n" secondAttribute="top" id="24a-4w-a70"/>
+                            <constraint firstItem="HuI-X9-MUn" firstAttribute="leading" secondItem="oAF-Ej-T9n" secondAttribute="leading" id="6bo-U8-5TS"/>
+                            <constraint firstItem="vyV-nU-tmD" firstAttribute="top" secondItem="hE5-Vf-KbK" secondAttribute="bottom" constant="12" id="ChO-h7-ZjS"/>
+                            <constraint firstItem="HuI-X9-MUn" firstAttribute="top" secondItem="vyV-nU-tmD" secondAttribute="bottom" constant="12" id="DLc-zs-sSf"/>
                             <constraint firstItem="oAF-Ej-T9n" firstAttribute="trailing" secondItem="hE5-Vf-KbK" secondAttribute="trailing" id="IIo-Yf-zaa"/>
+                            <constraint firstItem="HuI-X9-MUn" firstAttribute="trailing" secondItem="oAF-Ej-T9n" secondAttribute="trailing" id="LbV-Xt-2TX"/>
                             <constraint firstItem="hE5-Vf-KbK" firstAttribute="leading" secondItem="oAF-Ej-T9n" secondAttribute="leading" id="Xnf-lp-HPv"/>
+                            <constraint firstItem="vyV-nU-tmD" firstAttribute="leading" secondItem="oAF-Ej-T9n" secondAttribute="leading" id="bWl-pD-rBF"/>
+                            <constraint firstItem="vyV-nU-tmD" firstAttribute="trailing" secondItem="oAF-Ej-T9n" secondAttribute="trailing" id="wc4-HI-cla"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="oAF-Ej-T9n"/>
                     </view>

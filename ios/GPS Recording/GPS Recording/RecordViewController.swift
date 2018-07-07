@@ -67,15 +67,24 @@ class RecordViewController: UIViewController {
             let formatter = DateComponentsFormatter()
             formatter.allowedUnits = [.hour, .minute, .second]
             formatter.unitsStyle = .full
-            
             let formattedString = formatter.string(from: TimeInterval(track.totalDurationInMilliseconds / 1000))!
             labelDuration.text = "\(formattedString)"
             
-            let miles = Double(round(100*(track.totalDistanceInMeters * 0.000621371))/100)
-            labelDistance.text = "\(miles) miles"
+            if Settings.useMetricUnits {
+                let kilometers = Double(round(100*(track.totalDistanceInMeters / 1000))/100)
+                labelDistance.text = "\(kilometers) km"
+            } else {
+                let miles = Double(round(100*(track.totalDistanceInMeters * 0.000621371))/100)
+                labelDistance.text = "\(miles) miles"
+            }
         } else {
-            labelDuration.text = "?s"
-            labelDistance.text = "?m"
+            if Settings.useMetricUnits {
+                labelDuration.text = "0 seconds"
+                labelDistance.text = "? km"
+            } else {
+                labelDuration.text = "0 seconds"
+                labelDistance.text = "? miles"
+            }
         }
     }
     
