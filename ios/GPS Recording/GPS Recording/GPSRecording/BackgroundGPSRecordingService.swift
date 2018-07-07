@@ -214,7 +214,7 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if (locations.count > 0) {
             for location in locations {
-                print("~~ \(location.coordinate.latitude), \(location.coordinate.longitude)")
+                print("~~ \(location.coordinate.latitude), \(location.coordinate.longitude) acc=\(location.horizontalAccuracy)")
                 if let track = currentTrack {
                     // Save the point
                     do {

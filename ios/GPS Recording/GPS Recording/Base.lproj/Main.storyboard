@@ -219,27 +219,21 @@
                                                     <rect key="frame" x="20" y="8" width="374" height="46"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Cbk-bc-0C2">
-                                                            <rect key="frame" x="0.0" y="0.0" width="374" height="22"/>
-                                                            <constraints>
-                                                                <constraint firstAttribute="height" constant="22" id="8l2-vu-SP5"/>
-                                                            </constraints>
+                                                            <rect key="frame" x="0.0" y="0.0" width="374" height="32"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
                                                         </label>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Info" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hfB-KU-XNo">
-                                                            <rect key="frame" x="0.0" y="22" width="374" height="24"/>
+                                                            <rect key="frame" x="0.0" y="32" width="374" height="14"/>
                                                             <constraints>
-                                                                <constraint firstAttribute="height" constant="24" id="uyZ-aw-hmg"/>
+                                                                <constraint firstAttribute="height" constant="14" id="ItV-eS-sEf"/>
                                                             </constraints>
                                                             <fontDescription key="fontDescription" type="system" weight="light" pointSize="12"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
                                                         </label>
                                                     </subviews>
-                                                    <constraints>
-                                                        <constraint firstAttribute="height" constant="46" id="NOb-gP-IB6"/>
-                                                    </constraints>
                                                 </stackView>
                                             </subviews>
                                             <constraints>
