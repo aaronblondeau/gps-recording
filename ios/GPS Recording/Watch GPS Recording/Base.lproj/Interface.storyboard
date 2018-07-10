@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="14113" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc">
+    <device id="watch38" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="watchOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="14033"/>
+    </dependencies>
+    <scenes>
+        <!--Interface Controller-->
+        <scene sceneID="aou-V4-d1y">
+            <objects>
+                <controller id="AgC-eL-Hgc" customClass="InterfaceController" customModule="Watch_GPS_Recording" customModuleProvider="target">
+                    <items>
+                        <button width="1" alignment="left" title="Record" id="tZK-dX-1bd">
+                            <connections>
+                                <segue destination="rBg-rI-jw2" kind="push" identifier="openRecord" id="WWf-rB-hBL"/>
+                            </connections>
+                        </button>
+                        <button width="1" alignment="left" title="List" id="hNg-ZO-BN2">
+                            <connections>
+                                <segue destination="Q56-Or-9i4" kind="push" identifier="openList" id="4Yt-Yv-T0K"/>
+                            </connections>
+                        </button>
+                        <button width="1" alignment="left" title="Settings" id="5c1-7S-ESk">
+                            <connections>
+                                <segue destination="hHQ-RK-BGZ" kind="push" identifier="openSettings" id="FHi-Mc-lfY"/>
+                            </connections>
+                        </button>
+                    </items>
+                    <connections>
+                        <outlet property="listButton" destination="hNg-ZO-BN2" id="vaT-yA-auw"/>
+                        <outlet property="recordButton" destination="tZK-dX-1bd" id="Sod-dm-2Pv"/>
+                    </connections>
+                </controller>
+            </objects>
+            <point key="canvasLocation" x="220" y="345"/>
+        </scene>
+        <!--Record Interface Controller-->
+        <scene sceneID="jjg-sb-YcI">
+            <objects>
+                <controller id="rBg-rI-jw2" customClass="RecordInterfaceController" customModule="Watch_GPS_Recording_Extension">
+                    <items>
+                        <button width="1" alignment="left" title="Create" id="RbD-as-OYG">
+                            <connections>
+                                <action selector="onCreateTestTrack" destination="rBg-rI-jw2" id="7Oh-78-Z3Z"/>
+                            </connections>
+                        </button>
+                    </items>
+                </controller>
+            </objects>
+            <point key="canvasLocation" x="606" y="-245"/>
+        </scene>
+        <!--List Interface Controller-->
+        <scene sceneID="9dL-zK-Q1n">
+            <objects>
+                <controller id="Q56-Or-9i4" customClass="ListInterfaceController" customModule="Watch_GPS_Recording_Extension">
+                    <items>
+                        <table alignment="left" id="4yr-Sr-DEa">
+                            <items>
+                                <tableRow identifier="trackRow" id="IIR-EJ-hff" customClass="ListRowController" customModule="Watch_GPS_Recording_Extension">
+                                    <group key="rootItem" width="1" height="0.0" alignment="left" layout="vertical" id="2Rk-hh-OU8">
+                                        <items>
+                                            <label alignment="left" text="Track Name" numberOfLines="0" id="B4h-9a-SMk"/>
+                                            <label alignment="left" text="Distance" id="fkF-NL-WA2"/>
+                                        </items>
+                                    </group>
+                                    <connections>
+                                        <outlet property="detailLabel" destination="fkF-NL-WA2" id="HSc-IP-AkT"/>
+                                        <outlet property="titleLabel" destination="B4h-9a-SMk" id="wHq-7b-CYF"/>
+                                    </connections>
+                                </tableRow>
+                            </items>
+                        </table>
+                    </items>
+                    <connections>
+                        <outlet property="tableView" destination="4yr-Sr-DEa" id="9kI-dg-MZ9"/>
+                    </connections>
+                </controller>
+            </objects>
+            <point key="canvasLocation" x="603" y="49"/>
+        </scene>
+        <!--Settings Interface Controller-->
+        <scene sceneID="aCp-aX-zL6">
+            <objects>
+                <controller id="hHQ-RK-BGZ" customClass="SettingsInterfaceController" customModule="Watch_GPS_Recording_Extension">
+                    <items>
+                        <switch width="1" alignment="left" title="Metric" id="ySV-f4-ykF">
+                            <connections>
+                                <action selector="onUnitsChange:" destination="hHQ-RK-BGZ" id="V4m-0I-JfJ"/>
+                            </connections>
+                        </switch>
+                        <label alignment="center" text="Distance Filter:" textAlignment="center" id="cSd-Qx-HMe"/>
+                        <slider width="1" alignment="left" value="10" maximum="100" steps="10" id="gWA-up-f6b">
+                            <connections>
+                                <action selector="onDistanceFilterChange:" destination="hHQ-RK-BGZ" id="2Qj-x1-k97"/>
+                            </connections>
+                        </slider>
+                    </items>
+                    <connections>
+                        <outlet property="distanceFilterSlider" destination="gWA-up-f6b" id="3vf-Tg-BaP"/>
+                        <outlet property="metricUnitsSwitch" destination="ySV-f4-ykF" id="8d9-bo-fe0"/>
+                    </connections>
+                </controller>
+            </objects>
+            <point key="canvasLocation" x="606" y="345"/>
+        </scene>
+        <!--Static Notification Interface Controller-->
+        <scene sceneID="AEw-b0-oYE">
+            <objects>
+                <notificationController id="YCC-NB-fut">
+                    <items>
+                        <label alignment="left" text="Alert Label" id="IdU-wH-bcW"/>
+                    </items>
+                    <notificationCategory key="notificationCategory" identifier="myCategory" id="JfB-70-Muf"/>
+                    <connections>
+                        <outlet property="notificationAlertLabel" destination="IdU-wH-bcW" id="JKC-fr-R95"/>
+                        <segue destination="4sK-HA-Art" kind="relationship" relationship="dynamicNotificationInterface" id="kXh-Jw-8B1"/>
+                    </connections>
+                </notificationController>
+            </objects>
+            <point key="canvasLocation" x="220" y="643"/>
+        </scene>
+        <!--Notification Controller-->
+        <scene sceneID="ZPc-GJ-vnh">
+            <objects>
+                <controller id="4sK-HA-Art" customClass="NotificationController" customModule="Watch_GPS_Recording" customModuleProvider="target"/>
+            </objects>
+            <point key="canvasLocation" x="468" y="643"/>
+        </scene>
+    </scenes>
+</document>

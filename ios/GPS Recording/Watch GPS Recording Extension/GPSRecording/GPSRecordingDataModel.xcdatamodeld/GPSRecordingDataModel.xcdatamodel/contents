@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14135" systemVersion="17F77" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="GPSRecording">
+    <entity name="Line" representedClassName="Line" syncable="YES" codeGenerationType="class">
+        <attribute name="endedAt" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="startedAt" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="totalDistanceInMeters" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <relationship name="inTrack" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Track" inverseName="lines" inverseEntity="Track" syncable="YES"/>
+        <relationship name="points" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Point" inverseName="inLine" inverseEntity="Point" syncable="YES"/>
+    </entity>
+    <entity name="Point" representedClassName="Point" syncable="YES" codeGenerationType="class">
+        <attribute name="altitude" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="course" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="horizontalAccuracy" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="latitude" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="longitude" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="speed" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="verticalAccuracy" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <relationship name="inLine" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Line" inverseName="points" inverseEntity="Line" syncable="YES"/>
+    </entity>
+    <entity name="Track" representedClassName="Track" syncable="YES" codeGenerationType="class">
+        <attribute name="activity" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="endedAt" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="note" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="startedAt" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="totalDistanceInMeters" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="totalDurationInMilliseconds" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <relationship name="lines" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Line" inverseName="inTrack" inverseEntity="Line" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="Line" positionX="-63" positionY="-18" width="128" height="120"/>
+        <element name="Point" positionX="-54" positionY="-9" width="128" height="180"/>
+        <element name="Track" positionX="-36" positionY="9" width="128" height="165"/>
+    </elements>
+</model>
