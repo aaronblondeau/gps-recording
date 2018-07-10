@@ -17,6 +17,7 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
     let store: GPSRecordingStore
     var shouldStartRecording: Bool = false
     var viewController: UIViewController?
+    var startTime: Date?
     
     let locationManager = CLLocationManager()
     
@@ -156,6 +157,8 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
         locationManager.distanceFilter = Double(Settings.distanceFilterInMeters)
         locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
         
+        startTime = Date()
+        
         locationManager.startUpdatingLocation()
         recording = true
         NotificationCenter.default.post(name: .gpsRecordingStarted, object: self.store)
@@ -236,7 +239,15 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
                     do {
                         // Don't try to record if track got deleted
                         // Throw out points with low accuracy
-                        if ((!track.isDeleted) && (location.horizontalAccuracy <= 50)) {
+                        var pointTimeValid = true
+                        if let startTime = self.startTime {
+                            // iOS sometimes sends us old points from a previous recording session
+                            if location.timestamp.compare(startTime) != .orderedDescending {
+                                pointTimeValid = false
+                                print("~~ Discarding a point because timestamp \(location.timestamp) is before recording start time \(startTime)")
+                            }
+                        }
+                        if ((!track.isDeleted) && (location.horizontalAccuracy <= 50) && pointTimeValid) {
                             let point = try store.addPoint(toTrack: track, fromLocation: location)
                             NotificationCenter.default.post(name: .gpsRecordingNewPoint, object: point)
                         }
