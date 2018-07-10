@@ -26,14 +26,14 @@ class RecordInterfaceController: WKInterfaceController {
         
         if context != nil {
             let ctx = context as! GPSRecordingContext
+            if let service = ctx.service {
+                self.service = service
+                print("~~ Got service from context")
+            }
             if let store = ctx.store {
                 self.store = store
                 observeStore()
                 print("~~ Got store from context")
-            }
-            if let service = ctx.service {
-                self.service = service
-                print("~~ Got service from context")
             }
         }
     }

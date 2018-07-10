@@ -76,7 +76,7 @@
                         </table>
                     </items>
                     <connections>
-                        <outlet property="tableView" destination="4yr-Sr-DEa" id="9kI-dg-MZ9"/>
+                        <outlet property="table" destination="4yr-Sr-DEa" id="gFa-2v-xTW"/>
                     </connections>
                 </controller>
             </objects>

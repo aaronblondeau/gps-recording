@@ -14,7 +14,7 @@ class ListRowController: NSObject {
     @IBOutlet var detailLabel: WKInterfaceLabel!
     
     func setTrack(_ track: Track, service: GPSRecordingService) {
-        
+                
         if let name = track.name {
             titleLabel.setText(name)
         } else {

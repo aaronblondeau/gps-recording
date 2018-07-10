@@ -25,14 +25,14 @@ class ListInterfaceController: WKInterfaceController, NSFetchedResultsController
         
         if context != nil {
             let ctx = context as! GPSRecordingContext
+            if let service = ctx.service {
+                self.service = service
+                print("~~ Got service from context")
+            }
             if let store = ctx.store {
                 self.store = store
                 print("~~ Got store from context")
                 configureFetchedResultsController()
-            }
-            if let service = ctx.service {
-                self.service = service
-                print("~~ Got service from context")
             }
         }
     }
@@ -52,7 +52,7 @@ class ListInterfaceController: WKInterfaceController, NSFetchedResultsController
                     self.table.setNumberOfRows(tracks.count, withRowType: "trackRow")
                     if ( tracks.count > 0 )
                     {
-                        for i in 0...(tracks.count-1)
+                        for i in 0...(tracks.count - 1)
                         {
                             configureTableRow(index: i)
                         }
@@ -65,7 +65,7 @@ class ListInterfaceController: WKInterfaceController, NSFetchedResultsController
         }
     }
     
-    func configureTableRow(index: Int!)
+    func configureTableRow(index: Int)
     {
         let row = table.rowController(at: index) as! ListRowController
         if let tracks = fetchedResultsController?.fetchedObjects, let service = service {
@@ -82,6 +82,50 @@ class ListInterfaceController: WKInterfaceController, NSFetchedResultsController
     override func didDeactivate() {
         // This method is called when watch view controller is no longer visible
         super.didDeactivate()
+    }
+    
+    // MARK: NSFetchedResultsController Delegate Methods
+    
+    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        // nothing
+    }
+    
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        // nothing
+    }
+    
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        switch type {
+        case .insert:
+            print(".insert")
+            if let insertIndexPath = newIndexPath {
+                table.insertRows(at: NSIndexSet(index: insertIndexPath.row) as IndexSet, withRowType: "tableRow")
+                configureTableRow(index: newIndexPath!.row)
+            }
+        case .delete:
+            print(".delete")
+            if let deleteIndexPath = indexPath {
+                table.removeRows(at: NSIndexSet(index: deleteIndexPath.row) as IndexSet)
+            }
+        case .update:
+            print(".update")
+            if let updateIndexPath = indexPath {
+                configureTableRow(index: updateIndexPath.row)
+            }
+        case .move:
+            print(".move")
+            if let deleteIndexPath = indexPath {
+                table.removeRows(at: NSIndexSet(index: deleteIndexPath.row) as IndexSet)
+            }
+            if let insertIndexPath = newIndexPath {
+                table.insertRows(at: NSIndexSet(index: insertIndexPath.row) as IndexSet, withRowType: "tableRow")
+                configureTableRow(index: newIndexPath!.row)
+            }
+        }
+    }
+    
+    override func table(_ table: WKInterfaceTable, didSelectRowAt rowIndex: Int) {
+        print("~~ User selected row \(rowIndex)")
     }
     
 }
