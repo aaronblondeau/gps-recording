@@ -15,6 +15,9 @@ extension Notification.Name {
     static let gpsRecordingStarted = Notification.Name("gpsRecordingStarted")
     static let gpsRecordingStopped = Notification.Name("gpsRecordingStopped")
     static let gpsRecordingNewPoint = Notification.Name("gpsRecordingNewPoint")
+    static let gpsRecordingManualPermissionsNeeded = Notification.Name("gpsRecordingManualPermissionsNeeded")
+    static let gpsRecordingError = Notification.Name("gpsRecordingError")
+    static let gpsRecordingAwaitingPermissions = Notification.Name("gpsRecordingAwaitingPermissions")
 }
 
 class GPSRecordingService: NSObject, CLLocationManagerDelegate {
@@ -148,12 +151,7 @@ class GPSRecordingService: NSObject, CLLocationManagerDelegate {
             do {
                 currentTrack = try store.createTrack(name: trackName, note: "", activity: nil)
             } catch {
-// TODO
-//                if let vc = viewController {
-//                    let alert = UIAlertController(title: "Unable to create track!", message: "\(error.localizedDescription)", preferredStyle: .alert)
-//                    alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
-//                    vc.present(alert, animated: true)
-//                }
+                NotificationCenter.default.post(name: .gpsRecordingError, object: "There was a problem creating a Track : \(error.localizedDescription)")
                 return;
             }
             
@@ -182,19 +180,18 @@ class GPSRecordingService: NSObject, CLLocationManagerDelegate {
             // We have not asked for permissions yet
             // Ask for it, and begin recording once the user has granted permission
             locationManager.requestAlwaysAuthorization()
+            NotificationCenter.default.post(name: .gpsRecordingAwaitingPermissions, object: nil)
             shouldStartRecording = true
             break
             
         case .restricted, .denied:
             // Permission has been denied - show alert directing user to location setttings for app
-            // TODO
-            // showManualPermissionsDialog()
+            showManualPermissionsMessage()
             break
             
         case .authorizedWhenInUse:
             // This is too low of a permission level for background - show alert directing user to location setttings for app
-            // TODO
-            // showManualPermissionsDialog()
+            showManualPermissionsMessage()
             break
             
         case .authorizedAlways:
@@ -268,25 +265,8 @@ class GPSRecordingService: NSObject, CLLocationManagerDelegate {
             }
         }
     }
-
-// TODO
-//    func showManualPermissionsDialog() {
-//        if let vc = viewController {
-//            let alert = UIAlertController(title: "GPS Permissions Needed!", message: "This app needs permission to 'Always' access GPS so that it can record even while you are using other apps.  The permission has previously been denied for this app.  You need to go to the device settings for this app and set Location to 'Always'.", preferredStyle: .alert)
-//
-//            alert.addAction(UIAlertAction(title: "Take Me There", style: .default, handler: {
-//                action in
-//                self.shouldStartRecording = true
-//                print("Would try to take user to app settings.")
-//                if let url = NSURL(string: UIApplicationOpenSettingsURLString) as URL? {
-//                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
-//                }
-//            }))
-//            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: {
-//                action in
-//                self.shouldStartRecording = false
-//            }))
-//            vc.present(alert, animated: true)
-//        }
-//    }
+    
+    func showManualPermissionsMessage() {
+        NotificationCenter.default.post(name: .gpsRecordingManualPermissionsNeeded, object: nil)
+    }
 }

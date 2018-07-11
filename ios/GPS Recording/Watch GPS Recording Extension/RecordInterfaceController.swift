@@ -14,6 +14,15 @@ class RecordInterfaceController: WKInterfaceController {
     var store: GPSRecordingStore?
     var service: GPSRecordingService?
     var observingStore = false
+    var finishedTrack: Track?
+    
+    @IBOutlet var startButton: WKInterfaceButton!
+    @IBOutlet var pauseButton: WKInterfaceButton!
+    @IBOutlet var resumeButton: WKInterfaceButton!
+    @IBOutlet var finishButton: WKInterfaceButton!
+    @IBOutlet var labelDistance: WKInterfaceLabel!
+    @IBOutlet var labelDuration: WKInterfaceLabel!
+    @IBOutlet var labelMessage: WKInterfaceLabel!
     
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
@@ -23,6 +32,12 @@ class RecordInterfaceController: WKInterfaceController {
         NotificationCenter.default.addObserver(self, selector: #selector(onRecordingStarted(notification:)), name: .gpsRecordingStarted, object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(onRecordingStopped(notification:)), name: .gpsRecordingStopped, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(onGPSRecordingError(notification:)), name: .gpsRecordingError, object: nil)
+
+        NotificationCenter.default.addObserver(self, selector: #selector(onGPSRecordingManualPermissionsNeeded(notification:)), name: .gpsRecordingManualPermissionsNeeded, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(onGPSAwaitingPermissions(notification:)), name: .gpsRecordingAwaitingPermissions, object: nil)
         
         if context != nil {
             let ctx = context as! GPSRecordingContext
@@ -36,6 +51,9 @@ class RecordInterfaceController: WKInterfaceController {
                 print("~~ Got store from context")
             }
         }
+        
+        updateStats()
+        updateButtons()
     }
     
     override func willActivate() {
@@ -48,24 +66,26 @@ class RecordInterfaceController: WKInterfaceController {
         super.didDeactivate()
     }
     
-    @IBAction func onCreateTestTrack() {
-        let action1 = WKAlertAction(title: "Create", style: .default) {
-            do {
-                let formatter = DateFormatter()
-                formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-                let _ = try self.store?.createTrack(name: formatter.string(from: Date()), note: "Test", activity: nil)
-            } catch {
-                print("~~ Failed to create test track: \(error.localizedDescription)")
-            }
-        }
-        let action2 = WKAlertAction(title: "Cancel", style: .cancel) {}
-        
-        presentAlert(withTitle: "Test Track", message: "", preferredStyle: .actionSheet, actions: [action1, action2])
-    }
-    
     @objc func onStoreLoaded(notification: NSNotification) {
         self.store = notification.object as? GPSRecordingStore
         observeStore()
+    }
+    
+    @objc func onGPSRecordingError(notification: NSNotification) {
+        if let message = notification.object as? String {
+            let action1 = WKAlertAction(title: "Ok", style: .default) {}
+            presentAlert(withTitle: "Error", message: message, preferredStyle: .actionSheet, actions: [action1])
+        }
+    }
+    
+    @objc func onGPSRecordingManualPermissionsNeeded(notification: NSNotification) {
+        labelMessage.setText("Allow 'Always' location permissions for this app via the Settings in your iPhone to enable GPS recording.")
+        labelMessage.setHidden(false)
+    }
+    
+    @objc func onGPSAwaitingPermissions(notification: NSNotification) {
+        labelMessage.setText("Allow 'Always' location permissions for this app on your iPhone to enable GPS recording.")
+        labelMessage.setHidden(false)
     }
     
     func observeStore() {
@@ -90,10 +110,98 @@ class RecordInterfaceController: WKInterfaceController {
     }
     
     func updateStats() {
-        print("~~ TODO - update stats")
+        if let track = self.service?.currentTrack {
+            let formatter = DateComponentsFormatter()
+            formatter.allowedUnits = [.hour, .minute, .second]
+            formatter.unitsStyle = .full
+            let formattedString = formatter.string(from: TimeInterval(track.totalDurationInMilliseconds / 1000))!
+            labelDuration.setText("\(formattedString)")
+            
+            if Settings.useMetricUnits {
+                let kilometers = Double(round(100*(track.totalDistanceInMeters / 1000))/100)
+                labelDistance.setText("\(kilometers) km")
+            } else {
+                let miles = Double(round(100*(track.totalDistanceInMeters * 0.000621371))/100)
+                labelDistance.setText("\(miles) miles")
+            }
+        } else {
+            if Settings.useMetricUnits {
+                labelDuration.setText("0 seconds")
+                labelDistance.setText("? km")
+            } else {
+                labelDuration.setText("0 seconds")
+                labelDistance.setText("? miles")
+            }
+        }
     }
     
     func updateButtons() {
-        print("~~ TODO - update buttons")
+        if let service = self.service {
+            startButton.setEnabled(!service.recording)
+            startButton.setHidden(service.hasCurrentTrack || service.recording)
+            
+            pauseButton.setEnabled(service.recording)
+            pauseButton.setHidden(!service.recording)
+            
+            resumeButton.setEnabled(!service.recording && service.hasCurrentTrack)
+            resumeButton.setHidden(service.recording || !service.hasCurrentTrack)
+            
+            finishButton.setEnabled(service.hasCurrentTrack)
+            finishButton.setHidden(!service.hasCurrentTrack)
+            
+            labelDistance.setHidden(!(service.hasCurrentTrack || service.recording))
+            labelDuration.setHidden(!(service.hasCurrentTrack || service.recording))
+        } else {
+            startButton.setEnabled(false)
+            pauseButton.setEnabled(false)
+            resumeButton.setEnabled(false)
+            finishButton.setEnabled(false)
+            
+            startButton.setHidden(false)
+            pauseButton.setHidden(true)
+            resumeButton.setHidden(true)
+            finishButton.setHidden(true)
+            
+            labelDistance.setHidden(true)
+            labelDistance.setHidden(true)
+        }
+        labelMessage.setHidden(true)
     }
+    
+    @IBAction func onStartButton() {
+        service?.start(self)
+        updateButtons()
+    }
+    
+    @IBAction func onPauseButton() {
+        service?.pause()
+        updateButtons()
+    }
+    
+    @IBAction func onResumeButton() {
+        service?.resume()
+        updateButtons()
+    }
+    
+    @IBAction func onFinishButton() {
+        finishedTrack = service?.currentTrack
+        service?.finish()
+        updateButtons()
+        
+        let context = GPSRecordingContext()
+        context.store = self.store
+        context.service = self.service
+        if let track = self.finishedTrack {
+            context.track = track
+        }
+        
+        pushController(withName: "trackDetail", context: context)
+    }
+    
+//    override func contextForSegue(withIdentifier segueIdentifier: String) -> Any? {
+//        print("~~ segue (from record) \(segueIdentifier)")
+//
+//        return context
+//    }
+    
 }

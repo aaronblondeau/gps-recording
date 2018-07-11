@@ -43,15 +43,46 @@
             <objects>
                 <controller id="rBg-rI-jw2" customClass="RecordInterfaceController" customModule="Watch_GPS_Recording_Extension">
                     <items>
-                        <button width="1" alignment="left" title="Create" id="RbD-as-OYG">
+                        <label alignment="center" text="Label" textAlignment="center" id="iBi-Ww-Tys"/>
+                        <label alignment="center" text="Distance" textAlignment="center" id="ah2-3n-F2f">
+                            <fontDescription key="font" style="UICTFontTextStyleHeadline"/>
+                        </label>
+                        <label alignment="center" text="Duration" id="rtT-eH-MmH">
+                            <fontDescription key="font" style="UICTFontTextStyleHeadline"/>
+                        </label>
+                        <button width="1" alignment="left" title="Start" id="7A9-Yn-qCL">
                             <connections>
-                                <action selector="onCreateTestTrack" destination="rBg-rI-jw2" id="7Oh-78-Z3Z"/>
+                                <action selector="onStartButton" destination="rBg-rI-jw2" id="A6q-ch-p6w"/>
+                            </connections>
+                        </button>
+                        <button width="1" alignment="left" title="Pause" id="gbo-Bx-Wrh">
+                            <connections>
+                                <action selector="onPauseButton" destination="rBg-rI-jw2" id="ULr-Vk-Het"/>
+                            </connections>
+                        </button>
+                        <button width="1" alignment="left" title="Resume" id="wsV-XD-kB3">
+                            <connections>
+                                <action selector="onResumeButton" destination="rBg-rI-jw2" id="Nsv-ao-REN"/>
+                            </connections>
+                        </button>
+                        <button width="1" alignment="left" title="Finish" id="gxz-JF-MSn">
+                            <connections>
+                                <action selector="onFinishButton" destination="rBg-rI-jw2" id="3lg-Ho-j1o"/>
                             </connections>
                         </button>
                     </items>
+                    <connections>
+                        <outlet property="finishButton" destination="gxz-JF-MSn" id="zMq-hF-lse"/>
+                        <outlet property="labelDistance" destination="ah2-3n-F2f" id="EQL-b6-DaR"/>
+                        <outlet property="labelDuration" destination="rtT-eH-MmH" id="cXc-eR-cL3"/>
+                        <outlet property="labelMessage" destination="iBi-Ww-Tys" id="gi5-vw-H2U"/>
+                        <outlet property="pauseButton" destination="gbo-Bx-Wrh" id="Gee-hz-cmy"/>
+                        <outlet property="resumeButton" destination="wsV-XD-kB3" id="mDQ-A8-72D"/>
+                        <outlet property="startButton" destination="7A9-Yn-qCL" id="Jua-7H-fIT"/>
+                    </connections>
                 </controller>
             </objects>
-            <point key="canvasLocation" x="606" y="-245"/>
+            <point key="canvasLocation" x="603" y="-413"/>
         </scene>
         <!--List Interface Controller-->
         <scene sceneID="9dL-zK-Q1n">
@@ -83,21 +114,30 @@
             </objects>
             <point key="canvasLocation" x="603" y="49"/>
         </scene>
-        <!--Track Interface Controller-->
+        <!--trackDetail-->
         <scene sceneID="CR6-Mb-wtB">
             <objects>
-                <controller id="liv-2Z-eB8" customClass="TrackInterfaceController" customModule="Watch_GPS_Recording_Extension">
+                <controller identifier="trackDetail" id="liv-2Z-eB8" customClass="TrackInterfaceController" customModule="Watch_GPS_Recording_Extension">
                     <items>
+                        <label alignment="center" text="Distance" textAlignment="center" id="37m-qZ-aDw"/>
+                        <label alignment="center" text="Duration" textAlignment="center" id="eeg-Vz-7c4"/>
                         <button width="1" alignment="left" title="Delete" id="1cy-Pl-1vy">
                             <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             <color key="backgroundColor" red="0.92549019610000005" green="0.1176470588" blue="0.14117647059999999" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                             <connections>
-                                <action selector="onDelete" destination="liv-2Z-eB8" id="YtY-I9-aQ7"/>
+                                <action selector="onDelete" destination="liv-2Z-eB8" id="sBl-aG-0VF"/>
+                            </connections>
+                        </button>
+                        <button width="1" alignment="left" title="Send To Phone" id="4xC-fO-sDo">
+                            <connections>
+                                <action selector="onSendToPhoneButton" destination="liv-2Z-eB8" id="ZaH-Vj-i52"/>
                             </connections>
                         </button>
                     </items>
                     <connections>
                         <outlet property="deleteButton" destination="1cy-Pl-1vy" id="ZdW-nx-KGX"/>
+                        <outlet property="distanceLabel" destination="37m-qZ-aDw" id="gAK-BX-CBf"/>
+                        <outlet property="durationLabel" destination="eeg-Vz-7c4" id="9EW-N8-Gc1"/>
                     </connections>
                 </controller>
             </objects>

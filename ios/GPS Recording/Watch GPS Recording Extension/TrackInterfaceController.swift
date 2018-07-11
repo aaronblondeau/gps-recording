@@ -17,6 +17,8 @@ class TrackInterfaceController: WKInterfaceController {
     var service: GPSRecordingService?
     
     @IBOutlet var deleteButton: WKInterfaceButton!
+    @IBOutlet var durationLabel: WKInterfaceLabel!
+    @IBOutlet var distanceLabel: WKInterfaceLabel!
     
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
@@ -58,6 +60,33 @@ class TrackInterfaceController: WKInterfaceController {
             deleteButton.setEnabled(false)
         }
         
+        updateStats()
+    }
+    
+    func updateStats() {
+        if let track = self.track {
+            let formatter = DateComponentsFormatter()
+            formatter.allowedUnits = [.hour, .minute, .second]
+            formatter.unitsStyle = .full
+            let formattedString = formatter.string(from: TimeInterval(track.totalDurationInMilliseconds / 1000))!
+            durationLabel.setText("\(formattedString)")
+            
+            if Settings.useMetricUnits {
+                let kilometers = Double(round(100*(track.totalDistanceInMeters / 1000))/100)
+                distanceLabel.setText("\(kilometers) km")
+            } else {
+                let miles = Double(round(100*(track.totalDistanceInMeters * 0.000621371))/100)
+                distanceLabel.setText("\(miles) miles")
+            }
+        } else {
+            if Settings.useMetricUnits {
+                durationLabel.setText("0 seconds")
+                durationLabel.setText("? km")
+            } else {
+                durationLabel.setText("0 seconds")
+                durationLabel.setText("? miles")
+            }
+        }
     }
 
     @IBAction func onDelete() {
@@ -78,4 +107,9 @@ class TrackInterfaceController: WKInterfaceController {
         
         presentAlert(withTitle: "Delete Track?", message: "", preferredStyle: .actionSheet, actions: [action1, action2])
     }
+    
+    @IBAction func onSendToPhoneButton() {
+        print("~~ Would send to phone")
+    }
+    
 }
