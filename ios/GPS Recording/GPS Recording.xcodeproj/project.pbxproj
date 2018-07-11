@@ -22,6 +22,7 @@
 		1F5CD2CE20AF9420001209A5 /* Point.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CD2C720AF6EDF001209A5 /* Point.swift */; };
 		1F5CD2CF20AF9422001209A5 /* Line.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CD2C520AF6EAE001209A5 /* Line.swift */; };
 		1F5CD2D020AF9425001209A5 /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CD2C320AF6D9E001209A5 /* Track.swift */; };
+		1F6E50A820F5BADC0064FFCE /* TrackInterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6E50A720F5BADC0064FFCE /* TrackInterfaceController.swift */; };
 		1F80168620F4629C00C5C4FB /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1F80168420F4629C00C5C4FB /* Interface.storyboard */; };
 		1F80168820F4629E00C5C4FB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1F80168720F4629E00C5C4FB /* Assets.xcassets */; };
 		1F80168F20F4629E00C5C4FB /* Watch GPS Recording Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 1F80168E20F4629E00C5C4FB /* Watch GPS Recording Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -117,6 +118,7 @@
 		1F5CD2C720AF6EDF001209A5 /* Point.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Point.swift; sourceTree = "<group>"; };
 		1F5CD2C920AF7278001209A5 /* GPSRecordingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPSRecordingStore.swift; sourceTree = "<group>"; };
 		1F5CD2D120AF9975001209A5 /* BUILD_NOTES.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = BUILD_NOTES.md; sourceTree = "<group>"; };
+		1F6E50A720F5BADC0064FFCE /* TrackInterfaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackInterfaceController.swift; sourceTree = "<group>"; };
 		1F80168220F4629C00C5C4FB /* Watch GPS Recording.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Watch GPS Recording.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F80168520F4629C00C5C4FB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
 		1F80168720F4629E00C5C4FB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -208,6 +210,7 @@
 			children = (
 				1F8ABC7320F544F300150C7B /* GPSRecording */,
 				1F80169320F4629E00C5C4FB /* InterfaceController.swift */,
+				1F8ABC7F20F5567900150C7B /* GPSRecordingContext.swift */,
 				1F80169520F4629E00C5C4FB /* ExtensionDelegate.swift */,
 				1F80169720F4629E00C5C4FB /* NotificationController.swift */,
 				1F80169920F4629E00C5C4FB /* Assets.xcassets */,
@@ -217,6 +220,7 @@
 				1F8ABC6C20F5431A00150C7B /* RecordInterfaceController.swift */,
 				1F8ABC6E20F5435D00150C7B /* ListInterfaceController.swift */,
 				1F8ABC8120F55FD900150C7B /* ListRowController.swift */,
+				1F6E50A720F5BADC0064FFCE /* TrackInterfaceController.swift */,
 			);
 			path = "Watch GPS Recording Extension";
 			sourceTree = "<group>";
@@ -278,7 +282,6 @@
 			isa = PBXGroup;
 			children = (
 				1F8ABC7D20F54C2300150C7B /* GPSRecordingService.swift */,
-				1F8ABC7F20F5567900150C7B /* GPSRecordingContext.swift */,
 			);
 			path = GPSRecording;
 			sourceTree = "<group>";
@@ -453,6 +456,7 @@
 				1F80169820F4629E00C5C4FB /* NotificationController.swift in Sources */,
 				1F8ABC6F20F5435D00150C7B /* ListInterfaceController.swift in Sources */,
 				1F8ABC7920F548B200150C7B /* GPSRecordingStore.swift in Sources */,
+				1F6E50A820F5BADC0064FFCE /* TrackInterfaceController.swift in Sources */,
 				1F80169620F4629E00C5C4FB /* ExtensionDelegate.swift in Sources */,
 				1F8ABC6B20F541DB00150C7B /* SettingsInterfaceController.swift in Sources */,
 				1F8ABC6D20F5431A00150C7B /* RecordInterfaceController.swift in Sources */,

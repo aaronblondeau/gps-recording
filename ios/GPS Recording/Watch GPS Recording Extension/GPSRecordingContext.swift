@@ -11,4 +11,5 @@ import Foundation
 class GPSRecordingContext {
     var store: GPSRecordingStore?
     var service: GPSRecordingService?
+    var track: Track?
 }

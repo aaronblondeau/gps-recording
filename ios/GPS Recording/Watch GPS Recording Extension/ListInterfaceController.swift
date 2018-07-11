@@ -124,8 +124,19 @@ class ListInterfaceController: WKInterfaceController, NSFetchedResultsController
         }
     }
     
-    override func table(_ table: WKInterfaceTable, didSelectRowAt rowIndex: Int) {
-        print("~~ User selected row \(rowIndex)")
+    override func contextForSegue(withIdentifier segueIdentifier: String, in table: WKInterfaceTable, rowIndex: Int) -> Any? {
+        print("~~ segue \(segueIdentifier) \(rowIndex)")
+        let context = GPSRecordingContext()
+        context.store = self.store
+        context.service = self.service
+        if (rowIndex >= 0) {
+            if let tracks = fetchedResultsController?.fetchedObjects {
+                let track: Track = tracks[rowIndex]
+                print("Set ctx track \(rowIndex)")
+                context.track = track
+            }
+        }
+        return context
     }
     
 }

@@ -70,6 +70,7 @@
                                     <connections>
                                         <outlet property="detailLabel" destination="fkF-NL-WA2" id="HSc-IP-AkT"/>
                                         <outlet property="titleLabel" destination="B4h-9a-SMk" id="wHq-7b-CYF"/>
+                                        <segue destination="liv-2Z-eB8" kind="push" identifier="openTrack" id="yja-HG-26J"/>
                                     </connections>
                                 </tableRow>
                             </items>
@@ -81,6 +82,26 @@
                 </controller>
             </objects>
             <point key="canvasLocation" x="603" y="49"/>
+        </scene>
+        <!--Track Interface Controller-->
+        <scene sceneID="CR6-Mb-wtB">
+            <objects>
+                <controller id="liv-2Z-eB8" customClass="TrackInterfaceController" customModule="Watch_GPS_Recording_Extension">
+                    <items>
+                        <button width="1" alignment="left" title="Delete" id="1cy-Pl-1vy">
+                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <color key="backgroundColor" red="0.92549019610000005" green="0.1176470588" blue="0.14117647059999999" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                            <connections>
+                                <action selector="onDelete" destination="liv-2Z-eB8" id="YtY-I9-aQ7"/>
+                            </connections>
+                        </button>
+                    </items>
+                    <connections>
+                        <outlet property="deleteButton" destination="1cy-Pl-1vy" id="ZdW-nx-KGX"/>
+                    </connections>
+                </controller>
+            </objects>
+            <point key="canvasLocation" x="936" y="49"/>
         </scene>
         <!--Settings Interface Controller-->
         <scene sceneID="aCp-aX-zL6">
