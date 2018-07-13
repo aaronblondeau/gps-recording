@@ -8,7 +8,7 @@
 
 import WatchKit
 import Foundation
-
+import WatchConnectivity
 
 class TrackInterfaceController: WKInterfaceController {
     
@@ -110,6 +110,16 @@ class TrackInterfaceController: WKInterfaceController {
     
     @IBAction func onSendToPhoneButton() {
         print("~~ Would send to phone")
+        if WCSession.isSupported() {
+            if let track = self.track {
+                do {
+                    let dictionary = ["track": track.objectID.uriRepresentation().absoluteString]
+                    try WCSession.default.updateApplicationContext(dictionary)
+                } catch {
+                    print("ERROR: \(error)")
+                }
+            }
+        }
     }
     
 }

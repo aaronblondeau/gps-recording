@@ -8,8 +8,9 @@
 
 import WatchKit
 import CoreData
+import WatchConnectivity
 
-class ExtensionDelegate: NSObject, WKExtensionDelegate {
+class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
     
     var store: GPSRecordingStore?
     var service: GPSRecordingService?
@@ -28,9 +29,15 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
                 rootController.store = self.store
                 rootController.service = self.service
             }
-            
+            self.sendRecordStatus()
             NotificationCenter.default.post(name: .gpsRecordingStoreReady, object: self.store)
         }
+        
+        setupWatchConnectivity()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(onRecordingStarted(notification:)), name: .gpsRecordingStarted, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(onRecordingStopped(notification:)), name: .gpsRecordingStopped, object: nil)
     }
 
     func applicationDidBecomeActive() {
@@ -62,6 +69,58 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             default:
                 // make sure to complete unhandled task types
                 task.setTaskCompletedWithSnapshot(false)
+            }
+        }
+    }
+    
+    // MARK: - Watch Connectivity
+    
+    func setupWatchConnectivity() {
+        if WCSession.isSupported() {
+            let session  = WCSession.default
+            session.delegate = self
+            session.activate()
+        }
+    }
+    
+    func session(_ session: WCSession, activationDidCompleteWith
+        activationState: WCSessionActivationState, error: Error?) {
+        if let error = error {
+            print("WC Session activation failed with error: \(error.localizedDescription)")
+            return
+        }
+        print("WC Session activated with state: \(activationState.rawValue)")
+    }
+    
+    func session(_ session: WCSession, didReceiveApplicationContext applicationContext:[String:Any]) {
+        if let phone_recording = applicationContext["phone_recording"] as? Bool {
+            if (phone_recording) {
+                print("~~ Watch: phone sent message to say it is recording")
+            } else {
+                print("~~ Watch: phone sent message to say it is not recording")
+            }
+        }
+    }
+    
+    @objc func onRecordingStarted(notification: NSNotification) {
+        sendRecordStatus()
+    }
+    
+    @objc func onRecordingStopped(notification: NSNotification) {
+        sendRecordStatus()
+    }
+    
+    func sendRecordStatus() {
+        if WCSession.isSupported() {
+        let session = WCSession.default
+            do {
+                var dictionary = ["watch_recording": false]
+                if let service = self.service {
+                    dictionary = ["watch_recording": service.recording]
+                }
+                try session.updateApplicationContext(dictionary)
+            } catch {
+                print("ERROR: \(error)")
             }
         }
     }
