@@ -19,15 +19,37 @@ class TrackInterfaceController: WKInterfaceController {
     @IBOutlet var deleteButton: WKInterfaceButton!
     @IBOutlet var durationLabel: WKInterfaceLabel!
     @IBOutlet var distanceLabel: WKInterfaceLabel!
+    @IBOutlet var sendToPhoneButton: WKInterfaceButton!
+    @IBOutlet var openOnPhoneButton: WKInterfaceButton!
+    @IBOutlet var syncMessage: WKInterfaceLabel!
     
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
+        
+        syncMessage.setHidden(true)
+        sendToPhoneButton.setHidden(true)
+        openOnPhoneButton.setHidden(true)
         
         // Configure interface objects here.
         if context != nil {
             let ctx = context as! GPSRecordingContext
             if let track = ctx.track {
                 self.track = track
+                
+                if let downstreamId = track.downstreamId {
+                    if (downstreamId == "-pending-") {
+                        sendToPhoneButton.setHidden(false)
+                        openOnPhoneButton.setHidden(true)
+                        syncMessage.setHidden(false)
+                        syncMessage.setText("Transfer in progress. Please open app on iPhone to complete.")
+                    } else if (downstreamId != "") {
+                        sendToPhoneButton.setHidden(true)
+                        openOnPhoneButton.setHidden(false)
+                    }
+                } else {
+                    sendToPhoneButton.setHidden(false)
+                    openOnPhoneButton.setHidden(true)
+                }
             }
             if let service = ctx.service {
                 self.service = service
@@ -37,6 +59,12 @@ class TrackInterfaceController: WKInterfaceController {
             }
             updateUI()
         }
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(onTransferSuccess(notification:)), name: .gpsRecordingTransferToPhoneSuccess, object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     override func willActivate() {
@@ -108,18 +136,46 @@ class TrackInterfaceController: WKInterfaceController {
         presentAlert(withTitle: "Delete Track?", message: "", preferredStyle: .actionSheet, actions: [action1, action2])
     }
     
+    @objc func onTransferSuccess(notification: NSNotification) {
+        if let transferredTrack = notification.object as? Track, let track = self.track {
+            if(transferredTrack.objectID == track.objectID) {
+                // The viewed track has been transferred to the phone
+                sendToPhoneButton.setHidden(true)
+                openOnPhoneButton.setHidden(false)
+                syncMessage.setHidden(true)
+            }
+        }
+    }
+    
     @IBAction func onSendToPhoneButton() {
-        print("~~ Would send to phone")
+        
+        sendToPhoneButton.setEnabled(false)
+        sendToPhoneButton.setHidden(true)
+        
         if WCSession.isSupported() {
             if let track = self.track {
+                var dictionary = track.toDict()
+                dictionary["action"] = "track_from_watch"
+                WCSession.default.transferUserInfo(dictionary)
                 do {
-                    let dictionary = ["track": track.objectID.uriRepresentation().absoluteString]
-                    try WCSession.default.updateApplicationContext(dictionary)
+                    try store?.saveDownstreamId(track: track, downstreamId: "-pending-")
+                    syncMessage.setText("Transfer in progress. Please open app on iPhone to complete.")
+                    syncMessage.setHidden(false)
                 } catch {
-                    print("ERROR: \(error)")
+                    print("~~ Failed to set downstream id as pending")
                 }
             }
         }
     }
     
+    @IBAction func onOpenOnPhone() {
+        if WCSession.isSupported() {
+            if let track = self.track {
+                var dictionary = [String:Any]()
+                dictionary["id"] = track.downstreamId
+                dictionary["action"] = "open_track_from_watch"
+                WCSession.default.transferUserInfo(dictionary)
+            }
+        }
+    }
 }

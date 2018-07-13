@@ -34,6 +34,14 @@ class RecordViewController: UIViewController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(onRecordingStopped(notification:)), name: .gpsRecordingStopped, object: nil)
         
+        NotificationCenter.default.addObserver(self, selector: #selector(onGPSRecordingError(notification:)), name: .gpsRecordingError, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(onGPSRecordingManualPermissionsNeeded(notification:)), name: .gpsRecordingManualPermissionsNeeded, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(onGPSAwaitingPermissions(notification:)), name: .gpsRecordingAwaitingPermissions, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(onGPSRecordingLocationServicesDisabled(notification:)), name: .gpsRecordingLocationServicesDisabled, object: nil)
+        
         observeStore()
         updateButtons()
         updateStats()
@@ -95,6 +103,47 @@ class RecordViewController: UIViewController {
     @objc func onRecordingStopped(notification: NSNotification) {
         updateButtons()
     }
+    
+    @objc func onGPSRecordingError(notification: NSNotification) {
+        if let message = notification.object as? String {
+            let alert = UIAlertController(title: "Unable to create track!", message: "\(message)", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+            self.present(alert, animated: true)
+        }
+    }
+    
+    @objc func onGPSRecordingManualPermissionsNeeded(notification: NSNotification) {
+        
+        let alert = UIAlertController(title: "GPS Permissions Needed!", message: "This app needs permission to 'Always' access GPS so that it can record even while you are using other apps.  The permission has previously been denied for this app.  You need to go to the device settings for this app and set Location to 'Always'.", preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: "Take Me There", style: .default, handler: {
+            action in
+            print("Would try to take user to app settings.")
+            if let url = NSURL(string: UIApplicationOpenSettingsURLString) as URL? {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
+        }))
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: {
+            action in
+        }))
+        self.present(alert, animated: true)
+        
+    }
+    
+    @objc func onGPSRecordingLocationServicesDisabled(notification: NSNotification) {
+        
+        let alert = UIAlertController(title: "Location Services Disabled!", message: "Location services are disabled on this device.  Use the Privacy section in the Settings app to turn location services on before recording.", preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: {
+            action in
+        }))
+        self.present(alert, animated: true)
+        
+    }
+    
+    @objc func onGPSAwaitingPermissions(notification: NSNotification) {
+        // Nothing to do for phone app
+    }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -103,7 +152,7 @@ class RecordViewController: UIViewController {
     }
     
     @IBAction func buttonStartTap(_ sender: Any) {
-        serviceManager?.service.start(self)
+        serviceManager?.service.start()
         updateButtons()
     }
     

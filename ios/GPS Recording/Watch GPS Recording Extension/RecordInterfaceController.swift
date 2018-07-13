@@ -39,6 +39,8 @@ class RecordInterfaceController: WKInterfaceController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(onGPSAwaitingPermissions(notification:)), name: .gpsRecordingAwaitingPermissions, object: nil)
         
+        NotificationCenter.default.addObserver(self, selector: #selector(onGPSRecordingLocationServicesDisabled(notification:)), name: .gpsRecordingLocationServicesDisabled, object: nil)
+        
         if context != nil {
             let ctx = context as! GPSRecordingContext
             if let service = ctx.service {
@@ -66,26 +68,43 @@ class RecordInterfaceController: WKInterfaceController {
         super.didDeactivate()
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     @objc func onStoreLoaded(notification: NSNotification) {
         self.store = notification.object as? GPSRecordingStore
         observeStore()
     }
     
     @objc func onGPSRecordingError(notification: NSNotification) {
-        if let message = notification.object as? String {
-            let action1 = WKAlertAction(title: "Ok", style: .default) {}
-            presentAlert(withTitle: "Error", message: message, preferredStyle: .actionSheet, actions: [action1])
+        DispatchQueue.main.async {
+            if let message = notification.object as? String {
+                let action1 = WKAlertAction(title: "Ok", style: .default) {}
+                self.presentAlert(withTitle: "Error", message: message, preferredStyle: .actionSheet, actions: [action1])
+            }
         }
     }
     
     @objc func onGPSRecordingManualPermissionsNeeded(notification: NSNotification) {
-        labelMessage.setText("Allow 'Always' location permissions for this app via the Settings in your iPhone to enable GPS recording.")
-        labelMessage.setHidden(false)
+        DispatchQueue.main.async {
+            self.labelMessage.setHidden(false)
+            self.labelMessage.setText("Allow 'Always' location permissions for this app via the Settings in your iPhone to enable GPS recording.")
+        }
     }
     
     @objc func onGPSAwaitingPermissions(notification: NSNotification) {
-        labelMessage.setText("Allow 'Always' location permissions for this app on your iPhone to enable GPS recording.")
-        labelMessage.setHidden(false)
+        DispatchQueue.main.async {
+            self.labelMessage.setText("Allow 'Always' location permissions for this app on your iPhone to enable GPS recording.")
+            self.labelMessage.setHidden(false)
+        }
+    }
+    
+    @objc func onGPSRecordingLocationServicesDisabled(notification: NSNotification) {
+        DispatchQueue.main.async {
+            self.labelMessage.setText("Location services are disabled on this device.  On your iPhone, use the Privacy section in the Settings app to turn location services on before recording.")
+            self.labelMessage.setHidden(false)
+        }
     }
     
     func observeStore() {
@@ -169,7 +188,7 @@ class RecordInterfaceController: WKInterfaceController {
     }
     
     @IBAction func onStartButton() {
-        service?.start(self)
+        service?.start()
         updateButtons()
     }
     

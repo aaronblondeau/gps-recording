@@ -23,6 +23,8 @@ class Track: NSManagedObject {
     @NSManaged var totalDistanceInMeters: Double
     @NSManaged var totalDurationInMilliseconds: Double
     @NSManaged var lines: NSSet?
+    @NSManaged var upstreamId: String?
+    @NSManaged var downstreamId: String?
     
     public func getFilenameBase() -> String {
         var trackName = ""
@@ -95,13 +97,16 @@ class Track: NSManagedObject {
         self.fileStreamAppend(out, text: "\t\t\t</line>\n")
         self.fileStreamAppend(out, text: "\t\t</extensions>\n")
         
+        let linesSortDescriptor = NSSortDescriptor(key: #keyPath(Line.startedAt), ascending: true)
+        let pointsSortDescriptor = NSSortDescriptor(key: #keyPath(Point.timestamp), ascending: true)
+        
         if let lines = self.lines {
             
-            for line in lines {
+            for line in lines.sortedArray(using: [linesSortDescriptor]) {
                 let l = line as! Line
                 self.fileStreamAppend(out, text: "\t\t<trkseg>\n")
                 if let points = l.points {
-                    for point in points {
+                    for point in points.sortedArray(using: [pointsSortDescriptor]) {
                         let p = point as! Point
                         self.fileStreamAppend(out, text: "\t\t\t" + "<trkpt lat=\"\(p.latitude)\" " + "lon=\"\(p.longitude)\">")
                         self.fileStreamAppend(out, text: "<ele>\(p.altitude)</ele>")
@@ -142,7 +147,10 @@ class Track: NSManagedObject {
         self.fileStreamAppend(out, text: "        \"type\": \"MultiLineString\",\n")
         self.fileStreamAppend(out, text: "        \"coordinates\": [\n")
         
-        if let lines = self.lines {
+        let linesSortDescriptor = NSSortDescriptor(key: #keyPath(Line.startedAt), ascending: true)
+        let pointsSortDescriptor = NSSortDescriptor(key: #keyPath(Point.timestamp), ascending: true)
+        
+        if let lines = self.lines?.sortedArray(using: [linesSortDescriptor]) {
             var index = 0
             for line in lines {
                 let l = line as! Line
@@ -150,7 +158,7 @@ class Track: NSManagedObject {
                     self.fileStreamAppend(out, text: "          ,\n")
                 }
                 self.fileStreamAppend(out, text: "          [\n")
-                if let points = l.points {
+                if let points = l.points?.sortedArray(using: [pointsSortDescriptor]) {
                     var pointIndex = 0
                     for point in points {
                         let p = point as! Point
@@ -176,6 +184,69 @@ class Track: NSManagedObject {
         self.fileStreamAppend(out, text: "    }\n")
         self.fileStreamAppend(out, text: "  ]\n")
         self.fileStreamAppend(out, text: "}\n")
+    }
+        
+    public func toDict() -> [String:Any] {
+        var trackDict = [String:Any]()
+        trackDict["id"] = self.objectID.uriRepresentation().absoluteString
+        if let name = self.name {
+            trackDict["name"] = name
+        }
+        if let note = self.note {
+            trackDict["note"] = note
+        }
+        if let activity = self.activity {
+            trackDict["activity"] = activity
+        }
+        trackDict["startedAt"] = self.startedAt
+        trackDict["endedAt"] = self.startedAt
+        trackDict["totalDistanceInMeters"] = self.totalDistanceInMeters
+        trackDict["totalDurationInMilliseconds"] = self.totalDurationInMilliseconds
+        
+        var trackDictLines = [[String:Any]]()
+        
+        let linesSortDescriptor = NSSortDescriptor(key: #keyPath(Line.startedAt), ascending: true)
+        let pointsSortDescriptor = NSSortDescriptor(key: #keyPath(Point.timestamp), ascending: true)
+        
+        if let lines = self.lines {
+            for line in lines.sortedArray(using: [linesSortDescriptor]) {
+                let l = line as! Line
+                var lineDict = [String:Any]()
+                lineDict["id"] = l.objectID.uriRepresentation().absoluteString
+                lineDict["startedAt"] = l.startedAt
+                lineDict["endedAt"] = l.startedAt
+                lineDict["totalDistanceInMeters"] = l.totalDistanceInMeters
+                
+                var lineDictPoints = [[String:Any]]()
+                
+                if let points = l.points {
+                    for point in points.sortedArray(using: [pointsSortDescriptor]) {
+                        let p = point as! Point
+                        var pointDict = [String:Any]()
+                        
+                        pointDict["id"] = p.objectID.uriRepresentation().absoluteString
+                        pointDict["altitude"] = p.altitude
+                        pointDict["course"] = p.course
+                        pointDict["horizontalAccuracy"] = p.horizontalAccuracy
+                        pointDict["verticalAccuracy"] = p.verticalAccuracy
+                        pointDict["latitude"] = p.latitude
+                        pointDict["longitude"] = p.longitude
+                        pointDict["speed"] = p.speed
+                        pointDict["timestamp"] = p.timestamp
+                        
+                        lineDictPoints.append(pointDict)
+                    }
+                }
+                
+                lineDict["points"] = lineDictPoints
+                
+                trackDictLines.append(lineDict)
+            }
+        }
+        
+        trackDict["lines"] = trackDictLines
+        
+        return trackDict
     }
     
 }

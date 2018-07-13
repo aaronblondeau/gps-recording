@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1F3C4A6E20F92B370099A472 /* BackgroundGPSRecordingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4091B720DD4D5100C0DA3B /* BackgroundGPSRecordingService.swift */; };
+		1F3C4A6F20F92C2F0099A472 /* GPSRecordingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4091B520DD4C6100C0DA3B /* GPSRecordingService.swift */; };
+		1F3C4A7020F93C9F0099A472 /* Line.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CD2C520AF6EAE001209A5 /* Line.swift */; };
 		1F4091B620DD4C6100C0DA3B /* GPSRecordingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4091B520DD4C6100C0DA3B /* GPSRecordingService.swift */; };
 		1F4091B820DD4D5100C0DA3B /* BackgroundGPSRecordingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4091B720DD4D5100C0DA3B /* BackgroundGPSRecordingService.swift */; };
 		1F49D0C320C9BE56000623E4 /* TrackTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F49D0C220C9BE56000623E4 /* TrackTableViewCell.swift */; };
@@ -46,10 +49,8 @@
 		1F8ABC7420F5487E00150C7B /* GPSRecordingDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CD2C020AF696F001209A5 /* GPSRecordingDataModel.xcdatamodeld */; };
 		1F8ABC7520F5489B00150C7B /* GPSRecordingSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8A1D1720ACF1E600A48700 /* GPSRecordingSettings.swift */; };
 		1F8ABC7620F548A900150C7B /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CD2C320AF6D9E001209A5 /* Track.swift */; };
-		1F8ABC7720F548AC00150C7B /* Line.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CD2C520AF6EAE001209A5 /* Line.swift */; };
 		1F8ABC7820F548AE00150C7B /* Point.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CD2C720AF6EDF001209A5 /* Point.swift */; };
 		1F8ABC7920F548B200150C7B /* GPSRecordingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CD2C920AF7278001209A5 /* GPSRecordingStore.swift */; };
-		1F8ABC7E20F54C2300150C7B /* GPSRecordingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8ABC7D20F54C2300150C7B /* GPSRecordingService.swift */; };
 		1F8ABC8020F5567900150C7B /* GPSRecordingContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8ABC7F20F5567900150C7B /* GPSRecordingContext.swift */; };
 		1F8ABC8220F55FD900150C7B /* ListRowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8ABC8120F55FD900150C7B /* ListRowController.swift */; };
 		1FC0C1E520ED93E400D54171 /* GPSRecordingServiceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC0C1E420ED93E400D54171 /* GPSRecordingServiceManager.swift */; };
@@ -146,7 +147,6 @@
 		1F8ABC6A20F541DB00150C7B /* SettingsInterfaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInterfaceController.swift; sourceTree = "<group>"; };
 		1F8ABC6C20F5431A00150C7B /* RecordInterfaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordInterfaceController.swift; sourceTree = "<group>"; };
 		1F8ABC6E20F5435D00150C7B /* ListInterfaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListInterfaceController.swift; sourceTree = "<group>"; };
-		1F8ABC7D20F54C2300150C7B /* GPSRecordingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPSRecordingService.swift; sourceTree = "<group>"; };
 		1F8ABC7F20F5567900150C7B /* GPSRecordingContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPSRecordingContext.swift; sourceTree = "<group>"; };
 		1F8ABC8120F55FD900150C7B /* ListRowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListRowController.swift; sourceTree = "<group>"; };
 		1FC0C1E420ED93E400D54171 /* GPSRecordingServiceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPSRecordingServiceManager.swift; sourceTree = "<group>"; };
@@ -281,7 +281,6 @@
 		1F8ABC7320F544F300150C7B /* GPSRecording */ = {
 			isa = PBXGroup;
 			children = (
-				1F8ABC7D20F54C2300150C7B /* GPSRecordingService.swift */,
 			);
 			path = GPSRecording;
 			sourceTree = "<group>";
@@ -455,19 +454,20 @@
 			files = (
 				1F80169820F4629E00C5C4FB /* NotificationController.swift in Sources */,
 				1F8ABC6F20F5435D00150C7B /* ListInterfaceController.swift in Sources */,
+				1F3C4A7020F93C9F0099A472 /* Line.swift in Sources */,
 				1F8ABC7920F548B200150C7B /* GPSRecordingStore.swift in Sources */,
+				1F3C4A6F20F92C2F0099A472 /* GPSRecordingService.swift in Sources */,
 				1F6E50A820F5BADC0064FFCE /* TrackInterfaceController.swift in Sources */,
 				1F80169620F4629E00C5C4FB /* ExtensionDelegate.swift in Sources */,
 				1F8ABC6B20F541DB00150C7B /* SettingsInterfaceController.swift in Sources */,
+				1F3C4A6E20F92B370099A472 /* BackgroundGPSRecordingService.swift in Sources */,
 				1F8ABC6D20F5431A00150C7B /* RecordInterfaceController.swift in Sources */,
 				1F8ABC8020F5567900150C7B /* GPSRecordingContext.swift in Sources */,
 				1F8ABC7620F548A900150C7B /* Track.swift in Sources */,
 				1F8ABC7520F5489B00150C7B /* GPSRecordingSettings.swift in Sources */,
-				1F8ABC7E20F54C2300150C7B /* GPSRecordingService.swift in Sources */,
 				1F8ABC7820F548AE00150C7B /* Point.swift in Sources */,
 				1F8ABC7420F5487E00150C7B /* GPSRecordingDataModel.xcdatamodeld in Sources */,
 				1F80169420F4629E00C5C4FB /* InterfaceController.swift in Sources */,
-				1F8ABC7720F548AC00150C7B /* Line.swift in Sources */,
 				1F8ABC8220F55FD900150C7B /* ListRowController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -43,7 +43,7 @@
             <objects>
                 <controller id="rBg-rI-jw2" customClass="RecordInterfaceController" customModule="Watch_GPS_Recording_Extension">
                     <items>
-                        <label alignment="center" text="Label" textAlignment="center" id="iBi-Ww-Tys"/>
+                        <label alignment="center" text="Message" textAlignment="center" numberOfLines="0" id="iBi-Ww-Tys"/>
                         <label alignment="center" text="Distance" textAlignment="center" id="ah2-3n-F2f">
                             <fontDescription key="font" style="UICTFontTextStyleHeadline"/>
                         </label>
@@ -121,6 +121,17 @@
                     <items>
                         <label alignment="center" text="Distance" textAlignment="center" id="37m-qZ-aDw"/>
                         <label alignment="center" text="Duration" textAlignment="center" id="eeg-Vz-7c4"/>
+                        <button width="1" alignment="left" title="Send To Phone" id="4xC-fO-sDo">
+                            <connections>
+                                <action selector="onSendToPhoneButton" destination="liv-2Z-eB8" id="ZaH-Vj-i52"/>
+                            </connections>
+                        </button>
+                        <label alignment="center" text="Sync Message" textAlignment="center" numberOfLines="0" id="K9y-Zp-OAr"/>
+                        <button width="1" alignment="left" title="Open On Phone" id="faO-4e-XlW">
+                            <connections>
+                                <action selector="onOpenOnPhone" destination="liv-2Z-eB8" id="ulL-gH-UW7"/>
+                            </connections>
+                        </button>
                         <button width="1" alignment="left" title="Delete" id="1cy-Pl-1vy">
                             <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             <color key="backgroundColor" red="0.92549019610000005" green="0.1176470588" blue="0.14117647059999999" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
@@ -128,16 +139,14 @@
                                 <action selector="onDelete" destination="liv-2Z-eB8" id="sBl-aG-0VF"/>
                             </connections>
                         </button>
-                        <button width="1" alignment="left" title="Send To Phone" id="4xC-fO-sDo">
-                            <connections>
-                                <action selector="onSendToPhoneButton" destination="liv-2Z-eB8" id="ZaH-Vj-i52"/>
-                            </connections>
-                        </button>
                     </items>
                     <connections>
                         <outlet property="deleteButton" destination="1cy-Pl-1vy" id="ZdW-nx-KGX"/>
                         <outlet property="distanceLabel" destination="37m-qZ-aDw" id="gAK-BX-CBf"/>
                         <outlet property="durationLabel" destination="eeg-Vz-7c4" id="9EW-N8-Gc1"/>
+                        <outlet property="openOnPhoneButton" destination="faO-4e-XlW" id="8Pr-0m-KSL"/>
+                        <outlet property="sendToPhoneButton" destination="4xC-fO-sDo" id="IBD-69-63Q"/>
+                        <outlet property="syncMessage" destination="K9y-Zp-OAr" id="Iko-YV-tCF"/>
                     </connections>
                 </controller>
             </objects>
@@ -159,9 +168,11 @@
                                 <action selector="onDistanceFilterChange:" destination="hHQ-RK-BGZ" id="2Qj-x1-k97"/>
                             </connections>
                         </slider>
+                        <label alignment="center" text="10 meters" textAlignment="center" id="J22-sa-A93"/>
                     </items>
                     <connections>
                         <outlet property="distanceFilterSlider" destination="gWA-up-f6b" id="3vf-Tg-BaP"/>
+                        <outlet property="distanceFilterValueLabel" destination="J22-sa-A93" id="wI0-eQ-GWy"/>
                         <outlet property="metricUnitsSwitch" destination="ySV-f4-ykF" id="8d9-bo-fe0"/>
                     </connections>
                 </controller>

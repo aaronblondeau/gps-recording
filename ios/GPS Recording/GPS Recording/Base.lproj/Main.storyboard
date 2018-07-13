@@ -13,7 +13,7 @@
         <!--Track View Controller-->
         <scene sceneID="Z7r-Kz-mID">
             <objects>
-                <viewController id="qSx-7J-hvj" customClass="TrackViewController" customModule="GPS_Recording" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="trackViewController" id="qSx-7J-hvj" customClass="TrackViewController" customModule="GPS_Recording" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="5UK-gr-mGc">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -455,6 +455,6 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="y9M-3l-b26"/>
+        <segue reference="gET-a4-exh"/>
     </inferredMetricsTieBreakers>
 </document>

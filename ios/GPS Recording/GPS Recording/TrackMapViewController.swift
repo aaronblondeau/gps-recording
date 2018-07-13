@@ -26,14 +26,18 @@ class TrackMapViewController: UIViewController, MKMapViewDelegate {
     
     private func renderTrack() {
         if let track = self.track {
+            
+            let linesSortDescriptor = NSSortDescriptor(key: #keyPath(Line.startedAt), ascending: true)
+            let pointsSortDescriptor = NSSortDescriptor(key: #keyPath(Point.timestamp), ascending: true)
+            
             if let lines = track.lines {
                 var trackPoints = [CLLocationCoordinate2D]()
-                for line in lines {
+                for line in lines.sortedArray(using: [linesSortDescriptor]) {
                     let l = line as! Line
                     var linePoints = [CLLocationCoordinate2D]()
                     
                     if let points = l.points {
-                        for point in points {
+                        for point in points.sortedArray(using: [pointsSortDescriptor]) {
                             let p = point as! Point
                             linePoints.append(CLLocationCoordinate2D(latitude: p.latitude, longitude: p.longitude))
                             trackPoints.append(CLLocationCoordinate2D(latitude: p.latitude, longitude: p.longitude))

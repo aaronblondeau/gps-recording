@@ -16,6 +16,7 @@ enum GPSRecordingError: Error {
 
 extension Notification.Name {
     static let gpsRecordingStoreReady = Notification.Name("gpsRecordingStoreReady")
+    static let gpsRecordingTransferToPhoneSuccess = Notification.Name("gpsRecordingTransferToPhoneSuccess")
 }
 
 class GPSRecordingStore {
@@ -176,6 +177,7 @@ class GPSRecordingStore {
     /**
      Update a track's details.
      
+     - Parameter track: The track to update.
      - Parameter name: A new name for the track.
      - Parameter note: A new description of the track.
      - Parameter activity: A new value for the user's activity (run, bike, etc...).
@@ -185,6 +187,18 @@ class GPSRecordingStore {
         track.name = name
         track.note = note
         track.activity = activity
+        try context.save()
+    }
+    
+    /**
+     Save a track's downstream id.
+     
+     - Parameter track: The track to update.
+     - Parameter downstreamId: A new downstreamId for the track.
+     */
+    public func saveDownstreamId(track: Track, downstreamId: String) throws {
+        let context = container.viewContext
+        track.downstreamId = downstreamId
         try context.save()
     }
     
@@ -378,5 +392,55 @@ class GPSRecordingStore {
         } else {
             return 0
         }
+    }
+    
+    /**
+     - Parameter userInfo: A track converted to userInfo with toDict.
+     - Returns: The inflated and stored track.
+     */
+    public func trackFromDict(_ userInfo: [String: Any]) throws -> Track {
+        
+        let context = container.viewContext
+        
+        let track = NSEntityDescription.insertNewObject(forEntityName: Track.entityName, into: context) as! Track
+        track.name = userInfo["name"] as? String
+        track.note = userInfo["note"] as? String
+        track.activity = userInfo["activity"] as? String
+        track.startedAt = userInfo["startedAt"] as! Date
+        track.endedAt = userInfo["endedAt"] as! Date
+        track.totalDistanceInMeters = userInfo["totalDistanceInMeters"] as! Double
+        track.totalDurationInMilliseconds = userInfo["totalDurationInMilliseconds"] as! Double
+        track.upstreamId = userInfo["id"] as? String
+        
+        if let lineDicts = userInfo["lines"] as? [[String:Any]] {
+            for lineDict in lineDicts {
+                
+                let line = NSEntityDescription.insertNewObject(forEntityName: Line.entityName, into: context) as! Line
+                line.inTrack = track
+                line.startedAt = lineDict["startedAt"] as! Date
+                line.endedAt = lineDict["endedAt"] as! Date
+                line.totalDistanceInMeters = lineDict["totalDistanceInMeters"] as! Double
+                
+                if let pointDicts = lineDict["points"] as? [[String:Any]] {
+                    for pointDict in pointDicts {
+                        let point = NSEntityDescription.insertNewObject(forEntityName: Point.entityName, into: context) as! Point
+                        point.altitude = pointDict["altitude"] as! Double
+                        point.course = pointDict["course"] as! Double
+                        point.horizontalAccuracy = pointDict["horizontalAccuracy"] as! Double
+                        point.verticalAccuracy = pointDict["verticalAccuracy"] as! Double
+                        point.latitude = pointDict["latitude"] as! Double
+                        point.longitude = pointDict["longitude"] as! Double
+                        point.speed = pointDict["speed"] as! Double
+                        point.timestamp = pointDict["timestamp"] as! Date
+                        point.inLine = line
+                    }
+                }
+            }
+        }
+        
+        try context.save()
+        
+        return track
+        
     }
 }

@@ -13,6 +13,7 @@ class SettingsInterfaceController: WKInterfaceController {
     
     @IBOutlet var metricUnitsSwitch: WKInterfaceSwitch!
     @IBOutlet var distanceFilterSlider: WKInterfaceSlider!
+    @IBOutlet var distanceFilterValueLabel: WKInterfaceLabel!
     
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
@@ -20,6 +21,7 @@ class SettingsInterfaceController: WKInterfaceController {
         // Configure interface objects here.
         metricUnitsSwitch.setOn(Settings.useMetricUnits)
         distanceFilterSlider.setValue(Settings.distanceFilterInMeters)
+        distanceFilterValueLabel.setText("\(Settings.distanceFilterInMeters) meters")
     }
     
     override func willActivate() {
@@ -38,6 +40,7 @@ class SettingsInterfaceController: WKInterfaceController {
     
     @IBAction func onDistanceFilterChange(_ value: Float) {
         Settings.distanceFilterInMeters = value
+        distanceFilterValueLabel.setText("\(Settings.distanceFilterInMeters) meters")
     }
     
 }

@@ -8,7 +8,6 @@
 
 import Foundation
 import CoreLocation
-import UIKit
 import UserNotifications
 
 class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationManagerDelegate {
@@ -16,8 +15,11 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
     private var _currentTrack: Track?
     let store: GPSRecordingStore
     var shouldStartRecording: Bool = false
-    var viewController: UIViewController?
     var startTime: Date?
+    var deferringUpdates = false
+    var inBackground = false
+    var deferDistanceInMeters = 1000.0  // 1km
+    var deferTimeoutInSeconds = 300.0   // or 5 minutes
     
     let locationManager = CLLocationManager()
     
@@ -69,6 +71,40 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
         NotificationCenter.default.addObserver(self, selector: #selector(managedObjectContextObjectsDidChange), name: NSNotification.Name.NSManagedObjectContextObjectsDidChange, object: store.container.viewContext)
         
         NotificationCenter.default.addObserver(self, selector: #selector(defaultsChanged), name: UserDefaults.didChangeNotification, object: nil)
+        
+        #if os(iOS)
+        NotificationCenter.default.addObserver(self, selector: #selector(onAppWillEnterForeground), name: NSNotification.Name.UIApplicationWillEnterForeground, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(onAppDidEnterBackground), name: NSNotification.Name.UIApplicationDidEnterBackground, object: nil)
+        #endif
+    }
+    
+    @objc func onAppWillEnterForeground() {
+        #if os(iOS)
+        inBackground = false
+        if (CLLocationManager.deferredLocationUpdatesAvailable()) {
+            print("~~ stopping deferred location updates")
+            locationManager.disallowDeferredLocationUpdates()
+        }
+        #endif
+    }
+    
+    @objc func onAppDidEnterBackground() {
+        #if os(iOS)
+        inBackground = true
+        if (recording) {
+            if (CLLocationManager.deferredLocationUpdatesAvailable()) {
+                print("~~ beginning deferred location updates")
+                locationManager.allowDeferredLocationUpdates(untilTraveled: deferDistanceInMeters, timeout: deferTimeoutInSeconds)
+            } else {
+                print("~~ cannot defer location updates - not available")
+            }
+        }
+        #endif
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     @objc func defaultsChanged() {
@@ -89,11 +125,9 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
         }
     }
     
-    func start(_ viewController: UIViewController) {
+    func start() {
         // Start location updates
         print("Background GPS Recording Start")
-        
-        self.viewController = viewController
         
         // Start the process by ensuring we have gps recording permissions
         requestPermissions()
@@ -142,20 +176,25 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
             do {
                 currentTrack = try store.createTrack(name: trackName, note: "", activity: nil)
             } catch {
-                if let vc = viewController {
-                    let alert = UIAlertController(title: "Unable to create track!", message: "\(error.localizedDescription)", preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
-                    vc.present(alert, animated: true)
-                }
+                NotificationCenter.default.post(name: .gpsRecordingError, object: "There was a problem creating a Track : \(error.localizedDescription)")
                 return;
             }
             
         }
         
+        #if os(iOS)
         locationManager.allowsBackgroundLocationUpdates = true
-        locationManager.pausesLocationUpdatesAutomatically = false
+        if (CLLocationManager.deferredLocationUpdatesAvailable()) {
+            locationManager.distanceFilter = kCLDistanceFilterNone
+            locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        } else {
+            locationManager.distanceFilter = Double(Settings.distanceFilterInMeters)
+            locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+        }
+        #else
         locationManager.distanceFilter = Double(Settings.distanceFilterInMeters)
         locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+        #endif
         
         startTime = Date()
         
@@ -171,22 +210,30 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
     }
     
     func requestPermissions() {
+        
+        if (!CLLocationManager.locationServicesEnabled()) {
+            NotificationCenter.default.post(name: .gpsRecordingLocationServicesDisabled, object: nil)
+            return
+        }
+        
         switch CLLocationManager.authorizationStatus() {
         case .notDetermined:
             // We have not asked for permissions yet
             // Ask for it, and begin recording once the user has granted permission
             locationManager.requestAlwaysAuthorization()
+            print("~~ posting gpsRecordingAwaitingPermissions")
+            NotificationCenter.default.post(name: .gpsRecordingAwaitingPermissions, object: nil)
             shouldStartRecording = true
             break
             
         case .restricted, .denied:
             // Permission has been denied - show alert directing user to location setttings for app
-            showManualPermissionsDialog()
+            showManualPermissionsMessage()
             break
             
         case .authorizedWhenInUse:
             // This is too low of a permission level for background - show alert directing user to location setttings for app
-            showManualPermissionsDialog()
+            showManualPermissionsMessage()
             break
             
         case .authorizedAlways:
@@ -231,9 +278,29 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        
+        var manuallyExecuteDistanceFilter = false
+        var lastStoredLocation: CLLocation? = nil
+        let distanceFilter = Double(Settings.distanceFilterInMeters)
+        
+        #if os(iOS)
+        if (CLLocationManager.deferredLocationUpdatesAvailable()) {
+            manuallyExecuteDistanceFilter = true
+        }
+        #endif
+        
         if (locations.count > 0) {
             for location in locations {
                 print("~~ \(location.coordinate.latitude), \(location.coordinate.longitude) time=\(location.timestamp) acc=\(location.horizontalAccuracy)")
+                
+                if (manuallyExecuteDistanceFilter) {
+                    if let lastLocation = lastStoredLocation {
+                        if (lastLocation.distance(from: location) < distanceFilter) {
+                            continue
+                        }
+                    }
+                }
+                
                 if let track = currentTrack {
                     // Save the point
                     do {
@@ -249,6 +316,7 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
                         }
                         if ((!track.isDeleted) && (location.horizontalAccuracy <= 50) && pointTimeValid) {
                             let point = try store.addPoint(toTrack: track, fromLocation: location)
+                            lastStoredLocation = location
                             NotificationCenter.default.post(name: .gpsRecordingNewPoint, object: point)
                         }
                     } catch {
@@ -261,23 +329,25 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
         }
     }
     
-    func showManualPermissionsDialog() {
-        if let vc = viewController {
-            let alert = UIAlertController(title: "GPS Permissions Needed!", message: "This app needs permission to 'Always' access GPS so that it can record even while you are using other apps.  The permission has previously been denied for this app.  You need to go to the device settings for this app and set Location to 'Always'.", preferredStyle: .alert)
-            
-            alert.addAction(UIAlertAction(title: "Take Me There", style: .default, handler: {
-                action in
-                self.shouldStartRecording = true
-                print("Would try to take user to app settings.")
-                if let url = NSURL(string: UIApplicationOpenSettingsURLString) as URL? {
-                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+    #if os(iOS)
+    func locationManager(_ manager: CLLocationManager, didFinishDeferredUpdatesWithError error: Error?) {
+        self.deferringUpdates = false
+        if let err = error {
+            print("~~ didFinishDeferredUpdates error \(err.localizedDescription)")
+        } else {
+            if (recording && inBackground) {
+                // We're still in the background so start deferring back up
+                if (CLLocationManager.deferredLocationUpdatesAvailable()) {
+                    print("~~ resuming deferred location updates")
+                    locationManager.allowDeferredLocationUpdates(untilTraveled: deferDistanceInMeters, timeout: deferTimeoutInSeconds)
                 }
-            }))
-            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: {
-                action in
-                self.shouldStartRecording = false
-            }))
-            vc.present(alert, animated: true)
+            }
         }
+    }
+    #endif
+    
+    func showManualPermissionsMessage() {
+        print("~~ posting gpsRecordingManualPermissionsNeeded")
+        NotificationCenter.default.post(name: .gpsRecordingManualPermissionsNeeded, object: nil)
     }
 }

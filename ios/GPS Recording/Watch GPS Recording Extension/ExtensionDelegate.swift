@@ -23,17 +23,16 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
         GPSRecordingStore.buildContainer(bundle: bundle) {
             (container: NSPersistentContainer) in
             self.store = GPSRecordingStore(withContainer: container)
-            self.service = GPSRecordingService(self.store!)
+            self.service = BackgroundGPSRecordingService(self.store!)
             
             if let rootController = WKExtension.shared().rootInterfaceController as? InterfaceController {
                 rootController.store = self.store
                 rootController.service = self.service
             }
-            self.sendRecordStatus()
             NotificationCenter.default.post(name: .gpsRecordingStoreReady, object: self.store)
+            self.setupWatchConnectivity()
+            self.sendRecordStatus()
         }
-        
-        setupWatchConnectivity()
         
         NotificationCenter.default.addObserver(self, selector: #selector(onRecordingStarted(notification:)), name: .gpsRecordingStarted, object: nil)
         
@@ -121,6 +120,37 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
                 try session.updateApplicationContext(dictionary)
             } catch {
                 print("ERROR: \(error)")
+            }
+        }
+    }
+    
+    func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) {
+        if let action = userInfo["action"] as? String {
+            if (action == "track_from_watch_result") {
+                print("~~ Watch got a track result from the phone")
+                if let success = userInfo["success"] as? Bool {
+                    if (success) {
+                        // TODO - or we can delete the local copy now that it is safely on the phone...
+                        if let downstreamId = userInfo["downstreamId"] as? String, let id = userInfo["id"] as? String {
+                            if let url = URL(string: id) {
+                                if let track = store?.getTrack(atURL: url) {
+                                    do {
+                                        try store?.saveDownstreamId(track: track, downstreamId: downstreamId)
+                                        
+                                    NotificationCenter.default.post(name: .gpsRecordingTransferToPhoneSuccess, object: track)
+                                        
+                                    } catch {
+                                        print("~~ failed to save downstream id for track!")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if let error = userInfo["error"] as? Bool {
+                        print("~~ Phone sent a message to say that it failed to save a track : \(error)")
+                    }
+                }
             }
         }
     }

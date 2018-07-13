@@ -33,11 +33,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
                     firstViewController.serviceManager = self.serviceManager
                 }
             }
-            self.sendRecordStatus()
             NotificationCenter.default.post(name: .gpsRecordingStoreReady, object: self.store)
+            self.setupWatchConnectivity()
+            self.sendRecordStatus()
         }
-        
-        setupWatchConnectivity()
         
         NotificationCenter.default.addObserver(self, selector: #selector(onRecordingStarted(notification:)), name: .gpsRecordingStarted, object: nil)
         
@@ -148,6 +147,53 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
                 print("~~ Phone: watch sent message to say it is recording")
             } else {
                 print("~~ Phone: watch sent message to say it is not recording")
+            }
+        }
+    }
+    
+    func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) {
+        if let action = userInfo["action"] as? String {
+            if (action == "track_from_watch") {
+                print("~~ Phone got a track from the watch")
+                if let store = self.store {
+                    do {
+                        let track = try store.trackFromDict(userInfo)
+                        var info = [String: Any]()
+                        info["action"] = "track_from_watch_result"
+                        info["id"] = track.upstreamId
+                        info["downstreamId"] = track.objectID.uriRepresentation().absoluteString
+                        info["success"] = true
+                        session.transferUserInfo(info)
+                    } catch {
+                        var info = [String: Any]()
+                        info["action"] = "track_from_watch_result"
+                        info["id"] = userInfo["id"] as? String
+                        info["error"] = error.localizedDescription
+                        session.transferUserInfo(info)
+                    }
+                } else {
+                    print("~~ Could not import track from watch because store wasn't ready!")
+                    var info = [String: Any]()
+                    info["action"] = "track_from_watch_result"
+                    info["id"] = userInfo["id"] as? String
+                    info["error"] = "Could not import track from watch because store wasn't ready!"
+                    session.transferUserInfo(info)
+                }
+            }
+            else if (action == "open_track_from_watch") {
+                if let store = self.store, let id = userInfo["id"] as? String {
+                    if let url = URL(string: id) {
+                        DispatchQueue.main.async {
+                            if let trackViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "trackViewController") as? TrackViewController,
+                                let navigationViewController = self.window?.rootViewController as? UINavigationController,
+                                let track = store.getTrack(atURL: url) {
+                                trackViewController.store = store
+                                trackViewController.track = track
+                                navigationViewController.pushViewController(trackViewController, animated: true)
+                            }
+                        }
+                    }
+                }
             }
         }
     }
