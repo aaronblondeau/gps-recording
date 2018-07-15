@@ -163,7 +163,7 @@
                             </connections>
                         </switch>
                         <label alignment="center" text="Distance Filter:" textAlignment="center" id="cSd-Qx-HMe"/>
-                        <slider width="1" alignment="left" value="10" maximum="100" steps="10" id="gWA-up-f6b">
+                        <slider width="1" alignment="left" value="10" maximum="100" steps="20" id="gWA-up-f6b">
                             <connections>
                                 <action selector="onDistanceFilterChange:" destination="hHQ-RK-BGZ" id="2Qj-x1-k97"/>
                             </connections>

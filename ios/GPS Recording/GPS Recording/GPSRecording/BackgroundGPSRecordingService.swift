@@ -182,18 +182,18 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
             
         }
         
-        #if os(iOS)
         locationManager.allowsBackgroundLocationUpdates = true
+        #if os(iOS)
         if (CLLocationManager.deferredLocationUpdatesAvailable()) {
             locationManager.distanceFilter = kCLDistanceFilterNone
             locationManager.desiredAccuracy = kCLLocationAccuracyBest
         } else {
             locationManager.distanceFilter = Double(Settings.distanceFilterInMeters)
-            locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+            locationManager.desiredAccuracy = kCLLocationAccuracyBest
         }
         #else
         locationManager.distanceFilter = Double(Settings.distanceFilterInMeters)
-        locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
         #endif
         
         startTime = Date()
