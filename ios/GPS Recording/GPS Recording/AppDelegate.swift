@@ -18,8 +18,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
     var store: GPSRecordingStore?
     var serviceManager: GPSRecordingServiceManager?
     
+    var wcUserInfoQueue: [[String : Any]]?
+    var wcSessionFileQueue: [WCSessionFile]?
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        wcUserInfoQueue = [[String : Any]]()
+        wcSessionFileQueue = [WCSessionFile]()
+        
+        self.setupWatchConnectivity()
         
         // Get access to the recording store
         let bundle = Bundle(for: type(of: self))
@@ -34,8 +42,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
                 }
             }
             NotificationCenter.default.post(name: .gpsRecordingStoreReady, object: self.store)
-            self.setupWatchConnectivity()
             self.sendRecordStatus()
+            self.processWCUserInfoQueue()
+            self.processWCSessionFileQueue()
         }
         
         NotificationCenter.default.addObserver(self, selector: #selector(onRecordingStarted(notification:)), name: .gpsRecordingStarted, object: nil)
@@ -151,34 +160,65 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
         }
     }
     
-    func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) {
+    func enqueueWCSessionFile(_ file: WCSessionFile) {
+        print("~~ queueing a wc session file")
+        wcSessionFileQueue?.append(file)
+    }
+    
+    func enqueueWCUserInfo(_ userInfo: [String : Any] = [:]) {
+        print("~~ queueing a wc userinfo item")
+        wcUserInfoQueue?.append(userInfo)
+    }
+
+    
+    func processWCUserInfoQueue() {
+        if let items = wcUserInfoQueue, let store = self.store {
+            print("~~ processing \(items.count) wc userinfo items")
+            for item in items {
+                processWCUserInfo(store, WCSession.default, item)
+            }
+        }
+    }
+    
+    func processWCSessionFileQueue() {
+        if let files = wcSessionFileQueue, let store = self.store {
+            print("~~ processing \(files.count) wc session files")
+            for file in files {
+                processWCSessionFile(store, WCSession.default, file)
+            }
+        }
+    }
+    
+    func processWCUserInfo(_ store: GPSRecordingStore, _ session : WCSession, _ userInfo: [String : Any] = [:]) {
+        
         if let action = userInfo["action"] as? String {
             if (action == "track_from_watch") {
                 print("~~ Phone got a track from the watch")
-                if let store = self.store {
-                    do {
-                        let track = try store.trackFromDict(userInfo)
-                        var info = [String: Any]()
-                        info["action"] = "track_from_watch_result"
-                        info["id"] = track.upstreamId
-                        info["downstreamId"] = track.objectID.uriRepresentation().absoluteString
-                        info["success"] = true
-                        session.transferUserInfo(info)
-                    } catch {
-                        var info = [String: Any]()
-                        info["action"] = "track_from_watch_result"
-                        info["id"] = userInfo["id"] as? String
-                        info["error"] = error.localizedDescription
-                        session.transferUserInfo(info)
+                
+                // Check if a there is already a track with upstreamId = userInfo["id"]
+                if let upstreamId = userInfo["id"] as? String {
+                    if let existingTrack = store.getTrackWithUpstreamId(upstreamId) {
+                        print("~~ Watch tried to sync an existing track \(existingTrack.upstreamId ?? "?")")
+                        return;
                     }
-                } else {
-                    print("~~ Could not import track from watch because store wasn't ready!")
+                }
+                
+                do {
+                    let track = try store.trackFromDict(userInfo)
+                    var info = [String: Any]()
+                    info["action"] = "track_from_watch_result"
+                    info["id"] = track.upstreamId
+                    info["downstreamId"] = track.objectID.uriRepresentation().absoluteString
+                    info["success"] = true
+                    session.transferUserInfo(info)
+                } catch {
                     var info = [String: Any]()
                     info["action"] = "track_from_watch_result"
                     info["id"] = userInfo["id"] as? String
-                    info["error"] = "Could not import track from watch because store wasn't ready!"
+                    info["error"] = error.localizedDescription
                     session.transferUserInfo(info)
                 }
+            
             }
             else if (action == "open_track_from_watch") {
                 if let store = self.store, let id = userInfo["id"] as? String {
@@ -195,6 +235,45 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
                     }
                 }
             }
+        }
+    }
+    
+    func processWCSessionFile(_ store: GPSRecordingStore, _ session : WCSession, _ file: WCSessionFile) {
+        if let action = file.metadata?["action"] as? String {
+            if (action == "track_from_watch") {
+                
+                print("~~ inflating track_from_watch : \(file.fileURL.path)")
+                
+                if var userInfo = NSKeyedUnarchiver.unarchiveObject(withFile: file.fileURL.path) as! [String: Any]? {
+                    userInfo["action"] = action
+                    processWCUserInfo(store, session, userInfo)
+                    
+                    // TODO - delete file?
+                } else {
+                    print("~~ processWCSessionFile was unable to unarchive file!")
+                }
+                
+            } else {
+                print("~~ processWCSessionFile got an unknown action : \(action)")
+            }
+        }
+    }
+    
+    func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) {
+        if let store = self.store {
+            processWCUserInfo(store, session, userInfo)
+        } else {
+            // Store wasn't ready : add to queue
+            enqueueWCUserInfo(userInfo)
+        }
+    }
+    
+    func session(_ session: WCSession, didReceive file: WCSessionFile) {
+        if let store = self.store {
+            processWCSessionFile(store, session, file)
+        } else {
+            // Store wasn't ready : add to queue
+            enqueueWCSessionFile(file)
         }
     }
 

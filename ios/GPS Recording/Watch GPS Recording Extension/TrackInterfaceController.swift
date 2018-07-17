@@ -148,21 +148,49 @@ class TrackInterfaceController: WKInterfaceController {
     }
     
     @IBAction func onSendToPhoneButton() {
-        
         sendToPhoneButton.setEnabled(false)
         sendToPhoneButton.setHidden(true)
         
+// // Does not work for large tracks
+//        if WCSession.isSupported() {
+//            if let track = self.track {
+//                var dictionary = track.toDict()
+//                dictionary["action"] = "track_from_watch"
+//                WCSession.default.transferUserInfo(dictionary)
+//                print("~~ Track sent to phone")
+//                do {
+//                    try store?.saveDownstreamId(track: track, downstreamId: "-pending-")
+//                    syncMessage.setText("Transfer in progress. Please open app on iPhone to complete.")
+//                    syncMessage.setHidden(false)
+//                } catch {
+//                    print("~~ Failed to set downstream id as pending")
+//                }
+//            }
+//        }
+        
         if WCSession.isSupported() {
             if let track = self.track {
-                var dictionary = track.toDict()
-                dictionary["action"] = "track_from_watch"
-                WCSession.default.transferUserInfo(dictionary)
-                do {
-                    try store?.saveDownstreamId(track: track, downstreamId: "-pending-")
-                    syncMessage.setText("Transfer in progress. Please open app on iPhone to complete.")
-                    syncMessage.setHidden(false)
-                } catch {
-                    print("~~ Failed to set downstream id as pending")
+                let trackDictionary = track.toDict()
+                var metaDictionary = [String:Any]()
+                metaDictionary["action"] = "track_from_watch"
+                
+                
+                if let fileUrl = track.getTransferFileUrl() {
+                    
+                    NSKeyedArchiver.archiveRootObject(trackDictionary, toFile: fileUrl.path)
+                    WCSession.default.transferFile(fileUrl, metadata: metaDictionary)
+                    
+                    print("~~ Track sent to phone via \(fileUrl.absoluteString)")
+                    do {
+                        try store?.saveDownstreamId(track: track, downstreamId: "-pending-")
+                        syncMessage.setText("Transfer in progress. Please open app on iPhone to complete.")
+                        syncMessage.setHidden(false)
+                    } catch {
+                        print("~~ Failed to set downstream id as pending")
+                    }
+                    
+                } else {
+                    print("~~ Track could not be sent - unable to generate file url.")
                 }
             }
         }

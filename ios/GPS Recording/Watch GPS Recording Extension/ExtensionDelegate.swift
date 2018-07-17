@@ -14,9 +14,14 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
     
     var store: GPSRecordingStore?
     var service: GPSRecordingService?
+    
+    var wcUserInfoQueue: [[String : Any]]?
 
     func applicationDidFinishLaunching() {
         // Perform any final initialization of your application.
+        
+        wcUserInfoQueue = [[String : Any]]()
+        self.setupWatchConnectivity()
         
         // Get access to the recording store
         let bundle = Bundle(for: type(of: self))
@@ -30,7 +35,6 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
                 rootController.service = self.service
             }
             NotificationCenter.default.post(name: .gpsRecordingStoreReady, object: self.store)
-            self.setupWatchConnectivity()
             self.sendRecordStatus()
         }
         
@@ -124,7 +128,21 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
         }
     }
     
-    func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) {
+    func enqueueWCUserInfo(_ userInfo: [String : Any] = [:]) {
+        print("~~ queueing a wc userinfo item")
+        wcUserInfoQueue?.append(userInfo)
+    }
+    
+    func processWCUserInfoQueue() {
+        if let items = wcUserInfoQueue, let store = self.store {
+            print("~~ processing \(items.count) wc userinfo items")
+            for item in items {
+                processWCUserInfo(store, WCSession.default, item)
+            }
+        }
+    }
+    
+    func processWCUserInfo(_ store: GPSRecordingStore, _ session : WCSession, _ userInfo: [String : Any] = [:]) {
         if let action = userInfo["action"] as? String {
             if (action == "track_from_watch_result") {
                 print("~~ Watch got a track result from the phone")
@@ -133,11 +151,22 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
                         // TODO - or we can delete the local copy now that it is safely on the phone...
                         if let downstreamId = userInfo["downstreamId"] as? String, let id = userInfo["id"] as? String {
                             if let url = URL(string: id) {
-                                if let track = store?.getTrack(atURL: url) {
+                                if let track = store.getTrack(atURL: url) {
                                     do {
-                                        try store?.saveDownstreamId(track: track, downstreamId: downstreamId)
+                                        try store.saveDownstreamId(track: track, downstreamId: downstreamId)
                                         
-                                    NotificationCenter.default.post(name: .gpsRecordingTransferToPhoneSuccess, object: track)
+                                        NotificationCenter.default.post(name: .gpsRecordingTransferToPhoneSuccess, object: track)
+                                        
+                                        // Remove transfer file
+                                        if let transferFileUrl = track.getTransferFileUrl() {
+                                            do {
+                                                let fileManager = FileManager.default
+                                                try fileManager.removeItem(at: transferFileUrl)
+                                                print("~~ removed temporary transfer file")
+                                            } catch {
+                                                print("~~ failed to remove temporary transfer file \(error.localizedDescription)")
+                                            }
+                                        }
                                         
                                     } catch {
                                         print("~~ failed to save downstream id for track!")
@@ -152,6 +181,15 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
                     }
                 }
             }
+        }
+    }
+    
+    func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) {
+        if let store = self.store {
+            processWCUserInfo(store, session, userInfo)
+        } else {
+            // Store wasn't ready : add to queue
+            enqueueWCUserInfo(userInfo)
         }
     }
 

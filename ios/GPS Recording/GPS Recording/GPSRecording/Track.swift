@@ -43,6 +43,17 @@ class Track: NSManagedObject {
         return trackName
     }
     
+    public func getTransferFileUrl() -> URL? {
+        if let dir = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.documentDirectory, FileManager.SearchPathDomainMask.allDomainsMask, true).first {
+            var idText = self.objectID.uriRepresentation().absoluteString
+            let replaceChars = CharacterSet.alphanumerics.inverted
+            idText = idText.components(separatedBy: replaceChars).joined(separator: "_");
+            let fileUrl = URL(fileURLWithPath: dir).appendingPathComponent("track_transfer_\(idText)_.dat")
+            return fileUrl
+        }
+        return nil
+    }
+    
     public func toGpx(url: URL) throws {
         let out: OutputStream = OutputStream(url: url, append: false)!
         out.open()
@@ -104,19 +115,21 @@ class Track: NSManagedObject {
             
             for line in lines.sortedArray(using: [linesSortDescriptor]) {
                 let l = line as! Line
-                self.fileStreamAppend(out, text: "\t\t<trkseg>\n")
                 if let points = l.points {
-                    for point in points.sortedArray(using: [pointsSortDescriptor]) {
-                        let p = point as! Point
-                        self.fileStreamAppend(out, text: "\t\t\t" + "<trkpt lat=\"\(p.latitude)\" " + "lon=\"\(p.longitude)\">")
-                        self.fileStreamAppend(out, text: "<ele>\(p.altitude)</ele>")
-                        self.fileStreamAppend(out, text: "<time>\(self.gpxFormatDate(p.timestamp))</time>")
-                        self.fileStreamAppend(out, text: "<speed>\(p.speed)</speed>")
-                        self.fileStreamAppend(out, text: "<course>\(p.course)</course>")
-                        self.fileStreamAppend(out, text: "</trkpt>\n")
+                    if points.count > 1 {
+                        self.fileStreamAppend(out, text: "\t\t<trkseg>\n")
+                        for point in points.sortedArray(using: [pointsSortDescriptor]) {
+                            let p = point as! Point
+                            self.fileStreamAppend(out, text: "\t\t\t" + "<trkpt lat=\"\(p.latitude)\" " + "lon=\"\(p.longitude)\">")
+                            self.fileStreamAppend(out, text: "<ele>\(p.altitude)</ele>")
+                            self.fileStreamAppend(out, text: "<time>\(self.gpxFormatDate(p.timestamp))</time>")
+                            self.fileStreamAppend(out, text: "<speed>\(p.speed)</speed>")
+                            self.fileStreamAppend(out, text: "<course>\(p.course)</course>")
+                            self.fileStreamAppend(out, text: "</trkpt>\n")
+                        }
+                        self.fileStreamAppend(out, text: "\t\t</trkseg>\n")
                     }
                 }
-                self.fileStreamAppend(out, text: "\t\t</trkseg>\n")
             }
             
         }
@@ -154,28 +167,37 @@ class Track: NSManagedObject {
             var index = 0
             for line in lines {
                 let l = line as! Line
-                if (index > 0) {
-                    self.fileStreamAppend(out, text: "          ,\n")
-                }
-                self.fileStreamAppend(out, text: "          [\n")
+                
                 if let points = l.points?.sortedArray(using: [pointsSortDescriptor]) {
-                    var pointIndex = 0
-                    for point in points {
-                        let p = point as! Point
-                        self.fileStreamAppend(out, text: "            [\n")
-                        self.fileStreamAppend(out, text: "              \(p.longitude),\n")
-                        self.fileStreamAppend(out, text: "              \(p.latitude)\n")
-                        if (pointIndex >= points.count - 1) {
-                            // No comma for last coord
-                            self.fileStreamAppend(out, text: "            ]\n")
-                        } else {
-                            self.fileStreamAppend(out, text: "            ],\n")
+                    
+                    if (points.count > 1) {
+                    
+                        if (index > 0) {
+                            self.fileStreamAppend(out, text: "          ,\n")
                         }
-                        pointIndex = pointIndex + 1
+                        self.fileStreamAppend(out, text: "          [\n")
+                        
+                        var pointIndex = 0
+                        for point in points {
+                            let p = point as! Point
+                            self.fileStreamAppend(out, text: "            [\n")
+                            self.fileStreamAppend(out, text: "              \(p.longitude),\n")
+                            self.fileStreamAppend(out, text: "              \(p.latitude)\n")
+                            if (pointIndex >= points.count - 1) {
+                                // No comma for last coord
+                                self.fileStreamAppend(out, text: "            ]\n")
+                            } else {
+                                self.fileStreamAppend(out, text: "            ],\n")
+                            }
+                            pointIndex = pointIndex + 1
+                        }
+                        
+                        self.fileStreamAppend(out, text: "          ]\n")
+                        index = index + 1
+                        
                     }
+                    
                 }
-                self.fileStreamAppend(out, text: "          ]\n")
-                index = index + 1
             }
         }
         

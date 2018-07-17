@@ -18,8 +18,8 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
     var startTime: Date?
     var deferringUpdates = false
     var inBackground = false
-    var deferDistanceInMeters = 1000.0  // 1km
-    var deferTimeoutInSeconds = 300.0   // or 5 minutes
+//    var deferDistanceInMeters = 1000.0  // 1km
+//    var deferTimeoutInSeconds = 300.0   // or 5 minutes
     
     let locationManager = CLLocationManager()
     
@@ -72,36 +72,36 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
         
         NotificationCenter.default.addObserver(self, selector: #selector(defaultsChanged), name: UserDefaults.didChangeNotification, object: nil)
         
-        #if os(iOS)
-        NotificationCenter.default.addObserver(self, selector: #selector(onAppWillEnterForeground), name: NSNotification.Name.UIApplicationWillEnterForeground, object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(onAppDidEnterBackground), name: NSNotification.Name.UIApplicationDidEnterBackground, object: nil)
-        #endif
+//        #if os(iOS)
+//        NotificationCenter.default.addObserver(self, selector: #selector(onAppWillEnterForeground), name: NSNotification.Name.UIApplicationWillEnterForeground, object: nil)
+//
+//        NotificationCenter.default.addObserver(self, selector: #selector(onAppDidEnterBackground), name: NSNotification.Name.UIApplicationDidEnterBackground, object: nil)
+//        #endif
     }
     
-    @objc func onAppWillEnterForeground() {
-        #if os(iOS)
-        inBackground = false
-        if (CLLocationManager.deferredLocationUpdatesAvailable()) {
-            print("~~ stopping deferred location updates")
-            locationManager.disallowDeferredLocationUpdates()
-        }
-        #endif
-    }
-    
-    @objc func onAppDidEnterBackground() {
-        #if os(iOS)
-        inBackground = true
-        if (recording) {
-            if (CLLocationManager.deferredLocationUpdatesAvailable()) {
-                print("~~ beginning deferred location updates")
-                locationManager.allowDeferredLocationUpdates(untilTraveled: deferDistanceInMeters, timeout: deferTimeoutInSeconds)
-            } else {
-                print("~~ cannot defer location updates - not available")
-            }
-        }
-        #endif
-    }
+//    @objc func onAppWillEnterForeground() {
+//        #if os(iOS)
+//        inBackground = false
+//        if (CLLocationManager.deferredLocationUpdatesAvailable()) {
+//            print("~~ stopping deferred location updates")
+//            locationManager.disallowDeferredLocationUpdates()
+//        }
+//        #endif
+//    }
+//
+//    @objc func onAppDidEnterBackground() {
+//        #if os(iOS)
+//        inBackground = true
+//        if (recording) {
+//            if (CLLocationManager.deferredLocationUpdatesAvailable()) {
+//                print("~~ beginning deferred location updates")
+//                locationManager.allowDeferredLocationUpdates(untilTraveled: deferDistanceInMeters, timeout: deferTimeoutInSeconds)
+//            } else {
+//                print("~~ cannot defer location updates - not available")
+//            }
+//        }
+//        #endif
+//    }
     
     deinit {
         NotificationCenter.default.removeObserver(self)
@@ -183,18 +183,18 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
         }
         
         locationManager.allowsBackgroundLocationUpdates = true
-        #if os(iOS)
-        if (CLLocationManager.deferredLocationUpdatesAvailable()) {
-            locationManager.distanceFilter = kCLDistanceFilterNone
-            locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        } else {
-            locationManager.distanceFilter = Double(Settings.distanceFilterInMeters)
-            locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        }
-        #else
+//        #if os(iOS)
+//        if (CLLocationManager.deferredLocationUpdatesAvailable()) {
+//            locationManager.distanceFilter = kCLDistanceFilterNone
+//            locationManager.desiredAccuracy = kCLLocationAccuracyBest
+//        } else {
+//            locationManager.distanceFilter = Double(Settings.distanceFilterInMeters)
+//            locationManager.desiredAccuracy = kCLLocationAccuracyBest
+//        }
+//        #else
         locationManager.distanceFilter = Double(Settings.distanceFilterInMeters)
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        #endif
+//        #endif
         
         startTime = Date()
         
@@ -279,27 +279,27 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
-        var manuallyExecuteDistanceFilter = false
-        var lastStoredLocation: CLLocation? = nil
-        let distanceFilter = Double(Settings.distanceFilterInMeters)
-        
-        #if os(iOS)
-        if (CLLocationManager.deferredLocationUpdatesAvailable()) {
-            manuallyExecuteDistanceFilter = true
-        }
-        #endif
+//        var manuallyExecuteDistanceFilter = false
+//        var lastStoredLocation: CLLocation? = nil
+//        let distanceFilter = Double(Settings.distanceFilterInMeters)
+//
+//        #if os(iOS)
+//        if (CLLocationManager.deferredLocationUpdatesAvailable()) {
+//            manuallyExecuteDistanceFilter = true
+//        }
+//        #endif
         
         if (locations.count > 0) {
             for location in locations {
                 print("~~ \(location.coordinate.latitude), \(location.coordinate.longitude) time=\(location.timestamp) acc=\(location.horizontalAccuracy)")
                 
-                if (manuallyExecuteDistanceFilter) {
-                    if let lastLocation = lastStoredLocation {
-                        if (lastLocation.distance(from: location) < distanceFilter) {
-                            continue
-                        }
-                    }
-                }
+//                if (manuallyExecuteDistanceFilter) {
+//                    if let lastLocation = lastStoredLocation {
+//                        if (lastLocation.distance(from: location) < distanceFilter) {
+//                            continue
+//                        }
+//                    }
+//                }
                 
                 if let track = currentTrack {
                     // Save the point
@@ -316,7 +316,7 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
                         }
                         if ((!track.isDeleted) && (location.horizontalAccuracy <= 50) && pointTimeValid) {
                             let point = try store.addPoint(toTrack: track, fromLocation: location)
-                            lastStoredLocation = location
+//                            lastStoredLocation = location
                             NotificationCenter.default.post(name: .gpsRecordingNewPoint, object: point)
                         }
                     } catch {
@@ -329,22 +329,22 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
         }
     }
     
-    #if os(iOS)
-    func locationManager(_ manager: CLLocationManager, didFinishDeferredUpdatesWithError error: Error?) {
-        self.deferringUpdates = false
-        if let err = error {
-            print("~~ didFinishDeferredUpdates error \(err.localizedDescription)")
-        } else {
-            if (recording && inBackground) {
-                // We're still in the background so start deferring back up
-                if (CLLocationManager.deferredLocationUpdatesAvailable()) {
-                    print("~~ resuming deferred location updates")
-                    locationManager.allowDeferredLocationUpdates(untilTraveled: deferDistanceInMeters, timeout: deferTimeoutInSeconds)
-                }
-            }
-        }
-    }
-    #endif
+//    #if os(iOS)
+//    func locationManager(_ manager: CLLocationManager, didFinishDeferredUpdatesWithError error: Error?) {
+//        self.deferringUpdates = false
+//        if let err = error {
+//            print("~~ didFinishDeferredUpdates error \(err.localizedDescription)")
+//        } else {
+//            if (recording && inBackground) {
+//                // We're still in the background so start deferring back up
+//                if (CLLocationManager.deferredLocationUpdatesAvailable()) {
+//                    print("~~ resuming deferred location updates")
+//                    locationManager.allowDeferredLocationUpdates(untilTraveled: deferDistanceInMeters, timeout: deferTimeoutInSeconds)
+//                }
+//            }
+//        }
+//    }
+//    #endif
     
     func showManualPermissionsMessage() {
         print("~~ posting gpsRecordingManualPermissionsNeeded")

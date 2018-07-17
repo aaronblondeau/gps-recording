@@ -146,6 +146,24 @@ class GPSRecordingStore {
     }
     
     /**
+     Retrieve a track by upstreamId.
+     
+     - Parameter withUpstreamId: A track id that was obtained via the track's objectID property.
+     
+     - Returns: The specified track.
+     */
+    public func getTrackWithUpstreamId(_ upstreamId: String) -> Track? {
+        let upstreamIdPredicate = NSPredicate(format: "upstreamId = %@", upstreamId)
+        let fetchRequest = NSFetchRequest<Track>(entityName: Track.entityName)
+        fetchRequest.predicate = upstreamIdPredicate
+        do {
+            return try container.viewContext.fetch(fetchRequest).first
+        } catch {
+            return nil
+        }
+    }
+    
+    /**
      Retrieve a line by id.
      
      - Parameter withId: A line id that was obtained via the line's objectID property.
