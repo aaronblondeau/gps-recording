@@ -194,6 +194,13 @@ class BackgroundGPSRecordingService: NSObject, GPSRecordingService, CLLocationMa
 //        #else
         locationManager.distanceFilter = Double(Settings.distanceFilterInMeters)
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        
+        #if os(iOS)
+            locationManager.pausesLocationUpdatesAutomatically = false
+            if #available(iOS 11.0, *) {
+                locationManager.showsBackgroundLocationIndicator = true
+            }
+        #endif
 //        #endif
         
         startTime = Date()
