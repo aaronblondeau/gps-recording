@@ -14,4 +14,7 @@ interface PointDAO {
 
     @Insert
     fun insertAll(vararg points: Point)
+
+    @Query("SELECT count(1) FROM points")
+    fun count(): Long
 }
