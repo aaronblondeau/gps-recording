@@ -68,7 +68,11 @@ class LineDAOTest {
         val beforeCount = lineDAO.count()
 
         val found = trackDAO.getById(trackId)
-        trackDAO.delete(found)
+        if (found != null) {
+            trackDAO.delete(found)
+        } else {
+            Assert.fail("Got an unexpected null track!")
+        }
 
         val afterCount = lineDAO.count()
 

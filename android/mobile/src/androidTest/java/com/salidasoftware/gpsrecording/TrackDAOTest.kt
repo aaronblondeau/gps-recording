@@ -55,7 +55,11 @@ class TrackDAOTest {
         val track = Track("Test 2")
         val trackId = trackDAO.insert(track)
         val found = trackDAO.getById(trackId)
-        Assert.assertEquals("Test 2", found.name)
+        if (found != null) {
+            Assert.assertEquals("Test 2", found.name)
+        } else {
+            Assert.fail("Got an unexpected null track!")
+        }
     }
 
     @Test
@@ -63,14 +67,23 @@ class TrackDAOTest {
         val track = Track("Test 3")
         val trackId = trackDAO.insert(track)
         val found = trackDAO.getById(trackId)
-        found.name = "Test 3 EDITED"
-        found.note = "I have been edited!"
-        trackDAO.update(found)
+
+        if (found != null) {
+            found.name = "Test 3 EDITED"
+            found.note = "I have been edited!"
+            trackDAO.update(found)
+        } else {
+            Assert.fail("Got an unexpected null track!")
+        }
 
         val found2 = trackDAO.getById(trackId)
 
-        Assert.assertEquals("Test 3 EDITED", found2.name)
-        Assert.assertEquals("I have been edited!", found2.note)
+        if (found2 != null) {
+            Assert.assertEquals("Test 3 EDITED", found2.name)
+            Assert.assertEquals("I have been edited!", found2.note)
+        } else {
+            Assert.fail("Got an unexpected null track!")
+        }
     }
 
     @Test
@@ -81,7 +94,11 @@ class TrackDAOTest {
 
         val beforeCount = trackDAO.getAll()
 
-        trackDAO.delete(found)
+        if (found != null) {
+            trackDAO.delete(found)
+        } else {
+            Assert.fail("Got an unexpected null track!")
+        }
 
         val afterCount = trackDAO.getAll()
         val sizeDifference = afterCount.size - beforeCount.size

@@ -8,7 +8,13 @@ interface TrackDAO {
     fun getAll(): List<Track>
 
     @Query("SELECT * FROM tracks WHERE id = :id")
-    fun getById(id: Long): Track
+    fun getById(id: Long): Track?
+
+    @Query("SELECT * FROM tracks WHERE upstreamid = :id LIMIT 1")
+    fun getByUpsreamId(id: String): Track?
+
+    @Query("SELECT count(1) FROM tracks")
+    fun count() : Long
 
     @Insert
     fun insert(track: Track) : Long

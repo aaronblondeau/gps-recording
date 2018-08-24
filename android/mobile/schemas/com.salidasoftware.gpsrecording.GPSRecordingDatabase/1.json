@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "027287ba9f6867eddf8e222baa159e12",
+    "identityHash": "4890e6995fa6850e7b6e3ae7799d296e",
     "entities": [
       {
         "tableName": "tracks",
@@ -162,7 +162,7 @@
       },
       {
         "tableName": "points",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`lineId` INTEGER NOT NULL, `time` INTEGER NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `horizontal_accuracy` REAL NOT NULL, `altitude` REAL NOT NULL, `vertical_accuracy` REAL NOT NULL, `bearing` REAL NOT NULL, `speed` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, FOREIGN KEY(`lineId`) REFERENCES `lines`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`lineId` INTEGER NOT NULL, `time` INTEGER NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `horizontal_accuracy` REAL NOT NULL, `altitude` REAL, `vertical_accuracy` REAL, `bearing` REAL, `bearing_accuracy` REAL, `speed` REAL, `speed_accuracy` REAL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, FOREIGN KEY(`lineId`) REFERENCES `lines`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "lineId",
@@ -198,25 +198,37 @@
             "fieldPath": "altitude",
             "columnName": "altitude",
             "affinity": "REAL",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "vertical_accuracy",
             "columnName": "vertical_accuracy",
             "affinity": "REAL",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "bearing",
             "columnName": "bearing",
             "affinity": "REAL",
-            "notNull": true
+            "notNull": false
+          },
+          {
+            "fieldPath": "bearing_accuracy",
+            "columnName": "bearing_accuracy",
+            "affinity": "REAL",
+            "notNull": false
           },
           {
             "fieldPath": "speed",
             "columnName": "speed",
-            "affinity": "INTEGER",
-            "notNull": true
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "speed_accuracy",
+            "columnName": "speed_accuracy",
+            "affinity": "REAL",
+            "notNull": false
           },
           {
             "fieldPath": "id",
@@ -266,7 +278,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"027287ba9f6867eddf8e222baa159e12\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"4890e6995fa6850e7b6e3ae7799d296e\")"
     ]
   }
 }

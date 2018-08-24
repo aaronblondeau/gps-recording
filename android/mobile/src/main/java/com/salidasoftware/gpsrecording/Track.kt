@@ -20,4 +20,13 @@ data class Track(
         @ColumnInfo(name="startedAt") var startedAt: Long = System.currentTimeMillis(), // UTC time, in milliseconds since January 1, 1970
         @ColumnInfo(name="endedAt") var endedAt: Long = System.currentTimeMillis(),     // UTC time, in milliseconds since January 1, 1970
         @ColumnInfo(name="id") @PrimaryKey(autoGenerate = true) var id: Long = 0
-        )
+        ) {
+
+        enum class Activity(val activityName: String) {
+                RUN("run"),
+                BIKE("bike"),
+                SKI("ski"),
+                HIKE("hike"),
+                WALK("walk")
+        }
+}

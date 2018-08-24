@@ -51,8 +51,8 @@ class PointDAOTest {
 
         val beforeCount = pointDAO.getAllForLine(lineId)
 
-        val point1 = Point(lineId, System.currentTimeMillis(), 38.51, -106.01, 0.0f, 0.0, 0.0f, 0.0f, 0)
-        val point2 = Point(lineId, System.currentTimeMillis() + 1, 38.52, -106.02, 0.0f, 0.0, 0.0f, 0.0f, 0)
+        val point1 = Point(lineId, System.currentTimeMillis(), 38.51, -106.01, 0.0f, 0.0)
+        val point2 = Point(lineId, System.currentTimeMillis() + 1, 38.52, -106.02, 0.0f, 0.0)
 
         pointDAO.insert(point1)
         pointDAO.insert(point2)
@@ -72,8 +72,8 @@ class PointDAOTest {
         val line = Line(trackId, 1.1f)
         val lineId = lineDAO.insert(line)
 
-        val point1 = Point(lineId, System.currentTimeMillis(), 38.51, -106.01, 0.0f, 0.0, 0.0f, 0.0f, 0)
-        val point2 = Point(lineId, System.currentTimeMillis() + 1, 38.52, -106.02, 0.0f, 0.0, 0.0f, 0.0f, 0)
+        val point1 = Point(lineId, System.currentTimeMillis(), 38.51, -106.01, 0.0f, 0.00)
+        val point2 = Point(lineId, System.currentTimeMillis() + 1, 38.52, -106.02, 0.0f, 0.0)
 
         pointDAO.insert(point1)
         pointDAO.insert(point2)
@@ -81,7 +81,11 @@ class PointDAOTest {
         val beforeCount = pointDAO.count()
 
         val found = trackDAO.getById(trackId)
-        trackDAO.delete(found)
+        if (found != null) {
+            trackDAO.delete(found)
+        } else {
+            Assert.fail("Got an unexpected null track!")
+        }
 
         val afterCount = pointDAO.count()
 
