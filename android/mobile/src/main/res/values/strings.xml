@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">GPS Recording</string>
+    <string name="record">Record</string>
+    <string name="settings">Settings</string>
+    <string name="title_activity_record">Record</string>
+    <string name="loading_track">Loading Track...</string>
 </resources>

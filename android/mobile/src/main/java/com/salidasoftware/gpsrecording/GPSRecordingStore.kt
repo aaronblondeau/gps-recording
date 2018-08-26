@@ -6,9 +6,9 @@ import android.util.Log
 
 class GPSRecordingStore(database: GPSRecordingDatabase) {
 
-    private val trackDAO = database.trackDAO()
-    private val lineDAO = database.lineDAO()
-    private val pointDAO = database.pointDAO()
+    val trackDAO = database.trackDAO()
+    val lineDAO = database.lineDAO()
+    val pointDAO = database.pointDAO()
 
     fun createTrack(name: String, note: String, activity: String) : Track {
         val track = Track(name, note, activity)

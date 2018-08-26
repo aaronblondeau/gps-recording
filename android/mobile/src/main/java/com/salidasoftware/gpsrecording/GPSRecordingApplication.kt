@@ -6,10 +6,34 @@ import android.arch.persistence.room.Room
 class GPSRecordingApplication: Application() {
     companion object {
         var database: GPSRecordingDatabase? = null
+        fun getDatabase(application: Application) : GPSRecordingDatabase {
+            val db = database
+            if (db != null) {
+                return db
+            } else {
+                val newDatabase = Room.databaseBuilder(application, GPSRecordingDatabase::class.java, "gps-recording-database").build()
+                database = newDatabase
+                return newDatabase
+            }
+        }
+
+        var store: GPSRecordingStore? = null
+        fun getStore(database: GPSRecordingDatabase) : GPSRecordingStore {
+            val s = store
+            if (s != null) {
+                return s
+            } else {
+                val newStore = GPSRecordingStore(database)
+                store = newStore
+                return newStore
+            }
+        }
     }
 
     override fun onCreate() {
         super.onCreate()
-        GPSRecordingApplication.database = Room.databaseBuilder(this, GPSRecordingDatabase::class.java, "gps-recording-database").build()
+        val database = GPSRecordingApplication.getDatabase(this)
+        GPSRecordingApplication.getStore(database)
     }
+
 }

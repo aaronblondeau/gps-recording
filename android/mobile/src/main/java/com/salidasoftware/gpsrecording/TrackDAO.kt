@@ -1,11 +1,15 @@
 package com.salidasoftware.gpsrecording
 
+import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.*
 
 @Dao
 interface TrackDAO {
     @Query("SELECT * FROM tracks ORDER BY startedAt DESC")
     fun getAll(): List<Track>
+
+    @Query("SELECT * FROM tracks ORDER BY startedAt DESC")
+    fun getAllLive(): LiveData<List<Track>>
 
     @Query("SELECT * FROM tracks WHERE id = :id")
     fun getById(id: Long): Track?
