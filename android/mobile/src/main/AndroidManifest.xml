@@ -22,6 +22,10 @@
         <activity
             android:name=".RecordActivity"
             android:label="@string/title_activity_record"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".TrackActivity"
+            android:label="@string/title_activity_track"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 

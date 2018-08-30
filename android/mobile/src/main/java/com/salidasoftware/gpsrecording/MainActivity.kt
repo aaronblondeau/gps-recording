@@ -8,14 +8,18 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.helper.ItemTouchHelper
 import android.util.Log
 import android.view.View
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.doAsync
 
-class MainActivity : AppCompatActivity(), View.OnLongClickListener {
+class MainActivity : AppCompatActivity(), OnTrackClickListener {
 
     val store = GPSRecordingApplication.store
+
+    private lateinit var viewModel: TrackViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,39 +43,26 @@ class MainActivity : AppCompatActivity(), View.OnLongClickListener {
             true
         }
 
-        val recyclerViewAdapter = TracksRecyclerViewAdapter(listOf<Track>(), this)
+        // https://code.tutsplus.com/tutorials/android-architecture-components-using-the-paging-library-with-room--cms-31535
+
+        viewModel = ViewModelProviders.of(this).get(TrackViewModel::class.java)
+
+        val adapter = TracksRecyclerViewAdapter(this)
         recyclerViewMain.layoutManager = LinearLayoutManager(this)
-        recyclerViewMain.adapter = recyclerViewAdapter
+        recyclerViewMain.adapter = adapter
+        adapter.setOnTrackClickListener(this)
 
-        val viewModel = ViewModelProviders.of(this).get(TrackViewModel::class.java)
-        viewModel.getTracks().observe(this, Observer {
-
-            // TODO - is there a better way to do this than wholesale replace with resetTracks?
-
-            if (it != null) {
-                Log.d("MainActivity", "~~ I see " + it.size + " tracks!")
-                recyclerViewAdapter.resetTracks(it)
-            } else {
-                Log.d("MainActivity", "~~ I see 0 (null) tracks!")
-                recyclerViewAdapter.resetTracks(listOf<Track>())
-            }
+        viewModel.getTracks().observe(this, Observer { tracks ->
+            if(tracks != null) adapter.submitList(tracks)
         })
-
     }
 
-    override fun onLongClick(v: View?): Boolean {
+    override fun onTrackClick(track: Track) {
+        Log.d("MainActivity", "~~ Clicked track " + track.name)
 
-        // TODO - use an action sheet here
-
-        Log.d("MainActivity", "~~ onLongClick")
-        if (v != null && store != null) {
-            val track = v.getTag() as Track
-            Log.d("MainActivity", "~~ Long clicked track " + track.name)
-            doAsync {
-                store.deleteTrack(track)
-            }
-        }
-        return true
+        val intent = Intent(this, TrackActivity::class.java)
+        intent.putExtra(TrackActivity.TRACK_ID, track.id)
+        this.startActivity(intent)
     }
 
 }

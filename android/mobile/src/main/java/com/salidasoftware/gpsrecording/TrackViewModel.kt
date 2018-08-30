@@ -3,14 +3,23 @@ package com.salidasoftware.gpsrecording
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
+import android.arch.paging.DataSource
+import android.arch.paging.LivePagedListBuilder
+import android.arch.paging.PagedList
 import android.os.AsyncTask
 import org.jetbrains.anko.doAsync
 
 class TrackViewModel(application: Application) : AndroidViewModel(application) {
     val store = GPSRecordingApplication.getStore(GPSRecordingApplication.getDatabase(application))
-    val items = store.trackDAO.getAllLive()
+    var items : LiveData<PagedList<Track>> // store.trackDAO.getAllLive()
 
-    fun getTracks() : LiveData<List<Track>> {
+    init {
+        val factory : DataSource.Factory<Int, Track> = store.trackDAO.getAllPaged()
+        val pagedListBuilder: LivePagedListBuilder<Int, Track> =  LivePagedListBuilder<Int, Track>(factory, 50)
+        items = pagedListBuilder.build()
+    }
+
+    fun getTracks() : LiveData<PagedList<Track>> {
         return items
     }
 

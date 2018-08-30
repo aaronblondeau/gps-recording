@@ -76,6 +76,9 @@ dependencies {
     implementation "android.arch.lifecycle:extensions:$lifecycle_version"
     kapt "android.arch.lifecycle:extensions:$lifecycle_version"
 
+    def paging_version = "1.0.1"
+    implementation "android.arch.paging:runtime:$paging_version"
+
     // Kotlin Goodies
-    compile 'org.jetbrains.anko:anko-common:0.9'
+    implementation 'org.jetbrains.anko:anko-common:0.9'
 }
