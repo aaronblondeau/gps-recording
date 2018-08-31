@@ -3,15 +3,10 @@ package com.salidasoftware.gpsrecording
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
-import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.helper.ItemTouchHelper
 import android.util.Log
-import android.view.View
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.doAsync
 
@@ -19,7 +14,7 @@ class MainActivity : AppCompatActivity(), OnTrackClickListener {
 
     val store = GPSRecordingApplication.store
 
-    private lateinit var viewModel: TrackViewModel
+    private lateinit var viewModel: TracksViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +40,7 @@ class MainActivity : AppCompatActivity(), OnTrackClickListener {
 
         // https://code.tutsplus.com/tutorials/android-architecture-components-using-the-paging-library-with-room--cms-31535
 
-        viewModel = ViewModelProviders.of(this).get(TrackViewModel::class.java)
+        viewModel = ViewModelProviders.of(this).get(TracksViewModel::class.java)
 
         val adapter = TracksRecyclerViewAdapter(this)
         recyclerViewMain.layoutManager = LinearLayoutManager(this)

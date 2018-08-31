@@ -1,31 +1,24 @@
 package com.salidasoftware.gpsrecording
 
-import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
+import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.LiveData
-import android.arch.paging.DataSource
-import android.arch.paging.LivePagedListBuilder
-import android.arch.paging.PagedList
-import android.os.AsyncTask
-import org.jetbrains.anko.doAsync
+import android.arch.lifecycle.ViewModel
+import android.util.Log
+import android.arch.lifecycle.Observer
+import android.databinding.ObservableField
 
-class TrackViewModel(application: Application) : AndroidViewModel(application) {
-    val store = GPSRecordingApplication.getStore(GPSRecordingApplication.getDatabase(application))
-    var items : LiveData<PagedList<Track>> // store.trackDAO.getAllLive()
+class TrackViewModel() : ViewModel() {
 
-    init {
-        val factory : DataSource.Factory<Int, Track> = store.trackDAO.getAllPaged()
-        val pagedListBuilder: LivePagedListBuilder<Int, Track> =  LivePagedListBuilder<Int, Track>(factory, 50)
-        items = pagedListBuilder.build()
+    // https://developer.android.com/reference/android/databinding/ObservableField
+    val name : ObservableField<String> = ObservableField("")
+
+    fun setTrack(owner: LifecycleOwner, track: LiveData<Track>) {
+        track.observe(owner, Observer {
+            Log.d("TrackActivity", "~~ Track LiveData changed!")
+            it?.let {
+                name.set(it.name)
+            }
+        })
     }
 
-    fun getTracks() : LiveData<PagedList<Track>> {
-        return items
-    }
-
-    fun deleteTrack(track: Track) {
-        doAsync {
-            store.deleteTrack(track)
-        }
-    }
 }
