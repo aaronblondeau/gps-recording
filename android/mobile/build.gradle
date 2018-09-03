@@ -7,11 +7,11 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 27
     defaultConfig {
         applicationId "com.salidasoftware.gpsrecording"
         minSdkVersion 19
-        targetSdkVersion 28
+        targetSdkVersion 27
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -43,11 +43,14 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.android.support:appcompat-v7:28.0.0-rc01'
+
+    def support_version = "27.1.1" // good on windows "28.0.0-alpha1"  // bad on windows 28.0.0-rc01
+
+    implementation "com.android.support:appcompat-v7:$support_version"
 
     // Added these two to fix "All com.android.support libraries must use the exact same version specification" error in above:
-    implementation "com.android.support:support-media-compat:28.0.0-rc01"
-    implementation "com.android.support:support-v4:28.0.0-rc01"
+    implementation "com.android.support:support-media-compat:$support_version"
+    implementation "com.android.support:support-v4:$support_version"
 
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     testImplementation 'junit:junit:4.12'
@@ -68,8 +71,8 @@ dependencies {
 
     // Data Binding
     kapt 'com.android.databinding:compiler:3.1.4'
-    implementation 'com.android.support:recyclerview-v7:28.0.0-rc01'
-    implementation 'com.android.support:design:28.0.0-rc01'
+    implementation "com.android.support:recyclerview-v7:$support_version"
+    implementation "com.android.support:design:$support_version"
 
     def lifecycle_version = "1.1.1"
     // ViewModel and LiveData

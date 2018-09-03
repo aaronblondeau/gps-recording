@@ -3,6 +3,10 @@
     package="com.salidasoftware.gpsrecording">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE " />
+
+    <uses-feature android:name="android.hardware.location.gps" />
 
     <application
         android:name=".GPSRecordingApplication"
@@ -26,7 +30,16 @@
         <activity
             android:name=".TrackActivity"
             android:label="@string/title_activity_track"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <service
+            android:name=".GPSRecordingService"
+            android:enabled="true"
+            android:exported="false" />
+        <service
+            android:name=".MyService"
+            android:enabled="true"
+            android:exported="false"></service>
     </application>
 
 </manifest>

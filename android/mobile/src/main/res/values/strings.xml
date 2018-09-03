@@ -5,4 +5,11 @@
     <string name="title_activity_record">Record</string>
     <string name="loading_track">Loading Track...</string>
     <string name="title_activity_track">TrackActivity</string>
+    <string name="start">Start</string>
+    <string name="finish">Finish</string>
+    <string name="pause">Pause</string>
+    <string name="record_notification_title">Recording GPS</string>
+    <string name="record_notification_message">A track is being recorded.</string>
+    <string name="record_channel_name">GPSRecording</string>
+    <string name="record_channel_description">GPSRecording Notification Channel</string>
 </resources>

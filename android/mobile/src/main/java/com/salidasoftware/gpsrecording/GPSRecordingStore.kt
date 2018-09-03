@@ -1,10 +1,36 @@
 package com.salidasoftware.gpsrecording
 
+import android.content.Context
+import android.databinding.ObservableField
 import android.location.Location
 import android.os.Build
 import android.util.Log
+import org.jetbrains.anko.doAsync
+import java.text.SimpleDateFormat
+import java.util.*
 
 class GPSRecordingStore(database: GPSRecordingDatabase) {
+
+    companion object {
+        val observableCurrentTrackId: ObservableField<Long> = ObservableField(-1)
+
+        fun getCurrentTrackId(context: Context) : Long {
+            val pref = context.getSharedPreferences("GPSRecording", Context.MODE_PRIVATE)
+            val trackId = pref.getLong("current_track_id", -1)
+            Log.d("GPSRecordingStore", "~~ Current track id is " + trackId)
+            observableCurrentTrackId.set(trackId)
+            return trackId
+        }
+
+        fun setCurrentTrackId(context: Context, id: Long) {
+            val pref = context.getSharedPreferences("GPSRecording", Context.MODE_PRIVATE)
+            val editor = pref.edit()
+            editor.putLong("current_track_id", id)
+            editor.commit()
+            Log.d("GPSRecordingStore", "~~ Current track id is " + id)
+            observableCurrentTrackId.set(id)
+        }
+    }
 
     val trackDAO = database.trackDAO()
     val lineDAO = database.lineDAO()
@@ -15,6 +41,11 @@ class GPSRecordingStore(database: GPSRecordingDatabase) {
         val trackId = trackDAO.insert(track)
         val result = trackDAO.getById(trackId)
         return result!!
+    }
+
+    fun createTrack() : Track {
+        val name = SimpleDateFormat("dd/M/yyyy hh:mm:ss").format(Date())
+        return createTrack(name, "", "")
     }
 
     fun getTrack(id: Long) : Track? {
@@ -141,6 +172,7 @@ class GPSRecordingStore(database: GPSRecordingDatabase) {
         return result!!
     }
 
+    @Throws(Exception::class)
     fun addLocationToTrack(track: Track, location: Location) : Point {
         val line = lineDAO.getCurrentLineForTrack(track.id) ?: addLineToTrack(track)
         return addLocationToLine(line, location)
