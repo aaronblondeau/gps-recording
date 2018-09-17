@@ -1,11 +1,13 @@
 package com.salidasoftware.gpsrecording
 
 import android.Manifest
+import android.arch.lifecycle.ViewModelProviders
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
+import android.databinding.DataBindingUtil
 import android.databinding.Observable
 import android.os.Build
 import android.os.Bundle
@@ -15,24 +17,34 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
+import com.salidasoftware.gpsrecording.databinding.ActivityRecordBinding
 
 import kotlinx.android.synthetic.main.activity_record.*
 import kotlinx.android.synthetic.main.content_record.*
+import org.jetbrains.anko.doAsync
 
 class RecordActivity : AppCompatActivity() {
 
     private val GPS_REQUEST_CODE = 101
 
+    val store = GPSRecordingApplication.store
+    lateinit var binding : ActivityRecordBinding
+
+    var currentTrackCallback : Observable.OnPropertyChangedCallback? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_record)
+        // setContentView(R.layout.activity_record)
+
+        binding  = DataBindingUtil.setContentView(this, R.layout.activity_record)
+        val trackViewModel = ViewModelProviders.of(this).get(TrackViewModel::class.java)
+        binding.track = trackViewModel
+
+        val recordingViewModel = ViewModelProviders.of(this).get(RecordingViewModel::class.java)
+        binding.recording = recordingViewModel
+
         setSupportActionBar(toolbar)
         supportActionBar?.apply { setDisplayHomeAsUpEnabled(true) }
-
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-        }
 
         buttonStartRecording.setOnClickListener {
             // Request permissions if needed or start service
@@ -74,6 +86,35 @@ class RecordActivity : AppCompatActivity() {
         }
 
 
+    }
+
+    fun updateCurrentTrack() {
+        val trackId = GPSRecordingStore.getCurrentTrackId(this)
+        if (trackId >= 0 && store != null) {
+            doAsync {
+                store.trackDAO.getByIdLive(trackId)?.let {
+                    binding.track?.setTrack(this@RecordActivity, it)
+                }
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        currentTrackCallback = object : Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(p0: Observable?, p1: Int) {
+                this@RecordActivity.updateCurrentTrack()
+            }
+        }
+        GPSRecordingStore.observableCurrentTrackId.addOnPropertyChangedCallback(currentTrackCallback!!)
+        updateCurrentTrack()
+    }
+
+    override fun onPause() {
+        currentTrackCallback?.let {
+            GPSRecordingStore.observableCurrentTrackId.removeOnPropertyChangedCallback(it)
+        }
+        super.onPause()
     }
 
 

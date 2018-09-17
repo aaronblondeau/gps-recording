@@ -10,11 +10,9 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.MenuItem
 import com.salidasoftware.gpsrecording.databinding.ActivityTrackBinding
-import com.salidasoftware.gpsrecording.databinding.ContentTrackBinding
-
 import kotlinx.android.synthetic.main.activity_track.*
-import kotlinx.android.synthetic.main.content_track.*
-import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.*
+import java.io.IOException
 
 class TrackActivity : AppCompatActivity() {
 
@@ -42,16 +40,30 @@ class TrackActivity : AppCompatActivity() {
         supportActionBar?.apply { setDisplayHomeAsUpEnabled(true) }
 
         emailTrackFAB.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", {
-                        Log.d("TrackActivity", "~~ snack action!")
+
+            val outputs = listOf("GPX File", "GeoJSON File")
+            selector("Share Track", outputs, { i ->
+                track.value?.let {
+                    if (i == 0) {
                         doAsync {
-                            track.value?.let {
-                                it.name = it.name + "X"
-                                store?.saveTrack(it)
+                            try {
+                                store?.emailGpx(it, this@TrackActivity)
+                            } catch(e: IOException) {
+                                Log.e("Track Activity", "Failed to send GPX", e)
                             }
                         }
-                    }).show()
+                    } else {
+                        doAsync {
+                            try {
+                                store?.emailGeoJson(it, this@TrackActivity)
+                            } catch(e: IOException) {
+                                Log.e("Track Activity", "Failed to send GeoJSON", e)
+                            }
+                        }
+                    }
+                }
+            })
+
         }
 
         deleteTrackFAB.setOnClickListener { view ->

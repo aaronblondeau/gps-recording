@@ -1,13 +1,21 @@
 package com.salidasoftware.gpsrecording
 
 import android.content.Context
+import android.content.Intent
 import android.databinding.ObservableField
 import android.location.Location
 import android.os.Build
+import android.os.Environment
 import android.util.Log
-import org.jetbrains.anko.doAsync
+import java.io.Writer
 import java.text.SimpleDateFormat
 import java.util.*
+import java.io.File
+import java.io.FileWriter
+import java.io.IOException
+import android.content.Intent.ACTION_SEND
+import android.net.Uri
+import android.support.v4.content.FileProvider
 
 class GPSRecordingStore(database: GPSRecordingDatabase) {
 
@@ -44,7 +52,7 @@ class GPSRecordingStore(database: GPSRecordingDatabase) {
     }
 
     fun createTrack() : Track {
-        val name = SimpleDateFormat("dd/M/yyyy hh:mm:ss").format(Date())
+        val name = SimpleDateFormat("M/dd/yyyy hh:mm:ss").format(Date())
         return createTrack(name, "", "")
     }
 
@@ -198,6 +206,175 @@ class GPSRecordingStore(database: GPSRecordingDatabase) {
 
     fun countPointsInLine(line: Line) : Long {
         return pointDAO.countPointsInLine(line.id)
+    }
+
+    private fun getExportFilenameBase(track: Track): String {
+        var basename = track.name
+        basename = basename.replace("[^A-Za-z0-9]".toRegex(), "_")
+        return if (basename.length > 0 && basename != "_") {
+            basename
+        } else "track_" + track.id
+    }
+
+    @Throws(IOException::class)
+    fun emailGpx(track: Track, context: Context) {
+        val fileLocation = this.exportGpx(track, context)
+        fileLocation.deleteOnExit()
+        emailAttachment(context, fileLocation, "application/gpx+xml", "Track GPX File")
+    }
+
+    @Throws(IOException::class)
+    fun emailGeoJson(track: Track, context: Context) {
+        val fileLocation = this.exportGeoJson(track, context)
+        fileLocation.deleteOnExit()
+        emailAttachment(context, fileLocation, "application/json", "Track GeoJSON File")
+    }
+
+    private fun emailAttachment(context: Context, filelocation: File, mime: String, subject: String) {
+        val emailIntent = Intent(ACTION_SEND)
+
+        if(Build.VERSION.SDK_INT > 24) {
+            // https://developer.android.com/reference/android/support/v4/content/FileProvider#SpecifyFiles
+            // and
+            // https://android--code.blogspot.com/2018/07/android-kotlin-file-provider-image.html
+            val path = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".fileprovider", filelocation)
+            emailIntent.putExtra(Intent.EXTRA_STREAM, path)
+        } else {
+            val path = Uri.fromFile(filelocation)
+            emailIntent.putExtra(Intent.EXTRA_STREAM, path)
+        }
+
+        emailIntent.setType(mime)
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject)
+        emailIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(Intent.createChooser(emailIntent, "Share track..."))
+    }
+
+    @Throws(IOException::class)
+    fun exportGpx(track: Track, context: Context): File {
+
+        val filename = getExportFilenameBase(track) + ".gpx"
+        val filelocation = File(context.cacheDir, filename) //File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath(), filename)
+        filelocation.getParentFile().mkdirs()
+
+        val fw = FileWriter(filelocation)
+        this.writeGpx(track, fw)
+        fw.close()
+        return filelocation
+    }
+
+    @Throws(IOException::class)
+    fun exportGeoJson(track: Track, context: Context): File {
+
+        val filename = getExportFilenameBase(track) + ".json"
+        val filelocation = File(context.cacheDir, filename) //File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath(), filename)
+        filelocation.getParentFile().mkdirs()
+
+        val fw = FileWriter(filelocation)
+        this.writeGeoJSON(track, fw)
+        fw.close()
+        return filelocation
+    }
+
+    private val pointDateFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+
+    fun writeGpx(track: Track, out: Writer) {
+        val gpx_header = "<?xml version=\"1.0\" standalone=\"yes\"?>"
+        val gpx_open = ("<gpx"
+                + " xmlns=\"http://www.topografix.com/GPX/1/1\""
+                + " version=\"1.1\" creator=\"gomaps.us LocationTools 1.0\""
+                + " xmlns:gpxtpx=\"http://www.garmin.com/xmlschemas/TrackPointExtension/v1\""
+                + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
+                + " xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.topografix.com/GPX/gpx_style/0/2 http://www.topografix.com/GPX/gpx_style/0/2/gpx_style.xsd\">")
+
+        out.write(gpx_header + "\n")
+
+        //open gpx
+        out.write(gpx_open + "\n")
+        out.write("\t<trk>\n");
+        out.write("\t\t<name>" + track.name + "</name>\n");
+        out.write("\t\t<src>com.salidasoftware.gpsrecording</src>\n");
+        out.write("\t\t<extensions>\n");
+        out.write("\t\t\t<line xmlns=\"http://www.topografix.com/GPX/gpx_style/0/2\">\n");
+        out.write("\t\t\t\t<color>ff0000</color>\n");
+        out.write("\t\t\t\t<opacity>0.78</opacity>\n");
+        out.write("\t\t\t\t<width>0.6000</width>\n");
+        out.write("\t\t\t\t<pattern>Solid</pattern>\n");
+        out.write("\t\t\t</line>\n");
+        out.write("\t\t</extensions>\n");
+
+        val lines = lineDAO.getAllForTrack(track.id)
+        for (line in lines) {
+
+            val points = pointDAO.getAllForLine(line.id)
+            if(points.size > 1) {
+                out.write("\t\t<trkseg>\n");
+
+                for (point in points) {
+                    out.write("\t\t\t" + "<trkpt lat=\"" + point.latitude + "\" " + "lon=\"" + point.longitude + "\">");
+                    out.write("<ele>" + point.altitude + "</ele>");
+                    out.write("<time>" + pointDateFormatter.format(Date(point.time)) + "</time>");
+                    out.write("<speed>" + point.speed + "</speed>");
+                    out.write("<course>" + point.bearing + "</course>");
+                    out.write("</trkpt>\n");
+                }
+
+                out.write("\t\t" + "</trkseg>" + "\n");
+            }
+        }
+
+        out.write("\t</trk>\n")
+
+        //close gpx
+        out.write("</gpx>");
+    }
+
+    fun writeGeoJSON(track: Track, out: Writer) {
+        out.write("{\n")
+        out.write("  \"type\": \"FeatureCollection\",\n")
+        out.write("  \"features\": [\n")
+        out.write("    {\n")
+        out.write("      \"type\": \"Feature\",\n")
+        out.write("      \"properties\": {},\n")
+        out.write("      \"geometry\": {\n")
+        out.write("        \"type\": \"MultiLineString\",\n")
+        out.write("        \"coordinates\": [\n")
+
+        val lines = lineDAO.getAllForTrack(track.id)
+        var lineIndex = 0
+        for (line in lines) {
+            val points = pointDAO.getAllForLine(line.id)
+            if(points.size > 1) {
+                var pointIndex = 0
+                if (lineIndex > 0) {
+                    out.write("          ,\n")
+                }
+                out.write("          [\n")
+
+                for (point in points) {
+                    out.write("            [\n")
+                    out.write("              "+point.longitude+",\n")
+                    out.write("              "+point.latitude+"\n")
+                    if (pointIndex >= points.size - 1) {
+                        // No comma for last coord
+                        out.write("            ]\n")
+                    } else {
+                        out.write("            ],\n")
+                    }
+                    pointIndex++
+                }
+
+                out.write("          ]\n")
+
+            }
+            lineIndex++
+        }
+
+        out.write("        ]\n")
+        out.write("      }\n")
+        out.write("    }\n")
+        out.write("  ]\n")
+        out.write("}\n")
     }
 
 }
