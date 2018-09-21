@@ -10,6 +10,9 @@ import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import android.arch.core.executor.testing.InstantTaskExecutorRule
 import android.location.Location
+import com.salidasoftware.gpsrecording.room.GPSRecordingDatabase
+import com.salidasoftware.gpsrecording.room.GPSRecordingStore
+import com.salidasoftware.gpsrecording.room.Track
 
 @RunWith(AndroidJUnit4::class)
 class GPSRecordingStoreTest {

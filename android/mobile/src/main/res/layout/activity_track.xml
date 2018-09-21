@@ -7,14 +7,14 @@
     <data>
         <variable
             name="track"
-            type="com.salidasoftware.gpsrecording.TrackViewModel"/>
+            type="com.salidasoftware.gpsrecording.view_models.TrackViewModel"/>
     </data>
 
     <android.support.design.widget.CoordinatorLayout
 
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".TrackActivity">
+        tools:context=".activities.TrackActivity">
 
         <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
@@ -22,7 +22,7 @@
             android:theme="@style/AppTheme.AppBarOverlay">
 
             <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
+                android:id="@+id/toolbarTrack"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"

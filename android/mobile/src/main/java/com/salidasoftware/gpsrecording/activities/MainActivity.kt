@@ -1,4 +1,4 @@
-package com.salidasoftware.gpsrecording
+package com.salidasoftware.gpsrecording.activities
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
@@ -7,6 +7,9 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
+import com.salidasoftware.gpsrecording.*
+import com.salidasoftware.gpsrecording.room.Track
+import com.salidasoftware.gpsrecording.view_models.TracksViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.doAsync
 
@@ -25,15 +28,8 @@ class MainActivity : AppCompatActivity(), OnTrackClickListener {
                 val intent = Intent(this, RecordActivity::class.java)
                 this.startActivity(intent)
             } else {
-                Log.d("MainActivity", "~~ TODO - launch settings activity")
-
-                if (store != null) {
-
-                    doAsync {
-                        val track = store.createTrack("Track " + System.currentTimeMillis(), "Test", Track.Activity.BIKE.name)
-                        Log.d("MainActivity", "~~ Created track " + track.name)
-                    }
-                }
+                val intent = Intent(this, SettingsActivity::class.java)
+                this.startActivity(intent)
             }
             true
         }

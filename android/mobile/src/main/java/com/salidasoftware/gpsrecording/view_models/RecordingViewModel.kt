@@ -1,8 +1,10 @@
-package com.salidasoftware.gpsrecording
+package com.salidasoftware.gpsrecording.view_models
 
 import android.arch.lifecycle.ViewModel
 import android.databinding.Observable
 import android.databinding.ObservableField
+import com.salidasoftware.gpsrecording.GPSRecordingService
+import com.salidasoftware.gpsrecording.room.GPSRecordingStore
 
 class RecordingViewModel : ViewModel() {
 
@@ -26,7 +28,7 @@ class RecordingViewModel : ViewModel() {
                 this@RecordingViewModel.updateHasCurrentTrack()
             }
         }
-        GPSRecordingStore.observableCurrentTrackId.addOnPropertyChangedCallback(currentTrackCallback!!)
+        GPSRecordingStore.currentTrackId.addOnPropertyChangedCallback(currentTrackCallback!!)
         updateHasCurrentTrack()
     }
 
@@ -35,7 +37,7 @@ class RecordingViewModel : ViewModel() {
     }
 
     fun updateHasCurrentTrack() {
-        var currentTrackId: Long = GPSRecordingStore.observableCurrentTrackId.get() ?: -1
+        var currentTrackId: Long = GPSRecordingStore.currentTrackId.get() ?: -1
         this@RecordingViewModel.hasCurrentTrack.set(currentTrackId > -1)
     }
 
@@ -46,7 +48,7 @@ class RecordingViewModel : ViewModel() {
         }
 
         currentTrackCallback?.let {
-            GPSRecordingStore.observableCurrentTrackId.removeOnPropertyChangedCallback(it)
+            GPSRecordingStore.currentTrackId.removeOnPropertyChangedCallback(it)
         }
 
         super.onCleared()

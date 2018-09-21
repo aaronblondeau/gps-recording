@@ -4,10 +4,15 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.arch.persistence.room.Room
+import android.content.Context
 import android.os.Build
+import com.salidasoftware.gpsrecording.room.GPSRecordingDatabase
+import com.salidasoftware.gpsrecording.room.GPSRecordingStore
 
 class GPSRecordingApplication: Application() {
     companion object {
+        var context: Context? = null
+
         var database: GPSRecordingDatabase? = null
         fun getDatabase(application: Application) : GPSRecordingDatabase {
             val db = database
@@ -37,13 +42,13 @@ class GPSRecordingApplication: Application() {
 
     override fun onCreate() {
         super.onCreate()
+        context = this
         val database = GPSRecordingApplication.getDatabase(this)
-        // Init the store's observable track id
-        GPSRecordingStore.getCurrentTrackId(this)
         GPSRecordingApplication.getStore(database)
         createNotificationChannel()
     }
 
+    // This is necessary for showing the foreground service notification on 26+
     private fun createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library

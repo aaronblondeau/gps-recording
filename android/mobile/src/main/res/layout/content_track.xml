@@ -7,14 +7,14 @@
     <data>
         <variable
             name="track"
-            type="com.salidasoftware.gpsrecording.TrackViewModel"/>
+            type="com.salidasoftware.gpsrecording.view_models.TrackViewModel"/>
     </data>
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context=".TrackActivity"
+        tools:context=".activities.TrackActivity"
         tools:showIn="@layout/activity_track">
 
         <TextView

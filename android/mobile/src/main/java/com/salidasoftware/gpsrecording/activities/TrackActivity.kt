@@ -1,4 +1,4 @@
-package com.salidasoftware.gpsrecording
+package com.salidasoftware.gpsrecording.activities
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.ViewModelProviders
@@ -9,6 +9,10 @@ import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.MenuItem
+import com.salidasoftware.gpsrecording.GPSRecordingApplication
+import com.salidasoftware.gpsrecording.R
+import com.salidasoftware.gpsrecording.room.Track
+import com.salidasoftware.gpsrecording.view_models.TrackViewModel
 import com.salidasoftware.gpsrecording.databinding.ActivityTrackBinding
 import kotlinx.android.synthetic.main.activity_track.*
 import org.jetbrains.anko.*
@@ -36,7 +40,7 @@ class TrackActivity : AppCompatActivity() {
         binding.track = trackViewModel
 
         // Back button goes back to main activity
-        setSupportActionBar(toolbar)
+        setSupportActionBar(toolbarTrack)
         supportActionBar?.apply { setDisplayHomeAsUpEnabled(true) }
 
         emailTrackFAB.setOnClickListener { view ->

@@ -9,6 +9,7 @@ import org.junit.*
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import android.arch.core.executor.testing.InstantTaskExecutorRule
+import com.salidasoftware.gpsrecording.room.*
 
 @RunWith(AndroidJUnit4::class)
 class LineDAOTest {

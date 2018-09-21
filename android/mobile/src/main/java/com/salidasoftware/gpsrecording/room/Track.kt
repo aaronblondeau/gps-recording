@@ -1,4 +1,4 @@
-package com.salidasoftware.gpsrecording
+package com.salidasoftware.gpsrecording.room
 
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity

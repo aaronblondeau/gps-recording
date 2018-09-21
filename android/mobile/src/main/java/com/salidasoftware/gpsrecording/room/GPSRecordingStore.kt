@@ -1,11 +1,10 @@
-package com.salidasoftware.gpsrecording
+package com.salidasoftware.gpsrecording.room
 
 import android.content.Context
 import android.content.Intent
 import android.databinding.ObservableField
 import android.location.Location
 import android.os.Build
-import android.os.Environment
 import android.util.Log
 import java.io.Writer
 import java.text.SimpleDateFormat
@@ -14,29 +13,39 @@ import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 import android.content.Intent.ACTION_SEND
+import android.databinding.Observable
 import android.net.Uri
 import android.support.v4.content.FileProvider
+import com.salidasoftware.gpsrecording.BuildConfig
+import com.salidasoftware.gpsrecording.GPSRecordingApplication
 
 class GPSRecordingStore(database: GPSRecordingDatabase) {
 
     companion object {
-        val observableCurrentTrackId: ObservableField<Long> = ObservableField(-1)
+        val currentTrackId: ObservableField<Long> = ObservableField(-1)
+        val distanceFilterInMeters: ObservableField<Float> = ObservableField(10f)
+        val timeFilterInMilliseconds: ObservableField<Long> = ObservableField(1000L)
+        val displayMetricUnits: ObservableField<Boolean> = ObservableField(false)
 
-        fun getCurrentTrackId(context: Context) : Long {
-            val pref = context.getSharedPreferences("GPSRecording", Context.MODE_PRIVATE)
+        init {
+            // Load initial state for currentTrackId
+            val pref = GPSRecordingApplication.context!!.getSharedPreferences("GPSRecording", Context.MODE_PRIVATE)
             val trackId = pref.getLong("current_track_id", -1)
             Log.d("GPSRecordingStore", "~~ Current track id is " + trackId)
-            observableCurrentTrackId.set(trackId)
-            return trackId
-        }
+            currentTrackId.set(trackId)
 
-        fun setCurrentTrackId(context: Context, id: Long) {
-            val pref = context.getSharedPreferences("GPSRecording", Context.MODE_PRIVATE)
-            val editor = pref.edit()
-            editor.putLong("current_track_id", id)
-            editor.commit()
-            Log.d("GPSRecordingStore", "~~ Current track id is " + id)
-            observableCurrentTrackId.set(id)
+            // Update shared prefs if currentTrackId changes
+            currentTrackId.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
+                override fun onPropertyChanged(p0: Observable?, p1: Int) {
+                    currentTrackId.get()?.let {
+                        val pref = GPSRecordingApplication.context!!.getSharedPreferences("GPSRecording", Context.MODE_PRIVATE)
+                        val editor = pref.edit()
+                        editor.putLong("current_track_id", it)
+                        editor.commit()
+                        Log.d("GPSRecordingStore", "~~ Current track id is " + it)
+                    }
+                }
+            })
         }
     }
 
@@ -81,7 +90,11 @@ class GPSRecordingStore(database: GPSRecordingDatabase) {
     }
 
     fun deleteTrack(track: Track) {
+        val trackId = track.id
         trackDAO.delete(track)
+        if (trackId == currentTrackId.get()) {
+            currentTrackId.set(-1)
+        }
     }
 
     fun addLineToTrack(track: Track) : Line {

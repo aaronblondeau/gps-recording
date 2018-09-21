@@ -14,6 +14,9 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.util.Log
+import com.salidasoftware.gpsrecording.activities.RecordActivity
+import com.salidasoftware.gpsrecording.room.GPSRecordingStore
+import com.salidasoftware.gpsrecording.room.Track
 import org.jetbrains.anko.doAsync
 
 class GPSRecordingService : Service(), LocationListener {
@@ -37,11 +40,11 @@ class GPSRecordingService : Service(), LocationListener {
         }
         store?.let { store ->
             doAsync {
-                var currentTrackId = GPSRecordingStore.getCurrentTrackId(this@GPSRecordingService)
+                var currentTrackId = GPSRecordingStore.currentTrackId.get() ?: -1
                 if (currentTrackId < 0) {
                     val newTrk = store.createTrack()
                     currentTrack = newTrk
-                    GPSRecordingStore.setCurrentTrackId(this@GPSRecordingService, newTrk.id)
+                    GPSRecordingStore.currentTrackId.set(newTrk.id)
                 } else {
                     val trk = store.getTrack(currentTrackId)
                     if (trk != null) {
@@ -49,7 +52,7 @@ class GPSRecordingService : Service(), LocationListener {
                     } else {
                         val newTrk = store.createTrack()
                         currentTrack = newTrk
-                        GPSRecordingStore.setCurrentTrackId(this@GPSRecordingService, newTrk.id)
+                        GPSRecordingStore.currentTrackId.set(newTrk.id)
                     }
                 }
             }
@@ -120,7 +123,7 @@ class GPSRecordingService : Service(), LocationListener {
                         }
                     } else {
                         Log.d("GPSRecordingService", "~~ Track no longer exists.  Stopping recording.")
-                        GPSRecordingStore.setCurrentTrackId(this@GPSRecordingService, -1)
+                        GPSRecordingStore.currentTrackId.set(-1)
                         stopSelf()
                     }
                 }

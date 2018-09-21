@@ -1,23 +1,23 @@
-package com.salidasoftware.gpsrecording
+package com.salidasoftware.gpsrecording.activities
 
 import android.Manifest
 import android.arch.lifecycle.ViewModelProviders
-import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.databinding.DataBindingUtil
 import android.databinding.Observable
 import android.os.Build
 import android.os.Bundle
-import android.os.IBinder
-import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.MenuItem
+import com.salidasoftware.gpsrecording.*
 import com.salidasoftware.gpsrecording.databinding.ActivityRecordBinding
+import com.salidasoftware.gpsrecording.room.GPSRecordingStore
+import com.salidasoftware.gpsrecording.view_models.RecordingViewModel
+import com.salidasoftware.gpsrecording.view_models.TrackViewModel
 
 import kotlinx.android.synthetic.main.activity_record.*
 import kotlinx.android.synthetic.main.content_record.*
@@ -43,21 +43,15 @@ class RecordActivity : AppCompatActivity() {
         val recordingViewModel = ViewModelProviders.of(this).get(RecordingViewModel::class.java)
         binding.recording = recordingViewModel
 
-        setSupportActionBar(toolbar)
+        setSupportActionBar(toolbarRecord)
         supportActionBar?.apply { setDisplayHomeAsUpEnabled(true) }
 
         buttonStartRecording.setOnClickListener {
-            // Request permissions if needed or start service
-            if (Build.VERSION.SDK_INT >= 23) {
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // permission needed
-                    ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), GPS_REQUEST_CODE)
-                } else {
-                    startRecording()
-                }
-            } else {
-                startRecording()
-            }
+            startOrResumeRecording()
+        }
+
+        buttonResumeRecording.setOnClickListener {
+            startOrResumeRecording()
         }
 
         buttonPauseRecording.setOnClickListener {
@@ -76,8 +70,8 @@ class RecordActivity : AppCompatActivity() {
             }
 
             // Unset current track
-            val currentTrackId = GPSRecordingStore.getCurrentTrackId(this)
-            GPSRecordingStore.setCurrentTrackId(this, -1)
+            val currentTrackId = GPSRecordingStore.currentTrackId.get() ?: -1
+            GPSRecordingStore.currentTrackId.set(-1)
 
             // Go to track activity
             val intent = Intent(this, TrackActivity::class.java)
@@ -89,13 +83,18 @@ class RecordActivity : AppCompatActivity() {
     }
 
     fun updateCurrentTrack() {
-        val trackId = GPSRecordingStore.getCurrentTrackId(this)
+        val trackId = GPSRecordingStore.currentTrackId.get() ?: -1
         if (trackId >= 0 && store != null) {
             doAsync {
-                store.trackDAO.getByIdLive(trackId)?.let {
-                    binding.track?.setTrack(this@RecordActivity, it)
+                val trk = store.trackDAO.getByIdLive(trackId)
+                if (trk != null) {
+                    Log.d("RecordActivity", "~~ HERE A")
+                    binding.track?.setTrack(this@RecordActivity, trk)
                 }
             }
+        } else {
+            Log.d("RecordActivity", "~~ HERE B")
+            binding.track?.unsetTrack()
         }
     }
 
@@ -106,17 +105,30 @@ class RecordActivity : AppCompatActivity() {
                 this@RecordActivity.updateCurrentTrack()
             }
         }
-        GPSRecordingStore.observableCurrentTrackId.addOnPropertyChangedCallback(currentTrackCallback!!)
+        GPSRecordingStore.currentTrackId.addOnPropertyChangedCallback(currentTrackCallback!!)
         updateCurrentTrack()
     }
 
     override fun onPause() {
         currentTrackCallback?.let {
-            GPSRecordingStore.observableCurrentTrackId.removeOnPropertyChangedCallback(it)
+            GPSRecordingStore.currentTrackId.removeOnPropertyChangedCallback(it)
         }
         super.onPause()
     }
 
+    private fun startOrResumeRecording() {
+        // Request permissions if needed or start service
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // permission needed
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), GPS_REQUEST_CODE)
+            } else {
+                startRecording()
+            }
+        } else {
+            startRecording()
+        }
+    }
 
     fun startRecording() {
         val intent = Intent(this.application, GPSRecordingService::class.java)

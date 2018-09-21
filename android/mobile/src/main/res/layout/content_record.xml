@@ -7,29 +7,40 @@
         <import type="android.view.View"/>
         <variable
             name="track"
-            type="com.salidasoftware.gpsrecording.TrackViewModel"/>
+            type="com.salidasoftware.gpsrecording.view_models.TrackViewModel"/>
         <variable
             name="recording"
-            type="com.salidasoftware.gpsrecording.RecordingViewModel"/>
+            type="com.salidasoftware.gpsrecording.view_models.RecordingViewModel"/>
     </data>
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context=".RecordActivity"
+        tools:context=".activities.RecordActivity"
         tools:showIn="@layout/activity_record">
 
         <Button
             android:id="@+id/buttonStartRecording"
-            android:visibility="@{recording.recording ? View.GONE : View.VISIBLE}"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="@string/start"
+            android:visibility="@{(!recording.recording &amp;&amp; !recording.hasCurrentTrack) ? View.VISIBLE : View.GONE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/buttonResumeRecording"
+            android:visibility="@{(!recording.recording &amp;&amp; recording.hasCurrentTrack) ? View.VISIBLE : View.GONE}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/resume"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/buttonStartRecording" />
 
         <Button
             android:id="@+id/buttonPauseRecording"
@@ -40,7 +51,7 @@
             android:text="@string/pause"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/buttonStartRecording" />
+            app:layout_constraintTop_toBottomOf="@+id/buttonResumeRecording" />
 
         <Button
             android:id="@+id/buttonFinishRecording"
@@ -61,6 +72,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:text="@{track.name, default=TrackName}"
+            android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/buttonFinishRecording" />
@@ -72,9 +84,22 @@
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:text="@{track.distance, default=TrackDistance}"
+            android:textSize="36sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/trackRecordName" />
+
+        <TextView
+            android:id="@+id/trackRecordDuration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:text="@{track.duration, default=TrackDuration}"
+            android:textSize="36sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/trackRecordDistance" />
 
 
     </android.support.constraint.ConstraintLayout>

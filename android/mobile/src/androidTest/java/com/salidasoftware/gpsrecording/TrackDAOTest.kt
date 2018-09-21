@@ -9,6 +9,9 @@ import org.junit.*
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import android.arch.core.executor.testing.InstantTaskExecutorRule
+import com.salidasoftware.gpsrecording.room.GPSRecordingDatabase
+import com.salidasoftware.gpsrecording.room.Track
+import com.salidasoftware.gpsrecording.room.TrackDAO
 
 @RunWith(AndroidJUnit4::class)
 class TrackDAOTest {
