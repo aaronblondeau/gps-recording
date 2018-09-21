@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.salidasoftware.gpsrecording.R
+import com.salidasoftware.gpsrecording.room.GPSRecordingStore
 import com.salidasoftware.gpsrecording.room.Track
 import java.text.SimpleDateFormat
 import java.util.*
@@ -43,8 +44,8 @@ class TracksRecyclerViewAdapter(val context: Context) : PagedListAdapter<Track, 
             clickListener = cl
             itemView.setOnClickListener(this)
             title.text = track.name
-            distance.text = "%.2f".format(track.totalDistanceInMeters / 1609.34) + " miles"
-            date.text = SimpleDateFormat("M/dd/yyyy hh:mm:ss").format(Date(track.startedAt))
+            distance.text = track.formattedDistance(GPSRecordingStore.displayMetricUnits.get() ?: false)
+            date.text = track.formattedStartDate()
             itemView.tag = track
         }
 

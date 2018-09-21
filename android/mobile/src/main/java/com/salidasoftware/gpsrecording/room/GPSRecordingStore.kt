@@ -28,11 +28,24 @@ class GPSRecordingStore(database: GPSRecordingDatabase) {
         val displayMetricUnits: ObservableField<Boolean> = ObservableField(false)
 
         init {
-            // Load initial state for currentTrackId
+
             val pref = GPSRecordingApplication.context!!.getSharedPreferences("GPSRecording", Context.MODE_PRIVATE)
+
+            // Load initial state for currentTrackId
             val trackId = pref.getLong("current_track_id", -1)
-            Log.d("GPSRecordingStore", "~~ Current track id is " + trackId)
             currentTrackId.set(trackId)
+
+            // Load initial state for distanceFilterInMeters
+            val df = pref.getFloat("distance_filter_in_meters", 10f)
+            distanceFilterInMeters.set(df)
+
+            // Load initial state for timeFilterInMilliseconds
+            val tf = pref.getLong("time_filter_in_milliseconds", 1000L)
+            timeFilterInMilliseconds.set(tf)
+
+            // Load initial state for displayMetricUnits
+            val metric = pref.getBoolean("display_metric_units", false)
+            displayMetricUnits.set(metric)
 
             // Update shared prefs if currentTrackId changes
             currentTrackId.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
@@ -42,10 +55,46 @@ class GPSRecordingStore(database: GPSRecordingDatabase) {
                         val editor = pref.edit()
                         editor.putLong("current_track_id", it)
                         editor.commit()
-                        Log.d("GPSRecordingStore", "~~ Current track id is " + it)
                     }
                 }
             })
+
+            // Update shared prefs if distanceFilterInMeters changes
+            distanceFilterInMeters.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
+                override fun onPropertyChanged(p0: Observable?, p1: Int) {
+                    distanceFilterInMeters.get()?.let {
+                        val pref = GPSRecordingApplication.context!!.getSharedPreferences("GPSRecording", Context.MODE_PRIVATE)
+                        val editor = pref.edit()
+                        editor.putFloat("distance_filter_in_meters", it)
+                        editor.commit()
+                    }
+                }
+            })
+
+            // Update shared prefs if distanceFilterInMeters changes
+            timeFilterInMilliseconds.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
+                override fun onPropertyChanged(p0: Observable?, p1: Int) {
+                    timeFilterInMilliseconds.get()?.let {
+                        val pref = GPSRecordingApplication.context!!.getSharedPreferences("GPSRecording", Context.MODE_PRIVATE)
+                        val editor = pref.edit()
+                        editor.putLong("time_filter_in_milliseconds", it)
+                        editor.commit()
+                    }
+                }
+            })
+
+            // Update shared prefs if distanceFilterInMeters changes
+            displayMetricUnits.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
+                override fun onPropertyChanged(p0: Observable?, p1: Int) {
+                    displayMetricUnits.get()?.let {
+                        val pref = GPSRecordingApplication.context!!.getSharedPreferences("GPSRecording", Context.MODE_PRIVATE)
+                        val editor = pref.edit()
+                        editor.putBoolean("display_metric_units", it)
+                        editor.commit()
+                    }
+                }
+            })
+
         }
     }
 

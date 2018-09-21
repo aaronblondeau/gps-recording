@@ -61,8 +61,12 @@ class GPSRecordingService : Service(), LocationListener {
         if (ContextCompat.checkSelfPermission(this@GPSRecordingService, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             val lm = this@GPSRecordingService.getSystemService(Context.LOCATION_SERVICE) as LocationManager
             locationManager = lm
+
+            val tf = GPSRecordingStore.timeFilterInMilliseconds.get() ?: 1000L
+            val df = GPSRecordingStore.distanceFilterInMeters.get() ?: 10f
+
             // https://developer.android.com/reference/android/location/LocationManager#requestLocationUpdates(java.lang.String,%20long,%20float,%20android.app.PendingIntent)
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 10f, this@GPSRecordingService);
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, tf, df, this@GPSRecordingService);
             recording.set(true)
 
             val notificationIntent = Intent(this@GPSRecordingService, RecordActivity::class.java)

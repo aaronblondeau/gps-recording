@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.MenuItem
 import android.widget.SeekBar
 import com.salidasoftware.gpsrecording.GPSRecordingApplication
+import com.salidasoftware.gpsrecording.GPSRecordingService
 import com.salidasoftware.gpsrecording.R
 import com.salidasoftware.gpsrecording.room.GPSRecordingStore
 import kotlinx.android.synthetic.main.activity_record.*
@@ -37,6 +38,13 @@ class SettingsActivity : AppCompatActivity() {
 
             val metric = GPSRecordingStore.displayMetricUnits.get() ?: false
             checkBoxMetricUnits.isChecked = metric
+
+            GPSRecordingService.recording.get()?.let {
+                if (it) {
+                    seekBarDistanceFilter.isEnabled = false
+                    seekBarTimeFilter.isEnabled = false
+                }
+            }
         }
         updateLabels()
 
@@ -72,8 +80,6 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun updateLabels() {
-        Log.d("SettingsActivity", "~~ df " + GPSRecordingStore.distanceFilterInMeters.get())
-        Log.d("SettingsActivity", "~~ tf " + GPSRecordingStore.timeFilterInMilliseconds.get())
         textViewDistanceFilterLabel.text = getString(R.string.distance_filter_meters) + " : " + ((GPSRecordingStore.distanceFilterInMeters.get() ?: 10L))
         textViewTimeFilterLabel.text = getString(R.string.time_filter_seconds) + " : " + ((GPSRecordingStore.timeFilterInMilliseconds.get() ?: 1000) / 1000)
     }

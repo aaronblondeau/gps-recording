@@ -31,4 +31,22 @@ data class Track(
                 HIKE("hike"),
                 WALK("walk")
         }
+
+        fun formattedDistance(metric: Boolean) : String {
+                if(metric) {
+                        return "%.2f".format(this.totalDistanceInMeters / 1000) + " km"
+                }
+                return "%.2f".format(this.totalDistanceInMeters / 1609.34) + " miles"
+        }
+
+        fun formattedStartDate() : String {
+                return SimpleDateFormat("M/dd/yyyy hh:mm:ss").format(Date(this.startedAt))
+        }
+
+        fun formattedDuration() : String {
+                val seconds = (this.totalDurationInMilliseconds / 1000) % 60
+                val minutes = (this.totalDurationInMilliseconds / (1000 * 60) % 60)
+                val hours = (this.totalDurationInMilliseconds / (1000 * 60 * 60) % 24)
+                return String.format("%02d:%02d:%02d", hours, minutes, seconds)
+        }
 }

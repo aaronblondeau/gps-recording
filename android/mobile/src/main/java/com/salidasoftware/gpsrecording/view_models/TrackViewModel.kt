@@ -6,6 +6,7 @@ import android.arch.lifecycle.ViewModel
 import android.util.Log
 import android.arch.lifecycle.Observer
 import android.databinding.ObservableField
+import com.salidasoftware.gpsrecording.room.GPSRecordingStore
 import com.salidasoftware.gpsrecording.room.Track
 
 class TrackViewModel() : ViewModel() {
@@ -40,12 +41,8 @@ class TrackViewModel() : ViewModel() {
                 unObserve()
             } else {
                 name.set(it.name)
-                distance.set("%.2f".format(it.totalDistanceInMeters / 1609.34) + " miles")
-                val seconds = (it.totalDurationInMilliseconds / 1000) % 60
-                val minutes = (it.totalDurationInMilliseconds / (1000 * 60) % 60)
-                val hours = (it.totalDurationInMilliseconds / (1000 * 60 * 60) % 24)
-                val dur = String.format("%02d:%02d:%02d", hours, minutes, seconds)
-                duration.set(dur)
+                distance.set(track.value?.formattedDistance(GPSRecordingStore.displayMetricUnits.get() ?: false))
+                duration.set(track.value?.formattedDuration())
             }
         }
         track.observe(owner, observer!!)
