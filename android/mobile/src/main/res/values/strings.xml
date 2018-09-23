@@ -16,4 +16,13 @@
     <string name="time_filter_seconds">Time Filter (seconds)</string>
     <string name="display_metric_units">Display Metric Units</string>
     <string name="distance_filter_meters">Distance Filter (meters)</string>
+    <string name="save">Save</string>
+    <string name="name">Name</string>
+    <string name="note">Note</string>
+    <string name="track_saved">Track Successfully Saved</string>
+    <string name="run">Run</string>
+    <string name="bike">Bike</string>
+    <string name="ski">Ski</string>
+    <string name="hike">Hike</string>
+    <string name="walk">Walk</string>
 </resources>

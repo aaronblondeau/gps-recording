@@ -17,28 +17,143 @@
         tools:context=".activities.TrackActivity"
         tools:showIn="@layout/activity_track">
 
-        <TextView
-            android:id="@+id/trackDetailName"
-            android:layout_width="wrap_content"
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/trackDetailNameLayout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:text="@{track.name, default=TrackName}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <EditText
+                android:hint="@string/name"
+                android:id="@+id/trackDetailName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textShortMessage"
+                android:text="@{track.name, default=TrackName}"
+                 />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/trackDetailNoteLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/trackDetailNameLayout">
+
+            <EditText
+                android:hint="@string/note"
+                android:id="@+id/trackDetailNote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine|textShortMessage"
+                android:text="@{track.note, default=TrackNote}"
+                 />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <RadioGroup
+            android:id="@+id/trackDetailActivity"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/trackDetailNoteLayout">
+
+            <RadioButton
+                android:id="@+id/radioButtonRun"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="@={track.isRun}"
+                android:text="@string/run" />
+
+            <RadioButton
+                android:id="@+id/radioButtonBike"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="@={track.isBike}"
+                android:text="@string/bike" />
+
+            <RadioButton
+                android:id="@+id/radioButtonSki"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="@={track.isSki}"
+                android:text="@string/ski" />
+
+            <RadioButton
+                android:id="@+id/radioButtonHike"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="@={track.isHike}"
+                android:text="@string/hike" />
+
+            <RadioButton
+                android:id="@+id/radioButtonWalk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="@={track.isWalk}"
+                android:text="@string/walk" />
+
+            <!--<RadioButton
+                android:id="@+id/radioButtonNone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="@{track.activity.equalsIgnoreCase(``)}"
+                android:text="None" />-->
+        </RadioGroup>
 
         <TextView
             android:id="@+id/trackDetailDistance"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:text="@{track.distance, default=TrackDistance}"
+            android:textSize="24sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/trackDetailName" />
+            app:layout_constraintTop_toBottomOf="@+id/trackDetailActivity" />
+
+        <TextView
+            android:id="@+id/trackDetailDuration"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:text="@{track.duration, default=TrackDuration}"
+            android:textSize="24sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/trackDetailDistance" />
+
+        <Button
+            android:id="@+id/buttonSaveTrack"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/save"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/trackDetailDuration" />
+
+
+
+
     </android.support.constraint.ConstraintLayout>
 
 </layout>
