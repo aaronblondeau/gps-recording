@@ -25,4 +25,7 @@
     <string name="ski">Ski</string>
     <string name="hike">Hike</string>
     <string name="walk">Walk</string>
+    <string name="title_activity_track_map">TrackMapActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="map">Map</string>
 </resources>

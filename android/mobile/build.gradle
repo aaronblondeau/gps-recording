@@ -84,4 +84,7 @@ dependencies {
 
     // Kotlin Goodies
     implementation 'org.jetbrains.anko:anko-common:0.9'
+
+    // Google Maps
+    implementation 'com.google.android.gms:play-services-maps:15.0.1'
 }

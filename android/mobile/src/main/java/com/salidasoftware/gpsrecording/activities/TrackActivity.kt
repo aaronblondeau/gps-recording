@@ -1,6 +1,7 @@
 package com.salidasoftware.gpsrecording.activities
 
 import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.databinding.DataBindingUtil
@@ -93,7 +94,16 @@ class TrackActivity : AppCompatActivity() {
             doAsync {
                 track = store.trackDAO.getByIdLive(trackId)
                 trackViewModel.setTrack(this@TrackActivity, track)
-                buttonSaveTrack.isEnabled = true
+                uiThread {
+                    buttonSaveTrack.isEnabled = true
+                }
+                track.observe(this@TrackActivity, Observer {track ->
+                    if(track != null) {
+                        uiThread {
+                            setTitle(track.name)
+                        }
+                    }
+                })
             }
         } else {
             this.finish()
@@ -126,6 +136,7 @@ class TrackActivity : AppCompatActivity() {
                         store.updateTrack(it, trackDetailName.text.toString(), trackDetailNote.text.toString(), activity)
                         uiThread {
                             toast(getString(R.string.track_saved))
+
                         }
                     }
                 }
@@ -135,6 +146,13 @@ class TrackActivity : AppCompatActivity() {
             }
             trackDetailName.onEditorAction(EditorInfo.IME_ACTION_DONE)
             trackDetailNote.onEditorAction(EditorInfo.IME_ACTION_DONE)
+        }
+
+        buttonOpenTrackMap.setOnClickListener{
+            // Go to track activity
+            val intent = Intent(this, TrackMapActivity::class.java)
+            intent.putExtra(TrackMapActivity.TRACK_ID, trackId)
+            this.startActivity(intent)
         }
 
     }

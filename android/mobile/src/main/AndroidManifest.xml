@@ -21,6 +21,7 @@
         <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -32,9 +33,14 @@
             android:name=".activities.TrackActivity"
             android:label="@string/title_activity_track"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".activities.SettingsActivity"
+        <activity
+            android:name=".activities.SettingsActivity"
             android:label="@string/settings"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".activities.TrackMapActivity"
+            android:label="@string/title_activity_track_map"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
 
         <service
             android:name=".GPSRecordingService"
@@ -50,6 +56,10 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAbgN16qIH9oOXAB8dLhxiV_hJ5P6PWiNw"/>
 
     </application>
 
