@@ -13,7 +13,7 @@
             type="com.salidasoftware.gpsrecording.view_models.RecordingViewModel"/>
     </data>
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -102,6 +102,6 @@
             app:layout_constraintTop_toBottomOf="@+id/trackRecordDistance" />
 
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

@@ -1,33 +1,29 @@
 package com.salidasoftware.gpsrecording.activities
 
-import android.arch.lifecycle.LifecycleOwner
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.Observer
-import android.content.Intent
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import android.graphics.Color
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import android.view.MenuItem
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.salidasoftware.gpsrecording.GPSRecordingApplication
 import com.salidasoftware.gpsrecording.R
-import com.salidasoftware.gpsrecording.databinding.ActivityTrackBinding
 import com.salidasoftware.gpsrecording.room.Track
 
-import kotlinx.android.synthetic.main.activity_track_map.*
-import kotlinx.android.synthetic.main.content_track.*
-import kotlinx.android.synthetic.main.content_track_map.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.LatLngBounds
+import kotlinx.android.synthetic.main.activity_track_map.*
+import kotlinx.android.synthetic.main.content_track_map.*
+import java.lang.Exception
 
 class TrackMapActivity : AppCompatActivity() {
 
@@ -44,6 +40,7 @@ class TrackMapActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_track_map)
+
         setSupportActionBar(toolbar)
         supportActionBar?.apply { setDisplayHomeAsUpEnabled(true) }
 
@@ -54,14 +51,14 @@ class TrackMapActivity : AppCompatActivity() {
 
                 doAsync {
                     track = store.trackDAO.getByIdLive(trackId)
-                    track.observe(this@TrackMapActivity, Observer {track ->
-                        if(track != null) {
-                            uiThread {
+                    uiThread {
+                        track.observe(this@TrackMapActivity, Observer { track ->
+                            if (track != null) {
                                 setTitle(track.name)
+                                renderMap()
                             }
-                            renderMap()
-                        }
-                    })
+                        })
+                    }
                 }
             }
         } else {
@@ -72,34 +69,43 @@ class TrackMapActivity : AppCompatActivity() {
     private fun renderMap() {
 
         doAsync {
-            if (store != null) {
-                track.value?.let { track ->
-                    val boundsBuilder = LatLngBounds.Builder()
-                    val lines = store.lineDAO.getAllForTrack(track.id)
-                    for (line in lines) {
-                        val points = store.pointDAO.getAllForLine(line.id)
+            try {
+                if (store != null) {
+                    track.value?.let { track ->
+                        val boundsBuilder = LatLngBounds.Builder()
+                        val lines = store.lineDAO.getAllForTrack(track.id)
+                        for (line in lines) {
+                            val points = store.pointDAO.getAllForLine(line.id)
 
-                        val lineLLs: ArrayList<LatLng> = ArrayList()
-                        if (points.size > 1) {
-                            for (point in points) {
-                                val ll = LatLng(point.latitude, point.longitude)
-                                lineLLs.add(ll)
-                                boundsBuilder.include(ll)
+                            val lineLLs: ArrayList<LatLng> = ArrayList()
+                            if (points.size > 1) {
+                                for (point in points) {
+                                    val ll = LatLng(point.latitude, point.longitude)
+                                    lineLLs.add(ll)
+                                    boundsBuilder.include(ll)
+                                }
+                            }
+
+                            uiThread {
+                                try {
+                                    val mapLine = map?.addPolyline(PolylineOptions().addAll(lineLLs).width(5f).color(Color.RED))
+                                    if (mapLine != null) {
+                                        this@TrackMapActivity.lines.add(mapLine)
+                                    }
+                                }
+                                catch(e: Exception) {
+                                    Log.d("TrackMapActivity", "~~ map lines add error", e)
+                                }
                             }
                         }
 
                         uiThread {
-                            val mapLine = map?.addPolyline(PolylineOptions().addAll(lineLLs).width(5f).color(Color.RED))
-                            if (mapLine != null) {
-                                this@TrackMapActivity.lines.add(mapLine)
-                            }
+                            map?.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 50))
                         }
                     }
-
-                    uiThread {
-                        map?.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 50))
-                    }
                 }
+            } catch (e: Exception) {
+                Log.d("TrackMapActivity", "~~ map render exception", e)
             }
         }
     }

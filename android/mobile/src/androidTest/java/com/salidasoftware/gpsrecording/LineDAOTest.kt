@@ -1,14 +1,14 @@
 package com.salidasoftware.gpsrecording
 
-import android.arch.persistence.room.Room
+import androidx.room.Room
 import android.content.Context
-import android.support.test.InstrumentationRegistry
-import android.support.test.runner.AndroidJUnit4
+import androidx.test.InstrumentationRegistry
+import androidx.test.runner.AndroidJUnit4
 import android.util.Log
 import org.junit.*
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
-import android.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.salidasoftware.gpsrecording.room.*
 
 @RunWith(AndroidJUnit4::class)

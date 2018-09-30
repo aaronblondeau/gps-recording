@@ -1,11 +1,11 @@
 package com.salidasoftware.gpsrecording.view_models
 
-import android.arch.lifecycle.LifecycleOwner
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.ViewModel
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import android.util.Log
-import android.arch.lifecycle.Observer
-import android.databinding.ObservableField
+import androidx.lifecycle.Observer
+import androidx.databinding.ObservableField
 import com.salidasoftware.gpsrecording.room.GPSRecordingStore
 import com.salidasoftware.gpsrecording.room.Track
 

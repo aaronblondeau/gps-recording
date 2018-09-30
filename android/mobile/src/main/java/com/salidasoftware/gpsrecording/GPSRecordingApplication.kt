@@ -3,7 +3,7 @@ package com.salidasoftware.gpsrecording
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.arch.persistence.room.Room
+import androidx.room.Room
 import android.content.Context
 import android.os.Build
 import com.salidasoftware.gpsrecording.room.GPSRecordingDatabase

@@ -1,9 +1,8 @@
 package com.salidasoftware.gpsrecording.room
 
-import android.arch.lifecycle.LiveData
-import android.arch.paging.DataSource
-import android.arch.persistence.room.*
-import com.salidasoftware.gpsrecording.room.Track
+import androidx.lifecycle.LiveData
+import androidx.paging.DataSource
+import androidx.room.*
 
 @Dao
 interface TrackDAO {

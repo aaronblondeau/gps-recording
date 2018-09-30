@@ -10,14 +10,14 @@
             type="com.salidasoftware.gpsrecording.view_models.TrackViewModel"/>
     </data>
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:context=".activities.TrackActivity"
         tools:showIn="@layout/activity_track">
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/trackDetailNameLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -37,9 +37,9 @@
                 android:text="@{track.name, default=TrackName}"
                  />
 
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/trackDetailNoteLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -59,7 +59,7 @@
                 android:text="@{track.note, default=TrackNote}"
                  />
 
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <RadioGroup
             android:id="@+id/trackDetailActivity"
@@ -163,6 +163,6 @@
 
 
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

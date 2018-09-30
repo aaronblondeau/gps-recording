@@ -1,7 +1,6 @@
 package com.salidasoftware.gpsrecording.room
 
-import android.arch.persistence.room.*
-import com.salidasoftware.gpsrecording.room.Line
+import androidx.room.*
 
 @Entity(tableName = "points",
         foreignKeys = arrayOf(

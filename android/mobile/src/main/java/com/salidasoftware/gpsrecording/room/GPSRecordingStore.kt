@@ -2,10 +2,9 @@ package com.salidasoftware.gpsrecording.room
 
 import android.content.Context
 import android.content.Intent
-import android.databinding.ObservableField
+import androidx.databinding.ObservableField
 import android.location.Location
 import android.os.Build
-import android.util.Log
 import java.io.Writer
 import java.text.SimpleDateFormat
 import java.util.*
@@ -13,9 +12,10 @@ import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 import android.content.Intent.ACTION_SEND
-import android.databinding.Observable
+import androidx.databinding.Observable
 import android.net.Uri
-import android.support.v4.content.FileProvider
+import android.util.Log
+import androidx.core.content.FileProvider
 import com.salidasoftware.gpsrecording.BuildConfig
 import com.salidasoftware.gpsrecording.GPSRecordingApplication
 

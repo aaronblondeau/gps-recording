@@ -1,8 +1,7 @@
 package com.salidasoftware.gpsrecording.room
 
-import android.arch.persistence.room.Database
-import android.arch.persistence.room.RoomDatabase
-import com.salidasoftware.gpsrecording.room.*
+import androidx.room.Database
+import androidx.room.RoomDatabase
 
 @Database(entities = arrayOf(Track::class, Line::class, Point::class), version = 1)
 abstract class GPSRecordingDatabase : RoomDatabase() {

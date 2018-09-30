@@ -1,10 +1,6 @@
 package com.salidasoftware.gpsrecording.room
 
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Insert
-import android.arch.persistence.room.Query
-import android.arch.persistence.room.Update
-import com.salidasoftware.gpsrecording.room.Line
+import androidx.room.*
 
 @Dao
 interface LineDAO {

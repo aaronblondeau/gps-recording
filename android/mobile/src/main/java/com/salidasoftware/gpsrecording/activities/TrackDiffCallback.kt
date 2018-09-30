@@ -1,6 +1,6 @@
 package com.salidasoftware.gpsrecording.activities
 
-import android.support.v7.util.DiffUtil
+import androidx.recyclerview.widget.DiffUtil
 import com.salidasoftware.gpsrecording.room.Track
 
 class TrackDiffCallback : DiffUtil.ItemCallback<Track>() {

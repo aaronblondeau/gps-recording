@@ -1,16 +1,14 @@
 package com.salidasoftware.gpsrecording.activities
 
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.widget.SeekBar
 import com.salidasoftware.gpsrecording.GPSRecordingApplication
 import com.salidasoftware.gpsrecording.GPSRecordingService
 import com.salidasoftware.gpsrecording.R
 import com.salidasoftware.gpsrecording.room.GPSRecordingStore
-import kotlinx.android.synthetic.main.activity_record.*
 import kotlinx.android.synthetic.main.activity_settings.*
 import kotlinx.android.synthetic.main.content_settings.*
 

@@ -1,16 +1,16 @@
 package com.salidasoftware.gpsrecording.activities
 
 import android.Manifest
-import android.arch.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.databinding.DataBindingUtil
-import android.databinding.Observable
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.Observable
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.MenuItem
 import com.salidasoftware.gpsrecording.*
@@ -18,10 +18,11 @@ import com.salidasoftware.gpsrecording.databinding.ActivityRecordBinding
 import com.salidasoftware.gpsrecording.room.GPSRecordingStore
 import com.salidasoftware.gpsrecording.view_models.RecordingViewModel
 import com.salidasoftware.gpsrecording.view_models.TrackViewModel
-
 import kotlinx.android.synthetic.main.activity_record.*
 import kotlinx.android.synthetic.main.content_record.*
+
 import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 
 class RecordActivity : AppCompatActivity() {
 
@@ -88,12 +89,12 @@ class RecordActivity : AppCompatActivity() {
             doAsync {
                 val trk = store.trackDAO.getByIdLive(trackId)
                 if (trk != null) {
-                    Log.d("RecordActivity", "~~ HERE A")
-                    binding.track?.setTrack(this@RecordActivity, trk)
+                    uiThread {
+                        binding.track?.setTrack(this@RecordActivity, trk)
+                    }
                 }
             }
         } else {
-            Log.d("RecordActivity", "~~ HERE B")
             binding.track?.unsetTrack()
         }
     }
