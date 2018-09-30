@@ -24,6 +24,7 @@ import com.google.android.gms.maps.model.LatLngBounds
 import kotlinx.android.synthetic.main.activity_track_map.*
 import kotlinx.android.synthetic.main.content_track_map.*
 import java.lang.Exception
+import java.lang.IllegalStateException
 
 class TrackMapActivity : AppCompatActivity() {
 
@@ -100,7 +101,11 @@ class TrackMapActivity : AppCompatActivity() {
                         }
 
                         uiThread {
-                            map?.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 50))
+                            try {
+                                map?.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 50))
+                            } catch(e: IllegalStateException) {
+                                Log.d("TrackMapActivity", "~~ failed to set map camera", e)
+                            }
                         }
                     }
                 }
