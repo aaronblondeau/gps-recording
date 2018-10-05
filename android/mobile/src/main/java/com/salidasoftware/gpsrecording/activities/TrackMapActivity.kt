@@ -1,6 +1,5 @@
 package com.salidasoftware.gpsrecording.activities
 
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import android.graphics.Color

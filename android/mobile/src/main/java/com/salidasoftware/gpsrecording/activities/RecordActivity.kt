@@ -4,20 +4,20 @@ import android.Manifest
 import androidx.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.content.pm.PackageManager
-import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
 import android.os.Build
 import android.os.Bundle
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.appcompat.app.AppCompatActivity
-import android.util.Log
 import android.view.MenuItem
-import com.salidasoftware.gpsrecording.*
+import androidx.databinding.DataBindingUtil
+import com.salidasoftware.gpsrecording.GPSRecordingApplication
+import com.salidasoftware.gpsrecording.GPSRecordingService
 import com.salidasoftware.gpsrecording.databinding.ActivityRecordBinding
-import com.salidasoftware.gpsrecording.room.GPSRecordingStore
 import com.salidasoftware.gpsrecording.view_models.RecordingViewModel
 import com.salidasoftware.gpsrecording.view_models.TrackViewModel
+import com.salidasoftware.gpsrecording.R
 import kotlinx.android.synthetic.main.activity_record.*
 import kotlinx.android.synthetic.main.content_record.*
 
@@ -71,8 +71,8 @@ class RecordActivity : AppCompatActivity() {
             }
 
             // Unset current track
-            val currentTrackId = GPSRecordingStore.currentTrackId.get() ?: -1
-            GPSRecordingStore.currentTrackId.set(-1)
+            val currentTrackId = GPSRecordingApplication.storeView.currentTrackId.get() ?: -1
+            GPSRecordingApplication.storeView.currentTrackId.set(-1)
 
             // Go to track activity
             val intent = Intent(this, TrackActivity::class.java)
@@ -84,7 +84,7 @@ class RecordActivity : AppCompatActivity() {
     }
 
     fun updateCurrentTrack() {
-        val trackId = GPSRecordingStore.currentTrackId.get() ?: -1
+        val trackId = GPSRecordingApplication.storeView.currentTrackId.get() ?: -1
         if (trackId >= 0 && store != null) {
             doAsync {
                 val trk = store.trackDAO.getByIdLive(trackId)
@@ -106,13 +106,13 @@ class RecordActivity : AppCompatActivity() {
                 this@RecordActivity.updateCurrentTrack()
             }
         }
-        GPSRecordingStore.currentTrackId.addOnPropertyChangedCallback(currentTrackCallback!!)
+        GPSRecordingApplication.storeView.currentTrackId.addOnPropertyChangedCallback(currentTrackCallback!!)
         updateCurrentTrack()
     }
 
     override fun onPause() {
         currentTrackCallback?.let {
-            GPSRecordingStore.currentTrackId.removeOnPropertyChangedCallback(it)
+            GPSRecordingApplication.storeView.currentTrackId.removeOnPropertyChangedCallback(it)
         }
         super.onPause()
     }

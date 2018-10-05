@@ -3,48 +3,24 @@ package com.salidasoftware.gpsrecording
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import androidx.room.Room
 import android.content.Context
 import android.os.Build
-import com.salidasoftware.gpsrecording.room.GPSRecordingDatabase
 import com.salidasoftware.gpsrecording.room.GPSRecordingStore
+import com.salidasoftware.gpsrecording.view_models.StoreObserver
 
 class GPSRecordingApplication: Application() {
     companion object {
-        var context: Context? = null
-
-        var database: GPSRecordingDatabase? = null
-        fun getDatabase(application: Application) : GPSRecordingDatabase {
-            val db = database
-            if (db != null) {
-                return db
-            } else {
-                val newDatabase = Room.databaseBuilder(application, GPSRecordingDatabase::class.java, "gps-recording-database").build()
-                database = newDatabase
-                return newDatabase
-            }
-        }
-
-        var store: GPSRecordingStore? = null
-        fun getStore(database: GPSRecordingDatabase) : GPSRecordingStore {
-            val s = store
-            if (s != null) {
-                return s
-            } else {
-                val newStore = GPSRecordingStore(database)
-                store = newStore
-                return newStore
-            }
-        }
-
+        lateinit var context: Context
+        lateinit var store: GPSRecordingStore
+        lateinit var storeView : StoreObserver
         val CHANNEL_DEFAULT_IMPORTANCE = "GPSRecordingService"
     }
 
     override fun onCreate() {
         super.onCreate()
         context = this
-        val database = GPSRecordingApplication.getDatabase(this)
-        GPSRecordingApplication.getStore(database)
+        store = GPSRecordingStore(this)
+        storeView = StoreObserver(store)
         createNotificationChannel()
     }
 

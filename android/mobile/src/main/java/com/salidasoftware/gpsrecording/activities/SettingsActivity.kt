@@ -8,7 +8,6 @@ import android.widget.SeekBar
 import com.salidasoftware.gpsrecording.GPSRecordingApplication
 import com.salidasoftware.gpsrecording.GPSRecordingService
 import com.salidasoftware.gpsrecording.R
-import com.salidasoftware.gpsrecording.room.GPSRecordingStore
 import kotlinx.android.synthetic.main.activity_settings.*
 import kotlinx.android.synthetic.main.content_settings.*
 
@@ -24,17 +23,17 @@ class SettingsActivity : AppCompatActivity() {
         supportActionBar?.apply { setDisplayHomeAsUpEnabled(true) }
 
         store?.let {
-            val df = GPSRecordingStore.distanceFilterInMeters.get()
+            val df = GPSRecordingApplication.storeView.distanceFilterInMeters.get()
             if (df != null) {
                 seekBarDistanceFilter.progress = (df / 10).toInt()  // Using a scale of 10 on the seek bar
             }
 
-            val tf = GPSRecordingStore.timeFilterInMilliseconds.get()
+            val tf = GPSRecordingApplication.storeView.timeFilterInMilliseconds.get()
             if (tf != null) {
                 seekBarTimeFilter.progress = (tf / 1000).toInt()
             }
 
-            val metric = GPSRecordingStore.displayMetricUnits.get() ?: false
+            val metric = GPSRecordingApplication.storeView.displayMetricUnits.get() ?: false
             checkBoxMetricUnits.isChecked = metric
 
             GPSRecordingService.recording.get()?.let {
@@ -47,12 +46,12 @@ class SettingsActivity : AppCompatActivity() {
         updateLabels()
 
         checkBoxMetricUnits.setOnCheckedChangeListener { buttonView, isChecked ->
-            GPSRecordingStore.displayMetricUnits.set(isChecked)
+            GPSRecordingApplication.storeView.displayMetricUnits.set(isChecked)
         }
 
         seekBarTimeFilter.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                GPSRecordingStore.timeFilterInMilliseconds.set(progress * 1000L)
+                GPSRecordingApplication.storeView.timeFilterInMilliseconds.set(progress * 1000L)
                 updateLabels()
             }
 
@@ -65,7 +64,7 @@ class SettingsActivity : AppCompatActivity() {
 
         seekBarDistanceFilter.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                GPSRecordingStore.distanceFilterInMeters.set(progress * 10f)
+                GPSRecordingApplication.storeView.distanceFilterInMeters.set(progress * 10f)
                 updateLabels()
             }
 
@@ -78,8 +77,8 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun updateLabels() {
-        textViewDistanceFilterLabel.text = getString(R.string.distance_filter_meters) + " : " + ((GPSRecordingStore.distanceFilterInMeters.get() ?: 10L))
-        textViewTimeFilterLabel.text = getString(R.string.time_filter_seconds) + " : " + ((GPSRecordingStore.timeFilterInMilliseconds.get() ?: 1000) / 1000)
+        textViewDistanceFilterLabel.text = getString(R.string.distance_filter_meters) + " : " + ((GPSRecordingApplication.storeView.distanceFilterInMeters.get() ?: 10L))
+        textViewTimeFilterLabel.text = getString(R.string.time_filter_seconds) + " : " + ((GPSRecordingApplication.storeView.timeFilterInMilliseconds.get() ?: 1000) / 1000)
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean

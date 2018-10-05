@@ -7,8 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.salidasoftware.gpsrecording.GPSRecordingApplication
 import com.salidasoftware.gpsrecording.R
-import com.salidasoftware.gpsrecording.room.GPSRecordingStore
 import com.salidasoftware.gpsrecording.room.Track
 
 class TracksRecyclerViewAdapter(val context: Context) : PagedListAdapter<Track, TracksRecyclerViewAdapter.TrackViewHolder>(TrackDiffCallback()) {
@@ -42,7 +42,7 @@ class TracksRecyclerViewAdapter(val context: Context) : PagedListAdapter<Track, 
             clickListener = cl
             itemView.setOnClickListener(this)
             title.text = track.name
-            distance.text = track.formattedDistance(GPSRecordingStore.displayMetricUnits.get() ?: false)
+            distance.text = track.formattedDistance(GPSRecordingApplication.storeView.displayMetricUnits.get() ?: false)
             date.text = track.formattedStartDate()
             itemView.tag = track
         }

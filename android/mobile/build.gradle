@@ -13,23 +13,13 @@ android {
     defaultConfig {
         applicationId "com.salidasoftware.gpsrecording"
         minSdkVersion 19
-        targetSdkVersion 27
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
         addManifestPlaceholders([GOOGLE_MAPS_API_KEY: "$googleMapsApiKey"])
-
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
-            }
-        }
-    }
-
-    sourceSets {
-        androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
     }
 
     buildTypes {
@@ -57,12 +47,10 @@ dependencies {
     wearApp project(':wear')
     implementation 'com.google.android.gms:play-services-wearable:+'
     androidTestImplementation 'androidx.arch.core:core-testing:2.0.0'
-    // Room
-    implementation 'androidx.room:room-runtime:2.0.0-rc01'
-    kapt 'androidx.room:room-compiler:2.0.0-rc01'
+
     // annotationProcessor "android.arch.persistence.room:compiler:$room_version"
     // use kapt for Kotlin
-    testImplementation 'androidx.room:room-testing:2.0.0-rc01'
+
     // Test helpers
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'com.google.android.material:material:1.0.0'
@@ -74,4 +62,6 @@ dependencies {
     implementation 'org.jetbrains.anko:anko-common:0.9'
     // Google Maps
     implementation 'com.google.android.gms:play-services-maps:15.0.1'
+
+    implementation project(":gpsrecording")
 }

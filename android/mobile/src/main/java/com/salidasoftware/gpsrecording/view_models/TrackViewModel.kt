@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import android.util.Log
 import androidx.lifecycle.Observer
 import androidx.databinding.ObservableField
-import com.salidasoftware.gpsrecording.room.GPSRecordingStore
+import com.salidasoftware.gpsrecording.GPSRecordingApplication
 import com.salidasoftware.gpsrecording.room.Track
 
 class TrackViewModel() : ViewModel() {
@@ -64,7 +64,7 @@ class TrackViewModel() : ViewModel() {
                 name.set(it.name)
                 note.set(it.note)
                 activity.set(it.activity)
-                distance.set(track.value?.formattedDistance(GPSRecordingStore.displayMetricUnits.get() ?: false))
+                distance.set(track.value?.formattedDistance(GPSRecordingApplication.storeView.displayMetricUnits.get() ?: false))
                 duration.set(track.value?.formattedDuration())
 
                 clearActivityObservables()

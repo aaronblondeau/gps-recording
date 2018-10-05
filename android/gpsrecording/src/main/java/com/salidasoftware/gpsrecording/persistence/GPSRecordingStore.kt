@@ -2,7 +2,7 @@ package com.salidasoftware.gpsrecording.room
 
 import android.content.Context
 import android.content.Intent
-import androidx.databinding.ObservableField
+
 import android.location.Location
 import android.os.Build
 import java.io.Writer
@@ -12,91 +12,56 @@ import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 import android.content.Intent.ACTION_SEND
-import androidx.databinding.Observable
+import android.content.SharedPreferences
+
 import android.net.Uri
-import android.util.Log
 import androidx.core.content.FileProvider
-import com.salidasoftware.gpsrecording.BuildConfig
-import com.salidasoftware.gpsrecording.GPSRecordingApplication
+import androidx.room.Room
+import kotlin.collections.ArrayList
 
-class GPSRecordingStore(database: GPSRecordingDatabase) {
+class GPSRecordingStore(context: Context) {
 
-    companion object {
-        val currentTrackId: ObservableField<Long> = ObservableField(-1)
-        val distanceFilterInMeters: ObservableField<Float> = ObservableField(10f)
-        val timeFilterInMilliseconds: ObservableField<Long> = ObservableField(1000L)
-        val displayMetricUnits: ObservableField<Boolean> = ObservableField(false)
+    val context = context
+    val database: GPSRecordingDatabase
+    val prefs: SharedPreferences
+    val currentTrackDeletedHandlers : ArrayList<CurrentTrackDeletedHandler> = ArrayList()
 
-        init {
-
-            val pref = GPSRecordingApplication.context!!.getSharedPreferences("GPSRecording", Context.MODE_PRIVATE)
-
-            // Load initial state for currentTrackId
-            val trackId = pref.getLong("current_track_id", -1)
-            currentTrackId.set(trackId)
-
-            // Load initial state for distanceFilterInMeters
-            val df = pref.getFloat("distance_filter_in_meters", 10f)
-            distanceFilterInMeters.set(df)
-
-            // Load initial state for timeFilterInMilliseconds
-            val tf = pref.getLong("time_filter_in_milliseconds", 1000L)
-            timeFilterInMilliseconds.set(tf)
-
-            // Load initial state for displayMetricUnits
-            val metric = pref.getBoolean("display_metric_units", false)
-            displayMetricUnits.set(metric)
-
-            // Update shared prefs if currentTrackId changes
-            currentTrackId.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
-                override fun onPropertyChanged(p0: Observable?, p1: Int) {
-                    currentTrackId.get()?.let {
-                        val pref = GPSRecordingApplication.context!!.getSharedPreferences("GPSRecording", Context.MODE_PRIVATE)
-                        val editor = pref.edit()
-                        editor.putLong("current_track_id", it)
-                        editor.commit()
-                    }
-                }
-            })
-
-            // Update shared prefs if distanceFilterInMeters changes
-            distanceFilterInMeters.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
-                override fun onPropertyChanged(p0: Observable?, p1: Int) {
-                    distanceFilterInMeters.get()?.let {
-                        val pref = GPSRecordingApplication.context!!.getSharedPreferences("GPSRecording", Context.MODE_PRIVATE)
-                        val editor = pref.edit()
-                        editor.putFloat("distance_filter_in_meters", it)
-                        editor.commit()
-                    }
-                }
-            })
-
-            // Update shared prefs if distanceFilterInMeters changes
-            timeFilterInMilliseconds.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
-                override fun onPropertyChanged(p0: Observable?, p1: Int) {
-                    timeFilterInMilliseconds.get()?.let {
-                        val pref = GPSRecordingApplication.context!!.getSharedPreferences("GPSRecording", Context.MODE_PRIVATE)
-                        val editor = pref.edit()
-                        editor.putLong("time_filter_in_milliseconds", it)
-                        editor.commit()
-                    }
-                }
-            })
-
-            // Update shared prefs if distanceFilterInMeters changes
-            displayMetricUnits.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
-                override fun onPropertyChanged(p0: Observable?, p1: Int) {
-                    displayMetricUnits.get()?.let {
-                        val pref = GPSRecordingApplication.context!!.getSharedPreferences("GPSRecording", Context.MODE_PRIVATE)
-                        val editor = pref.edit()
-                        editor.putBoolean("display_metric_units", it)
-                        editor.commit()
-                    }
-                }
-            })
-
-        }
+    init {
+        database = Room.databaseBuilder(context, GPSRecordingDatabase::class.java, "gps-recording-database").build()
+        prefs = context.getSharedPreferences("GPSRecording", Context.MODE_PRIVATE)
     }
+
+    var currentTrackId: Long
+        get() = prefs.getLong("current_track_id", -1)
+        set(value) {
+            val editor = prefs.edit()
+            editor.putLong("current_track_id", value)
+            editor.commit()
+        }
+
+    var distanceFilterInMeters: Float
+        get() = prefs.getFloat("distance_filter_in_meters", 10f)
+        set(value) {
+            val editor = prefs.edit()
+            editor.putFloat("distance_filter_in_meters", value)
+            editor.commit()
+        }
+
+    var timeFilterInMilliseconds: Long
+        get() = prefs.getLong("time_filter_in_milliseconds", 1000L)
+        set(value) {
+            val editor = prefs.edit()
+            editor.putLong("time_filter_in_milliseconds", value)
+            editor.commit()
+        }
+
+    var displayMetricUnits: Boolean
+        get() = prefs.getBoolean("display_metric_units", false)
+        set(value) {
+            val editor = prefs.edit()
+            editor.putBoolean("display_metric_units", value)
+            editor.commit()
+        }
 
     val trackDAO = database.trackDAO()
     val lineDAO = database.lineDAO()
@@ -138,11 +103,23 @@ class GPSRecordingStore(database: GPSRecordingDatabase) {
         trackDAO.update(track)
     }
 
+    fun addCurrentTrackDeletedHandler(handler: CurrentTrackDeletedHandler) {
+        currentTrackDeletedHandlers.add(handler)
+    }
+
+    fun removeCurrentTrackDeletedHandler(handler: CurrentTrackDeletedHandler) {
+        currentTrackDeletedHandlers.remove(handler)
+    }
+
     fun deleteTrack(track: Track) {
         val trackId = track.id
         trackDAO.delete(track)
-        if (trackId == currentTrackId.get()) {
-            currentTrackId.set(-1)
+        if (trackId == currentTrackId) {
+            currentTrackId = -1
+            // Let TrackViewModel know about this update
+            for(currentTrackDeletedHandler in currentTrackDeletedHandlers) {
+                currentTrackDeletedHandler.onCurrentTrackDeleted()
+            }
         }
     }
 
@@ -299,7 +276,8 @@ class GPSRecordingStore(database: GPSRecordingDatabase) {
             // https://developer.android.com/reference/android/support/v4/content/FileProvider#SpecifyFiles
             // and
             // https://android--code.blogspot.com/2018/07/android-kotlin-file-provider-image.html
-            val path = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".fileprovider", filelocation)
+
+            val path = FileProvider.getUriForFile(context, context.packageName + ".fileprovider", filelocation)
             emailIntent.putExtra(Intent.EXTRA_STREAM, path)
         } else {
             val path = Uri.fromFile(filelocation)

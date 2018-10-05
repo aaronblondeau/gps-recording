@@ -11,11 +11,10 @@ import com.salidasoftware.gpsrecording.room.Track
 import org.jetbrains.anko.doAsync
 
 class TracksViewModel(application: Application) : AndroidViewModel(application) {
-    val store = GPSRecordingApplication.getStore(GPSRecordingApplication.getDatabase(application))
     var items : LiveData<PagedList<Track>>
 
     init {
-        val factory : DataSource.Factory<Int, Track> = store.trackDAO.getAllPaged()
+        val factory : DataSource.Factory<Int, Track> = GPSRecordingApplication.store.trackDAO.getAllPaged()
         val pagedListBuilder: LivePagedListBuilder<Int, Track> =  LivePagedListBuilder<Int, Track>(factory, 50)
         items = pagedListBuilder.build()
     }
@@ -26,7 +25,7 @@ class TracksViewModel(application: Application) : AndroidViewModel(application) 
 
     fun deleteTrack(track: Track) {
         doAsync {
-            store.deleteTrack(track)
+            GPSRecordingApplication.store.deleteTrack(track)
         }
     }
 }
