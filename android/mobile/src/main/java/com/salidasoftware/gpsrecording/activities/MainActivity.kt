@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import android.util.Log
 import com.salidasoftware.gpsrecording.*
 import com.salidasoftware.gpsrecording.room.Track
+import com.salidasoftware.gpsrecording.ui.OnTrackClickListener
 import com.salidasoftware.gpsrecording.view_models.TracksViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 

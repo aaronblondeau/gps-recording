@@ -1,4 +1,4 @@
-package com.salidasoftware.gpsrecording.activities
+package com.salidasoftware.gpsrecording.ui
 
 import com.salidasoftware.gpsrecording.room.Track
 

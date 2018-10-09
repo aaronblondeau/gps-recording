@@ -1,19 +1,16 @@
-package com.salidasoftware.gpsrecording.activities
+package com.salidasoftware.gpsrecording
 
-import androidx.paging.PagedListAdapter
 import android.content.Context
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import com.salidasoftware.gpsrecording.GPSRecordingApplication
-import com.salidasoftware.gpsrecording.R
+import androidx.recyclerview.widget.RecyclerView
 import com.salidasoftware.gpsrecording.room.Track
 import com.salidasoftware.gpsrecording.ui.OnTrackClickListener
 import com.salidasoftware.gpsrecording.ui.TrackDiffCallback
 
-class TracksRecyclerViewAdapter(val context: Context) : PagedListAdapter<Track, TracksRecyclerViewAdapter.TrackViewHolder>(TrackDiffCallback()) {
+class TracksRecyclerViewAdapter (private var tracks: Array<Track>) : RecyclerView.Adapter<TracksRecyclerViewAdapter.TrackViewHolder>() {
 
     var clickListener: OnTrackClickListener? = null
 
@@ -21,8 +18,16 @@ class TracksRecyclerViewAdapter(val context: Context) : PagedListAdapter<Track, 
         return TrackViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.track_item, parent, false))
     }
 
+    override fun getItemCount(): Int {
+        return tracks.size
+    }
+
+    public fun setTracks(tracks: Array<Track>) {
+        this.tracks = tracks
+    }
+
     override fun onBindViewHolder(holder: TrackViewHolder, position: Int) {
-        val track = getItem(position)
+        val track = tracks.get(position)
         if (track == null) {
             holder.clear()
         } else {
@@ -38,13 +43,14 @@ class TracksRecyclerViewAdapter(val context: Context) : PagedListAdapter<Track, 
         val title: TextView = view.findViewById(R.id.textViewTrackName) as TextView
         var distance: TextView = view.findViewById(R.id.textViewTrackDistance) as TextView
         var date: TextView = view.findViewById(R.id.textViewTrackDate) as TextView
-        var clickListener : OnTrackClickListener? = null
+        var clickListener: OnTrackClickListener? = null
 
         fun bind(track: Track, cl: OnTrackClickListener?) {
             clickListener = cl
             itemView.setOnClickListener(this)
             title.text = track.name
-            distance.text = track.formattedDistance(GPSRecordingApplication.storeView.displayMetricUnits.get() ?: false)
+            distance.text = track.formattedDistance(GPSRecordingWearApplication.storeView.displayMetricUnits.get()
+                    ?: false)
             date.text = track.formattedStartDate()
             itemView.tag = track
         }
@@ -66,5 +72,4 @@ class TracksRecyclerViewAdapter(val context: Context) : PagedListAdapter<Track, 
             }
         }
     }
-
 }

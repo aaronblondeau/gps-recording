@@ -5,4 +5,17 @@
     values-round/strings.xml for round devices.
     -->
     <string name="hello_world">Hello Square World!</string>
+    <string name="title_activity_record">RecordActivity</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="title_activity_tracks">TracksActivity</string>
+    <string name="title_activity_track">TrackActivity</string>
+
+    <string name="record_notification_title">Recording GPS</string>
+    <string name="record_notification_message">A track is being recorded.</string>
+    <string name="record_channel_name">GPSRecording</string>
+    <string name="record_channel_description">GPSRecording Notification Channel</string>
+    <string name="metric_units">Metric Units</string>
+    <string name="distance_filter_meters">Dist Filter (meters)</string>
+    <string name="time_filter_seconds">Time Filter (seconds)</string>
+    <string name="delete">Delete</string>
 </resources>
