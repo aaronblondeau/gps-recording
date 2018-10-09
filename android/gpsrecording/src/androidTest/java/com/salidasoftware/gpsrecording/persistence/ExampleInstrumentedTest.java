@@ -1,4 +1,4 @@
-package com.salidasoftware.gpsrecording;
+package com.salidasoftware.gpsrecording.persistence;
 
 import android.content.Context;
 
@@ -22,6 +22,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.salidasoftware.gpsrecording.test", appContext.getPackageName());
+        assertEquals("com.salidasoftware.gpsrecording.persistence.test", appContext.getPackageName());
     }
 }

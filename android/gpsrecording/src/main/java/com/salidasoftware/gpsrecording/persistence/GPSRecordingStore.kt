@@ -19,7 +19,7 @@ import androidx.core.content.FileProvider
 import androidx.room.Room
 import kotlin.collections.ArrayList
 
-class GPSRecordingStore(context: Context) {
+class GPSRecordingStore(context: Context, inMemory: Boolean = false) {
 
     val context = context
     val database: GPSRecordingDatabase
@@ -27,7 +27,11 @@ class GPSRecordingStore(context: Context) {
     val currentTrackDeletedHandlers : ArrayList<CurrentTrackDeletedHandler> = ArrayList()
 
     init {
-        database = Room.databaseBuilder(context, GPSRecordingDatabase::class.java, "gps-recording-database").build()
+        if(inMemory) {
+            database = Room.inMemoryDatabaseBuilder(context, GPSRecordingDatabase::class.java).allowMainThreadQueries().build()
+        } else {
+            database = Room.databaseBuilder(context, GPSRecordingDatabase::class.java, "gps-recording-database").build()
+        }
         prefs = context.getSharedPreferences("GPSRecording", Context.MODE_PRIVATE)
     }
 

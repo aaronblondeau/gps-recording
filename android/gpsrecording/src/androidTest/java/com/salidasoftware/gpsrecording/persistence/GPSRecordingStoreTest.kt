@@ -1,4 +1,4 @@
-package com.salidasoftware.gpsrecording
+package com.salidasoftware.gpsrecording.persistence
 
 import androidx.room.Room
 import android.content.Context
@@ -36,7 +36,7 @@ class GPSRecordingStoreTest {
 
     @Test
     fun testInit() {
-        val store = GPSRecordingStore(database)
+        val store = GPSRecordingStore(InstrumentationRegistry.getTargetContext(), true)
         Assert.assertEquals(0, store.countTracks())
         Assert.assertEquals(0, store.countLines())
         Assert.assertEquals(0, store.countPoints())
@@ -44,7 +44,7 @@ class GPSRecordingStoreTest {
 
     @Test
     fun testCreateAndGetTrack() {
-        val store = GPSRecordingStore(database)
+        val store = GPSRecordingStore(InstrumentationRegistry.getTargetContext(), true)
         val track = store.createTrack("Test Create", "Test", Track.Activity.RUN.activityName)
         Assert.assertTrue(track.id > 0)
         var fetched = store.getTrack(track.id)
@@ -57,7 +57,7 @@ class GPSRecordingStoreTest {
 
     @Test
     fun testDownstreamId() {
-        val store = GPSRecordingStore(database)
+        val store = GPSRecordingStore(InstrumentationRegistry.getTargetContext(), true)
         val track = store.createTrack("Test Up Down", "Test", Track.Activity.RUN.activityName)
         store.setTrackDownstreamId(track, "abcd1234")
         var fetched = store.getTrack(track.id)
@@ -71,7 +71,7 @@ class GPSRecordingStoreTest {
 
     @Test
     fun testUpstreamId() {
-        val store = GPSRecordingStore(database)
+        val store = GPSRecordingStore(InstrumentationRegistry.getTargetContext(), true)
         val track = store.createTrack("Test Up Down", "Test", Track.Activity.RUN.activityName)
 
         track.upstreamId = "upup1234"
@@ -88,7 +88,7 @@ class GPSRecordingStoreTest {
 
     @Test
     fun testUpdateTrack() {
-        val store = GPSRecordingStore(database)
+        val store = GPSRecordingStore(InstrumentationRegistry.getTargetContext(), true)
         val track = store.createTrack("Test Update A", "Test A", Track.Activity.RUN.activityName)
 
         store.updateTrack(track,"Test Update B", "Test B", Track.Activity.BIKE.activityName)
@@ -106,7 +106,7 @@ class GPSRecordingStoreTest {
 
     @Test
     fun testDeleteTrack() {
-        val store = GPSRecordingStore(database)
+        val store = GPSRecordingStore(InstrumentationRegistry.getTargetContext(), true)
         val track = store.createTrack("Test Delete", "Test", Track.Activity.RUN.activityName)
 
         store.deleteTrack(track)
@@ -117,7 +117,7 @@ class GPSRecordingStoreTest {
 
     @Test
     fun addLine() {
-        val store = GPSRecordingStore(database)
+        val store = GPSRecordingStore(InstrumentationRegistry.getTargetContext(), true)
         val track = store.createTrack("Test Add Line", "Test", Track.Activity.RUN.activityName)
         val line = store.addLineToTrack(track)
         val fetched = store.getLine(line.id)
@@ -128,7 +128,7 @@ class GPSRecordingStoreTest {
 
     @Test
     fun testAddLocation() {
-        val store = GPSRecordingStore(database)
+        val store = GPSRecordingStore(InstrumentationRegistry.getTargetContext(), true)
         val track = store.createTrack("Test Add Location", "Test", Track.Activity.RUN.activityName)
 
         val locationA = Location("Test")

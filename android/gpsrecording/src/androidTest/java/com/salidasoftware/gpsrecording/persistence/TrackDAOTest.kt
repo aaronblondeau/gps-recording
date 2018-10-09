@@ -1,4 +1,4 @@
-package com.salidasoftware.gpsrecording
+package com.salidasoftware.gpsrecording.persistence
 
 import androidx.room.Room
 import android.content.Context
