@@ -1,24 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/dark_grey"
-    android:padding="@dimen/box_inset_layout_padding"
-    tools:context=".RecordActivity"
-    tools:deviceIds="wear">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <FrameLayout
+    <data>
+        <import type="android.view.View"/>
+        <variable
+            name="track"
+            type="com.salidasoftware.gpsrecording.TrackViewModel"/>
+        <variable
+            name="recording"
+            type="com.salidasoftware.gpsrecording.RecordingViewModel"/>
+    </data>
+
+    <androidx.wear.widget.BoxInsetLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="@dimen/inner_frame_layout_padding"
-        app:boxedEdges="all">
+        android:background="@color/dark_grey"
+        android:padding="@dimen/box_inset_layout_padding"
+        tools:context=".RecordActivity"
+        tools:deviceIds="wear">
 
-        <Button
-            android:id="@+id/buttonTest"
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Test" />
-    </FrameLayout>
-</androidx.wear.widget.BoxInsetLayout>
+            android:layout_height="match_parent"
+            android:padding="@dimen/inner_frame_layout_padding"
+            app:boxedEdges="all">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/trackRecordDistance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@{track.distance, default=TrackDistance}"
+                    android:visibility="@{recording.recording || recording.hasCurrentTrack ? View.VISIBLE : View.GONE}"
+                    android:textAlignment="center"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/trackRecordDuration"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@{track.duration, default=TrackDuration}"
+                    android:visibility="@{recording.recording || recording.hasCurrentTrack ? View.VISIBLE : View.GONE}"
+                    android:textAlignment="center"
+                    android:textSize="18sp" />
+
+                <Button
+                    android:id="@+id/buttonStartRecording"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="@{(!recording.recording &amp;&amp; !recording.hasCurrentTrack) ? View.VISIBLE : View.GONE}"
+                    android:text="@string/start" />
+
+                <Button
+                    android:id="@+id/buttonResumeRecording"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="@{(!recording.recording &amp;&amp; recording.hasCurrentTrack) ? View.VISIBLE : View.GONE}"
+                    android:text="@string/resume" />
+
+                <Button
+                    android:id="@+id/buttonPauseRecording"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="@{recording.recording ? View.VISIBLE : View.GONE}"
+                    android:text="@string/pause" />
+
+                <Button
+                    android:id="@+id/buttonFinishRecording"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="@{recording.recording || recording.hasCurrentTrack ? View.VISIBLE : View.GONE}"
+                    android:text="@string/finish" />
+            </LinearLayout>
+
+        </ScrollView>
+
+    </androidx.wear.widget.BoxInsetLayout>
+
+</layout>

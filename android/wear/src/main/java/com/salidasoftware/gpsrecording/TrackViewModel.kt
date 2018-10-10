@@ -23,16 +23,14 @@ class TrackViewModel : ViewModel() {
     val isSki: ObservableField<Boolean> = ObservableField(false)
     val isWalk: ObservableField<Boolean> = ObservableField(false)
 
-    fun setTrack(track: LiveData<Track>) {
-
-        track.value?.let {
-
-            name.set(it.name)
-            note.set(it.note)
-            activity.set(it.activity)
-            distance.set(track.value?.formattedDistance(GPSRecordingWearApplication.storeView.displayMetricUnits.get()
+    fun setTrack(track: Track?) {
+        if (track != null) {
+            name.set(track.name)
+            note.set(track.note)
+            activity.set(track.activity)
+            distance.set(track.formattedDistance(GPSRecordingWearApplication.storeView.displayMetricUnits.get()
                     ?: false))
-            duration.set(track.value?.formattedDuration())
+            duration.set(track.formattedDuration())
 
             if (activity.get().equals(Track.Activity.RUN.activityName)) {
                 isRun.set(true)
@@ -49,11 +47,18 @@ class TrackViewModel : ViewModel() {
             if (activity.get().equals(Track.Activity.WALK.activityName)) {
                 isWalk.set(true)
             }
-
+        } else {
+            name.set("")
+            note.set("")
+            activity.set("")
+            distance.set("")
+            duration.set("")
+            activity.set("")
+            isHike.set(false)
+            isBike.set(false)
+            isRun.set(false)
+            isSki.set(false)
+            isWalk.set(false)
         }
-
-
     }
-
-
 }

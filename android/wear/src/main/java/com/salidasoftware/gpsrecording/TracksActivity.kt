@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.wearable.activity.WearableActivity
 import android.util.Log
+import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -38,6 +39,11 @@ class TracksActivity : WearableActivity(), OnTrackClickListener {
             Log.d("TracksActivity", "~~ Got " +tracks.size+ " tracks")
             adapter.setTracks(tracks.toTypedArray())
             adapter.notifyDataSetChanged()
+            if (tracks.isEmpty()) {
+                textViewNoTracksFound.visibility = View.VISIBLE
+            } else {
+                textViewNoTracksFound.visibility = View.GONE
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 package com.salidasoftware.gpsrecording
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.wearable.activity.WearableActivity
 import android.util.Log
@@ -46,10 +47,17 @@ class TrackActivity : WearableActivity() {
             }
         }
 
+        val trackId = intent.getLongExtra(TRACK_ID, -1)
+        buttonTrackMap.setOnClickListener {
+            // Go to track activity
+            val intent = Intent(this, TrackMapActivity::class.java)
+            intent.putExtra(TrackMapActivity.TRACK_ID, trackId)
+            this.startActivity(intent)
+        }
+
         trackObserver = Observer<Track> {
-            Log.d("TrackActivity", "~~ Got Track : " + track.value?.name)
-            trackViewModel.setTrack(track)
-            if (track.value != null) {
+            trackViewModel.setTrack(it)
+            if (it != null) {
                 buttonDeleteTrack.isEnabled = true
             }
         }

@@ -18,6 +18,8 @@ import com.salidasoftware.gpsrecording.activities.RecordActivity
 import com.salidasoftware.gpsrecording.room.GPSRecordingStore
 import com.salidasoftware.gpsrecording.room.Track
 import org.jetbrains.anko.doAsync
+import java.util.*
+import kotlin.concurrent.timerTask
 
 class GPSRecordingService : Service(), LocationListener {
 
@@ -25,13 +27,16 @@ class GPSRecordingService : Service(), LocationListener {
         var recording : ObservableField<Boolean> = ObservableField(false)
     }
 
-    private var store: GPSRecordingStore? = GPSRecordingApplication.store
+    private var store: GPSRecordingStore = GPSRecordingApplication.store
     private var currentTrack: Track? = null
     val ONGOING_NOTIFICATION_ID = 1337
     var locationManager : LocationManager? = null
 
-    override fun onBind(intent: Intent): IBinder {
-        TODO("Return the communication channel to the service.")
+    val timer = Timer()
+    var ticker: TimerTask? = null
+
+    override fun onBind(intent: Intent): IBinder? {
+        return null
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -54,6 +59,9 @@ class GPSRecordingService : Service(), LocationListener {
                         currentTrack = newTrk
                         GPSRecordingApplication.storeView.currentTrackId.set(newTrk.id)
                     }
+                }
+                currentTrack?.let { track ->
+                    GPSRecordingApplication.storeView.currentElapsedTimeInMilliseconds.set(track.totalDurationInMilliseconds)
                 }
             }
 
@@ -95,6 +103,13 @@ class GPSRecordingService : Service(), LocationListener {
                     startForeground(ONGOING_NOTIFICATION_ID, notification)
                 }
 
+                ticker = timerTask{
+                    GPSRecordingApplication.storeView.currentElapsedTimeInMilliseconds.get()?.let {
+                        GPSRecordingApplication.storeView.currentElapsedTimeInMilliseconds.set(it.plus(1000L))
+                    }
+                }
+                timer.scheduleAtFixedRate(ticker, 1000L, 1000L)
+
             } else {
                 recording.set(false)
                 stopSelf()
@@ -110,6 +125,10 @@ class GPSRecordingService : Service(), LocationListener {
             it.removeUpdates(this)
         }
         recording.set(false)
+        ticker?.let {
+            it.cancel()
+            ticker = null
+        }
     }
 
     override fun onLocationChanged(location: Location?) {
@@ -121,7 +140,8 @@ class GPSRecordingService : Service(), LocationListener {
                     if (exists != null) {
                         try {
                             Log.d("GPSRecordingService", "~~ Adding location " + location.latitude + "," + location.longitude + " to track " + track.name)
-                            store?.addLocationToTrack(track, location)
+                            store.addLocationToTrack(track, location)
+                            GPSRecordingApplication.storeView.currentElapsedTimeInMilliseconds.set(track.totalDurationInMilliseconds)
                         } catch (e: Exception) {
                             Log.e("GPSRecordingService", "~~ Unable to store location!", e)
                         }

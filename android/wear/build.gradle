@@ -4,6 +4,8 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
+apply from: 'google_maps_api_key.gradle'
+
 android {
     compileSdkVersion 28
     defaultConfig {
@@ -12,6 +14,8 @@ android {
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
+
+        addManifestPlaceholders([GOOGLE_MAPS_API_KEY: "$googleMapsApiKey"])
     }
     buildTypes {
         release {
@@ -36,6 +40,10 @@ dependencies {
     implementation 'androidx.wear:wear:1.0.0'
     implementation 'com.android.support:wear:28.0.0'
     compileOnly 'com.google.android.wearable:wearable:2.3.0'
+
+    implementation 'com.google.android.gms:play-services-wearable:16.0.1'
+    implementation 'com.google.android.gms:play-services-location:16.0.0'
+    implementation 'com.google.android.gms:play-services-maps:15.0.1'
 
     implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
 

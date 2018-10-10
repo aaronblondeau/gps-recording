@@ -8,6 +8,7 @@ import com.salidasoftware.gpsrecording.room.GPSRecordingStore
 class StoreObserver(store: GPSRecordingStore) : CurrentTrackDeletedHandler {
 
     val store = store
+    val currentElapsedTimeInMilliseconds: ObservableField<Long> = ObservableField(0)
     val currentTrackId: ObservableField<Long> = ObservableField(-1)
     val distanceFilterInMeters: ObservableField<Float> = ObservableField(10f)
     val timeFilterInMilliseconds: ObservableField<Long> = ObservableField(1000L)

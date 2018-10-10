@@ -15,9 +15,18 @@
         android:padding="@dimen/inner_frame_layout_padding"
         app:boxedEdges="all">
 
+        <TextView
+            android:id="@+id/textViewNoTracksFound"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No Tracks Found"
+            android:textAlignment="center" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewTracks"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent" >
+
+        </androidx.recyclerview.widget.RecyclerView>
     </FrameLayout>
 </androidx.wear.widget.BoxInsetLayout>

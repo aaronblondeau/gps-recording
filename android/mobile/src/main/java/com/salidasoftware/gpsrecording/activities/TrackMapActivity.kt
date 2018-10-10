@@ -44,7 +44,7 @@ class TrackMapActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.apply { setDisplayHomeAsUpEnabled(true) }
 
-        val trackId = intent.getLongExtra(TrackActivity.TRACK_ID, -1)
+        val trackId = intent.getLongExtra(TrackMapActivity.TRACK_ID, -1)
         if (trackId >= 0 && store != null) {
             (this@TrackMapActivity.trackMap as SupportMapFragment?)?.getMapAsync {
                 this@TrackMapActivity.map = it
