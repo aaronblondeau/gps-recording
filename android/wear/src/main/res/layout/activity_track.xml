@@ -67,7 +67,15 @@
                     android:id="@+id/buttonSyncTrack"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:visibility="@{!track.synced ? View.VISIBLE : View.GONE}"
                     android:text="@string/sync_to_phone" />
+
+                <Button
+                    android:id="@+id/buttonOpenTrackOnPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="@{track.synced ? View.VISIBLE : View.GONE}"
+                    android:text="@string/open_on_phone" />
             </LinearLayout>
         </ScrollView>
 

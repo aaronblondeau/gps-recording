@@ -17,6 +17,9 @@ import android.content.SharedPreferences
 import android.net.Uri
 import androidx.core.content.FileProvider
 import androidx.room.Room
+import com.google.android.gms.wearable.Asset
+import org.json.JSONArray
+import org.json.JSONObject
 import kotlin.collections.ArrayList
 
 class GPSRecordingStore(context: Context, inMemory: Boolean = false) {
@@ -294,6 +297,116 @@ class GPSRecordingStore(context: Context, inMemory: Boolean = false) {
         context.startActivity(Intent.createChooser(emailIntent, "Share track..."))
     }
 
+    fun createTrackFromUpstreamAsset(asset: Asset, nodeId: String) : Track {
+
+        val trackJson = JSONObject(String(asset.data))
+
+        val name = trackJson.getString("name")
+        val note = trackJson.getString("note")
+        val activity = trackJson.getString("activity")
+        val track = Track(name, note, activity)
+
+        track.totalDistanceInMeters = trackJson.getDouble("totalDistanceInMeters").toFloat()
+        track.totalDurationInMilliseconds = trackJson.getLong("totalDurationInMilliseconds")
+        track.startedAt = trackJson.getLong("startedAt")
+        track.endedAt = trackJson.getLong("endedAt")
+
+        track.upstreamId = nodeId + ":" + trackJson.getLong("id")
+
+        val trackId = trackDAO.insert(track)
+
+        val linesJson = trackJson.getJSONArray("lines")
+
+        for (i in 0..(linesJson.length() - 1)) {
+            val lineJson = linesJson.getJSONObject(i)
+
+            val line = Line(trackId)
+            line.totalDistanceInMeters = lineJson.getDouble("totalDistanceInMeters").toFloat()
+            line.startedAt = lineJson.getLong("startedAt")
+            line.endedAt = lineJson.getLong("endedAt")
+            val lineId = lineDAO.insert(line)
+
+            val pointsJson = lineJson.getJSONArray("points")
+            for (j in 0..(pointsJson.length() - 1)) {
+                val pointJson = pointsJson.getJSONObject(j)
+
+                val time = pointJson.getLong("time")
+                val latitude = pointJson.getDouble("latitude")
+                val longitude = pointJson.getDouble("longitude")
+                val accuracy = pointJson.getDouble("accuracy").toFloat()
+                val altitude = pointJson.getDouble("altitude")
+                val verticalAccuracy = pointJson.getDouble("verticalAccuracy").toFloat()
+                val bearing = pointJson.getDouble("bearing").toFloat()
+                val bearingAccuracy = pointJson.getDouble("bearingAccuracy").toFloat()
+                val speed = pointJson.getDouble("speed").toFloat()
+                val speedAccuracy = pointJson.getDouble("speedAccuracy").toFloat()
+
+                val point = Point(lineId, time, latitude, longitude, accuracy, altitude, verticalAccuracy, bearing, bearingAccuracy, speed, speedAccuracy)
+                pointDAO.insert(point)
+
+            }
+
+        }
+
+        val result = trackDAO.getById(trackId)
+        return result!!
+    }
+
+    fun trackAsAsset(track: Track) : Asset {
+        val trackJson = JSONObject()
+        trackJson.put("name", track.name)
+        trackJson.put("note", track.note)
+        trackJson.put("activity", track.activity)
+        trackJson.put("totalDistanceInMeters", track.totalDistanceInMeters)
+        trackJson.put("totalDurationInMilliseconds", track.totalDurationInMilliseconds)
+        trackJson.put("startedAt", track.startedAt)
+        trackJson.put("endedAt", track.endedAt)
+        trackJson.put("upstreamId", track.upstreamId)
+        trackJson.put("downstreamId", track.downstreamId)
+        trackJson.put("id", track.id)
+
+        val linesJson = JSONArray()
+
+        val lines = lineDAO.getAllForTrack(track.id)
+        for (line in lines) {
+            val lineJson = JSONObject()
+            lineJson.put("trackId", line.trackId)
+            lineJson.put("totalDistanceInMeters", line.totalDistanceInMeters)
+            lineJson.put("startedAt", line.startedAt)
+            lineJson.put("endedAt", line.endedAt)
+            lineJson.put("id", line.id)
+
+            val pointsJson = JSONArray()
+
+            val points = pointDAO.getAllForLine(line.id)
+            for (point in points) {
+                val pointJson = JSONObject()
+                pointJson.put("lineId", point.lineId)
+                pointJson.put("time", point.time)
+                pointJson.put("latitude", point.latitude)
+                pointJson.put("longitude", point.longitude)
+                pointJson.put("horizontal_accuracy", point.horizontal_accuracy)
+                pointJson.put("altitude", point.altitude)
+                pointJson.put("vertical_accuracy", point.vertical_accuracy)
+                pointJson.put("bearing", point.bearing)
+                pointJson.put("bearing_accuracy", point.bearing_accuracy)
+                pointJson.put("speed", point.speed)
+                pointJson.put("speed_accuracy", point.speed_accuracy)
+                pointJson.put("id", point.id)
+                pointsJson.put(pointJson)
+            }
+            lineJson.put("points", pointsJson)
+
+            linesJson.put(lineJson)
+        }
+
+        trackJson.put("lines", linesJson)
+
+        val bytes = trackJson.toString().toByteArray(Charsets.UTF_8)
+        return Asset.createFromBytes(bytes)
+    }
+
+
     @Throws(IOException::class)
     fun exportGpx(track: Track, context: Context): File {
 
@@ -379,7 +492,15 @@ class GPSRecordingStore(context: Context, inMemory: Boolean = false) {
         out.write("  \"features\": [\n")
         out.write("    {\n")
         out.write("      \"type\": \"Feature\",\n")
-        out.write("      \"properties\": {},\n")
+        out.write("      \"properties\": {")
+        out.write("        \"name\":\""+track.name+"\",")
+        out.write("        \"note\":\""+track.note+"\",")
+        out.write("        \"activity\":\""+track.activity+"\",")
+        out.write("        \"totalDistanceInMeters\":"+track.totalDistanceInMeters+",")
+        out.write("        \"totalDurationInMilliseconds\":"+track.totalDurationInMilliseconds+",")
+        out.write("        \"startedAt\":\""+pointDateFormatter.format(Date(track.startedAt))+"\",")
+        out.write("        \"endedAt\":\""+pointDateFormatter.format(Date(track.endedAt))+"\",")
+        out.write("      },\n")
         out.write("      \"geometry\": {\n")
         out.write("        \"type\": \"MultiLineString\",\n")
         out.write("        \"coordinates\": [\n")

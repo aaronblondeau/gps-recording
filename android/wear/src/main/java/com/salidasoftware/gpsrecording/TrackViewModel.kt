@@ -17,6 +17,9 @@ class TrackViewModel : ViewModel() {
     val duration : ObservableField<String> = ObservableField("")
     val activity : ObservableField<String> = ObservableField("")
 
+    val syncing : ObservableField<Boolean> = ObservableField(false)
+    val synced : ObservableField<Boolean> = ObservableField(false)
+
     val isHike: ObservableField<Boolean> = ObservableField(false)
     val isBike: ObservableField<Boolean> = ObservableField(false)
     val isRun: ObservableField<Boolean> = ObservableField(false)
@@ -47,6 +50,18 @@ class TrackViewModel : ViewModel() {
             if (activity.get().equals(Track.Activity.WALK.activityName)) {
                 isWalk.set(true)
             }
+
+            if(track.downstreamId.equals("pending")) {
+                syncing.set(true)
+            } else {
+                syncing.set(false)
+            }
+
+            if(!track.downstreamId.isEmpty() && !track.downstreamId.equals("pending")) {
+                synced.set(true)
+            } else {
+                synced.set(false)
+            }
         } else {
             name.set("")
             note.set("")
@@ -59,6 +74,8 @@ class TrackViewModel : ViewModel() {
             isRun.set(false)
             isSki.set(false)
             isWalk.set(false)
+            synced.set(false)
+            syncing.set(false)
         }
     }
 }

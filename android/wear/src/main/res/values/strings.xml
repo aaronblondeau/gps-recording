@@ -26,4 +26,7 @@
     <string name="title_activity_track_map">TrackMapActivity</string>
     <string name="map">Map</string>
     <string name="close">Close</string>
+    <string name="open_on_phone">Open On Phone</string>
+    <string name="track_opened_on_phone">Track has been opened on phone.</string>
+    <string name="track_not_synced">Track not synced!</string>
 </resources>
