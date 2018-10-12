@@ -11,6 +11,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.MenuItem
 import android.view.inputmethod.EditorInfo
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.wearable.*
 import com.salidasoftware.gpsrecording.GPSRecordingApplication
 import com.salidasoftware.gpsrecording.R
 import com.salidasoftware.gpsrecording.room.Track
@@ -78,8 +80,43 @@ class TrackActivity : AppCompatActivity() {
             Snackbar.make(view, "Really delete this track?", Snackbar.LENGTH_LONG)
                     .setAction("Delete", {
                         doAsync {
-                            track.value?.let {
-                                store?.deleteTrack(it)
+                            track.value?.let {track ->
+                                store?.deleteTrack(track)
+
+                                // If track was from wear, let it know if deleted
+                                if(!track.upstreamId.isEmpty()) {
+
+                                    val nodeClient: NodeClient = Wearable.getNodeClient(this@TrackActivity)
+                                    nodeClient.localNode.addOnCompleteListener {
+                                        it.result?.let { node ->
+
+                                            val wearNodeId = track.upstreamId.split(":")[0]
+                                            val wearId = (track.upstreamId.split(":")[1]).toLong()
+
+                                            val dataItemPath = "/track_downstream/" + wearNodeId + "/" + wearId
+
+                                            val putDataReq: PutDataRequest = PutDataMapRequest.create(dataItemPath).run {
+                                                dataMap.putString("mobileNodeId", node.id)
+                                                dataMap.putString("wearNodeId", wearNodeId)
+                                                dataMap.putLong("mobileId", -1)  // Use a negative value to indicate deletion
+                                                dataMap.putLong("wearId", wearId)
+                                                dataMap.putLong("forceUpdate", System.currentTimeMillis())
+                                                asPutDataRequest()
+                                            }
+
+                                            val mDataClient: DataClient = Wearable.getDataClient(this@TrackActivity)
+                                            val putDataTask: Task<DataItem> = mDataClient.putDataItem(putDataReq)
+
+                                            putDataTask.addOnSuccessListener {
+                                                Log.d("TrackActivity", "~~ sent track delete notice on path " + dataItemPath)
+                                            }
+
+                                            putDataTask.addOnFailureListener {
+                                                Log.e("TrackActivity", "~~ failed to send track delete notice on path " + dataItemPath, it)
+                                            }
+                                        }
+                                    }
+                                }
                                 this@TrackActivity.finish()
                             }
                         }

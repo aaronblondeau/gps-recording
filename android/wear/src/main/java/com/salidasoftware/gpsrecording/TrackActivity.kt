@@ -70,47 +70,52 @@ class TrackActivity : WearableActivity() {
         val nodeClient: NodeClient = Wearable.getNodeClient(this)
         buttonSyncTrack.setOnClickListener {
 
-            track.value?.let {track ->
+            track.value?.let { track ->
 
                 nodeClient.localNode.addOnCompleteListener {
 
-                    it.result?.let {
-                        val nodeId = it.id
+                    doAsync {
 
-                        Log.d("TrackActivity", "~~ node id is " + nodeId)
+                        try {
 
-                        val dataItemPath = "/track_upstream/" + nodeId + "/" + track.id
+                            it.result?.let {
+                                val wearNodeId = it.id
 
-                        val putDataReq: PutDataRequest = PutDataMapRequest.create(dataItemPath).run {
-                            dataMap.putString("nodeId", nodeId)
-                            dataMap.putLong("id", track.id)
-                            dataMap.putAsset("track", store.trackAsAsset(track))
-                            dataMap.putLong("forceUpdate", System.currentTimeMillis())
-                            asPutDataRequest()
-                        }
-                        val putDataTask: Task<DataItem> = mDataClient.putDataItem(putDataReq)
+                                Log.d("TrackActivity", "~~ node id is " + wearNodeId)
 
-                        putDataTask.addOnSuccessListener {
-                            Log.d("TrackActivity", "~~ track sent on path " + dataItemPath)
+                                val dataItemPath = "/track_upstream/" + wearNodeId + "/" + track.id
 
-                            // Save "pending" as downstreamId to prevent re-syncs
-                            doAsync {
-                                track.downstreamId = "pending"
-                                store.saveTrack(track)
+                                val putDataReq: PutDataRequest = PutDataMapRequest.create(dataItemPath).run {
+                                    dataMap.putString("wearNodeId", wearNodeId)
+                                    dataMap.putLong("wearId", track.id)
+                                    dataMap.putAsset("track", store.trackAsAsset(track))
+                                    dataMap.putLong("forceUpdate", System.currentTimeMillis())
+                                    asPutDataRequest()
+                                }
+                                val putDataTask: Task<DataItem> = mDataClient.putDataItem(putDataReq)
+
+                                putDataTask.addOnSuccessListener {
+                                    Log.d("TrackActivity", "~~ track sent on path " + dataItemPath)
+
+                                    // Save "pending" as downstreamId to prevent re-syncs
+                                    doAsync {
+                                        track.downstreamId = "pending"
+                                        store.saveTrack(track)
+                                    }
+                                }
+
+                                putDataTask.addOnFailureListener {
+                                    Log.e("TrackActivity", "~~ failed to send track on path " + dataItemPath, it)
+                                }
+
+
                             }
+
+                        } catch(e: Exception) {
+                            Log.e("TrackActivity", "~~ error starting track sync", e)
                         }
-
-                        putDataTask.addOnFailureListener {
-                            Log.e("TrackActivity", "~~ failed to send track on path " + dataItemPath, it)
-                        }
-
-
                     }
-
                 }
-
-
-
             }
         }
 
@@ -144,7 +149,7 @@ class TrackActivity : WearableActivity() {
                                         val sendTask: Task<*> = Wearable.getMessageClient(this@TrackActivity).sendMessage(
                                                 nodeId,
                                                 "/open_downstream_track/" + track.downstreamId,
-                                                (track.downstreamId + "").toByteArray()
+                                                (track.downstreamId).toByteArray()
                                         ).apply {
                                             addOnSuccessListener {
                                                 Log.d("TrackActivity", "~~ track downstream open sent to node " + nodeId)

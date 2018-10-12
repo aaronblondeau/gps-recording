@@ -95,7 +95,7 @@ class GPSRecordingStore(context: Context, inMemory: Boolean = false) {
     }
 
     fun getTrackWithUpstreamId(id: String) : Track? {
-        return trackDAO.getByUpsreamId(id)
+        return trackDAO.getByUpstreamId(id)
     }
 
     fun setTrackDownstreamId(track: Track, downstreamId: String) {
@@ -297,9 +297,7 @@ class GPSRecordingStore(context: Context, inMemory: Boolean = false) {
         context.startActivity(Intent.createChooser(emailIntent, "Share track..."))
     }
 
-    fun createTrackFromUpstreamAsset(asset: Asset, nodeId: String) : Track {
-
-        val trackJson = JSONObject(String(asset.data))
+    fun createTrackFromUpstreamAsset(trackJson: JSONObject, nodeId: String) : Track {
 
         val name = trackJson.getString("name")
         val note = trackJson.getString("note")
@@ -333,13 +331,37 @@ class GPSRecordingStore(context: Context, inMemory: Boolean = false) {
                 val time = pointJson.getLong("time")
                 val latitude = pointJson.getDouble("latitude")
                 val longitude = pointJson.getDouble("longitude")
-                val accuracy = pointJson.getDouble("accuracy").toFloat()
-                val altitude = pointJson.getDouble("altitude")
-                val verticalAccuracy = pointJson.getDouble("verticalAccuracy").toFloat()
-                val bearing = pointJson.getDouble("bearing").toFloat()
-                val bearingAccuracy = pointJson.getDouble("bearingAccuracy").toFloat()
-                val speed = pointJson.getDouble("speed").toFloat()
-                val speedAccuracy = pointJson.getDouble("speedAccuracy").toFloat()
+                val accuracy = pointJson.getDouble("horizontal_accuracy").toFloat()
+
+                var altitude:Double? = null
+                try {
+                    altitude = pointJson.getDouble("altitude")
+                } catch(e: Exception) {}
+
+                var verticalAccuracy:Float? = null
+                try {
+                    verticalAccuracy = pointJson.getDouble("vertical_accuracy").toFloat()
+                } catch(e: Exception) {}
+
+                var bearing:Float? = null
+                try {
+                    bearing = pointJson.getDouble("bearing").toFloat()
+                } catch(e: Exception) {}
+
+                var bearingAccuracy:Float? = null
+                try {
+                    bearingAccuracy = pointJson.getDouble("bearing_accuracy").toFloat()
+                } catch(e: Exception) {}
+
+                var speed:Float? = null
+                try {
+                    speed = pointJson.getDouble("speed").toFloat()
+                } catch(e: Exception) {}
+
+                var speedAccuracy:Float? = null
+                try {
+                    speedAccuracy = pointJson.getDouble("speed_accuracy").toFloat()
+                } catch(e: Exception) {}
 
                 val point = Point(lineId, time, latitude, longitude, accuracy, altitude, verticalAccuracy, bearing, bearingAccuracy, speed, speedAccuracy)
                 pointDAO.insert(point)
@@ -492,14 +514,14 @@ class GPSRecordingStore(context: Context, inMemory: Boolean = false) {
         out.write("  \"features\": [\n")
         out.write("    {\n")
         out.write("      \"type\": \"Feature\",\n")
-        out.write("      \"properties\": {")
-        out.write("        \"name\":\""+track.name+"\",")
-        out.write("        \"note\":\""+track.note+"\",")
-        out.write("        \"activity\":\""+track.activity+"\",")
-        out.write("        \"totalDistanceInMeters\":"+track.totalDistanceInMeters+",")
-        out.write("        \"totalDurationInMilliseconds\":"+track.totalDurationInMilliseconds+",")
-        out.write("        \"startedAt\":\""+pointDateFormatter.format(Date(track.startedAt))+"\",")
-        out.write("        \"endedAt\":\""+pointDateFormatter.format(Date(track.endedAt))+"\",")
+        out.write("      \"properties\": {\n")
+        out.write("        \"name\":\""+track.name+"\",\n")
+        out.write("        \"note\":\""+track.note+"\",\n")
+        out.write("        \"activity\":\""+track.activity+"\",\n")
+        out.write("        \"totalDistanceInMeters\":"+track.totalDistanceInMeters+",\n")
+        out.write("        \"totalDurationInMilliseconds\":"+track.totalDurationInMilliseconds+",\n")
+        out.write("        \"startedAt\":\""+pointDateFormatter.format(Date(track.startedAt))+"\",\n")
+        out.write("        \"endedAt\":\""+pointDateFormatter.format(Date(track.endedAt))+"\"\n")
         out.write("      },\n")
         out.write("      \"geometry\": {\n")
         out.write("        \"type\": \"MultiLineString\",\n")

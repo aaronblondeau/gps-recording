@@ -22,7 +22,7 @@ interface TrackDAO {
     fun getByIdLive(id: Long): LiveData<Track>
 
     @Query("SELECT * FROM tracks WHERE upstreamid = :id LIMIT 1")
-    fun getByUpsreamId(id: String): Track?
+    fun getByUpstreamId(id: String): Track?
 
     @Query("SELECT count(1) FROM tracks")
     fun count() : Long

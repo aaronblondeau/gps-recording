@@ -54,22 +54,27 @@ class GPSRecordingService : Service() {
             override fun onLocationResult(locationResult: LocationResult?) {
                 locationResult ?: return
                 for (location in locationResult.locations){
+                    Log.d("GPSRecordingService", "~~ Got location " + location.latitude + "," + location.longitude)
                     currentTrack?.let {track ->
                         doAsync {
-                            // Make sure track still exists
-                            val exists = store?.getTrack(track.id)
-                            if (exists != null) {
-                                try {
-                                    Log.d("GPSRecordingService", "~~ Adding location " + location.latitude + "," + location.longitude + " to track " + track.name)
-                                    store.addLocationToTrack(track, location)
-                                    GPSRecordingWearApplication.storeView.currentElapsedTimeInMilliseconds.set(track.totalDurationInMilliseconds)
-                                } catch (e: Exception) {
-                                    Log.e("GPSRecordingService", "~~ Unable to store location!", e)
+                            try {
+                                // Make sure track still exists
+                                val exists = store?.getTrack(track.id)
+                                if (exists != null) {
+                                    try {
+                                        Log.d("GPSRecordingService", "~~ Adding location " + location.latitude + "," + location.longitude + " to track " + track.name)
+                                        store.addLocationToTrack(track, location)
+                                        GPSRecordingWearApplication.storeView.currentElapsedTimeInMilliseconds.set(track.totalDurationInMilliseconds)
+                                    } catch (e: Exception) {
+                                        Log.e("GPSRecordingService", "~~ Unable to store location!", e)
+                                    }
+                                } else {
+                                    Log.d("GPSRecordingService", "~~ Track no longer exists.  Stopping recording.")
+                                    GPSRecordingWearApplication.storeView.currentTrackId.set(-1)
+                                    stopSelf()
                                 }
-                            } else {
-                                Log.d("GPSRecordingService", "~~ Track no longer exists.  Stopping recording.")
-                                GPSRecordingWearApplication.storeView.currentTrackId.set(-1)
-                                stopSelf()
+                            } catch(e: Exception) {
+                                Log.d("GPSRecordingService", "~~ Error adding location", e)
                             }
                         }
                     }

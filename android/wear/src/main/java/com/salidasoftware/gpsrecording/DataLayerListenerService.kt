@@ -23,8 +23,12 @@ class DataLayerListenerService : WearableListenerService() {
                 val data = DataMapItem.fromDataItem(event.dataItem)
 
                 if (event.dataItem.uri.path.startsWith("/track_downstream")) {
-                    val downstreamId = data.dataMap.getLong("downstreamId")
-                    val dataNodeId = data.dataMap.getString("nodeId")
+                    val wearNodeId = data.dataMap.getString("wearNodeId")
+                    val mobileNodeId = data.dataMap.getString("mobileNodeId")
+                    val mobileId = data.dataMap.getLong("mobileId")
+                    val wearId = data.dataMap.getLong("wearId")
+
+                    Log.d("Wear:DLLS", "~~ Got sync response from phone.  id=" + wearId + " mobileNodeId=" + mobileNodeId + " mobileId=" + mobileId)
 
                     val nodeClient: NodeClient = Wearable.getNodeClient(this)
 
@@ -34,17 +38,26 @@ class DataLayerListenerService : WearableListenerService() {
                             val localNodeId = it.id
 
                             // Make sure node id matches
-                            if (dataNodeId == localNodeId) {
-                                val id = data.dataMap.getLong("id")
-                                Log.d("Wear:DLLS", "~~ Got sync response from phone.  id=" + id + " nodeId=" + dataNodeId + " downstreamId=" + downstreamId)
+                            if (wearNodeId == localNodeId) {
 
                                 doAsync {
-                                    val store = GPSRecordingWearApplication.store
-                                    val track = store.trackDAO.getById(id)
-                                    track?.let {track ->
-                                        track.downstreamId = dataNodeId + ":" + downstreamId
-                                        store.saveTrack(track)
-                                        Log.d("Wear:DLLS", "~~ Saved sync response downstream id : " + track.downstreamId)
+                                    try {
+
+                                        val store = GPSRecordingWearApplication.store
+                                        val track = store.trackDAO.getById(wearId)
+                                        track?.let { track ->
+                                            if (mobileId < 0) {
+                                                // Track was deleted on downstream device
+                                                track.downstreamId = ""
+                                            } else {
+                                                track.downstreamId = mobileNodeId + ":" + mobileId
+                                            }
+                                            store.saveTrack(track)
+                                            Log.d("Wear:DLLS", "~~ Saved sync response downstream id : " + track.downstreamId)
+                                        }
+
+                                    } catch(e: Exception) {
+                                        Log.e("Wear:DLLS", "~~ Failed to handle a sync response", e)
                                     }
                                 }
                             }
@@ -54,5 +67,4 @@ class DataLayerListenerService : WearableListenerService() {
             }
         }
     }
-
 }
