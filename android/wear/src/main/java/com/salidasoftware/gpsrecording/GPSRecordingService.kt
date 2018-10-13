@@ -54,6 +54,10 @@ class GPSRecordingService : Service() {
             override fun onLocationResult(locationResult: LocationResult?) {
                 locationResult ?: return
                 for (location in locationResult.locations){
+                    // Skip low-accuracy locations
+                    if (location.accuracy > 51) {
+                        continue
+                    }
                     Log.d("GPSRecordingService", "~~ Got location " + location.latitude + "," + location.longitude)
                     currentTrack?.let {track ->
                         doAsync {
