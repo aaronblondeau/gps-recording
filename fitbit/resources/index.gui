@@ -1,0 +1,16 @@
+<svg class="background">
+  <text id="location" x="0" y="36">Location</text>
+  <text id="altitude" x="0" y="72">Altitude</text>
+  <text id="speed" x="0" y="108">Speed</text>
+  <use id="btn-start-pause" href="#combo-button-upper-right" fill="fb-green">
+    <set href="combo-button-icon" attributeName="href" to="start.png"/>
+    <set href="combo-button-icon-press" attributeName="href" to="start_press.png"/>
+    <set href="combo-button-stroke" attributeName="display" to="inline"/>
+  </use>
+  
+  <use id="btn-finish" href="#combo-button-lower-right" fill="fb-yellow">
+    <set href="combo-button-icon" attributeName="href" to="finish.png"/>
+    <set href="combo-button-icon-press" attributeName="href" to="finish_press.png"/>
+    <set href="combo-button-stroke" attributeName="display" to="inline"/>
+  </use>
+</svg>

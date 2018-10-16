@@ -1,0 +1,24 @@
+{
+  "fitbit": {
+    "appUUID": "8ffce0be-b05a-4348-a3ed-172282b4f269",
+    "appType": "app",
+    "appDisplayName": "GPS Research",
+    "iconFile": "resources/icon.png",
+    "wipeColor": "#f44336",
+    "requestedPermissions": [
+      "access_location"
+    ],
+    "buildTargets": [
+      "higgs",
+      "meson"
+    ],
+    "i18n": {
+      "en": {
+        "name": "GPS Research"
+      }
+    }
+  },
+  "devDependencies": {
+    "@fitbit/sdk": "~1.0.0"
+  }
+}

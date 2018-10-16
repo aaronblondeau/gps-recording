@@ -1,0 +1,30 @@
+.background {
+  viewport-fill: #000000;
+}
+
+#location {
+  fill: #ff000f;
+  font-size: 32;
+  font-family: System-Regular;
+  font-weight: bold;
+  text-anchor: start;
+  text-length: 99;
+}
+
+#altitude {
+  fill: #ff000f;
+  font-size: 32;
+  font-family: System-Regular;
+  font-weight: regular;
+  text-anchor: start;
+  text-length: 99;
+}
+
+#speed {
+  fill: #ff000f;
+  font-size: 32;
+  font-family: System-Regular;
+  font-weight: regular;
+  text-anchor: start;
+  text-length: 99;
+}

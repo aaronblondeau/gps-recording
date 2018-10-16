@@ -41,6 +41,7 @@ class GPSRecordingService : Service() {
 
     val timer = Timer()
     var ticker: TimerTask? = null
+    var ignoreFirstPoint = true
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -56,6 +57,11 @@ class GPSRecordingService : Service() {
                 for (location in locationResult.locations){
                     // Skip low-accuracy locations
                     if (location.accuracy > 51) {
+                        continue
+                    }
+                    // First point is often from cell tower, so ignore it
+                    if (ignoreFirstPoint) {
+                        ignoreFirstPoint = false
                         continue
                     }
                     Log.d("GPSRecordingService", "~~ Got location " + location.latitude + "," + location.longitude)
@@ -122,6 +128,7 @@ class GPSRecordingService : Service() {
                 smallestDisplacement = df
                 priority = LocationRequest.PRIORITY_HIGH_ACCURACY
             }
+            ignoreFirstPoint = true
             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
             recording.set(true)
 
