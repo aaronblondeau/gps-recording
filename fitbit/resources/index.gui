@@ -1,7 +1,9 @@
 <svg class="background">
   <text id="location" x="0" y="36">Location</text>
   <text id="altitude" x="0" y="72">Altitude</text>
-  <text id="speed" x="0" y="108">Speed</text>
+  <text id="distance" x="0" y="108">Distance</text>
+  <text id="elapsed" x="0" y="144">Elapsed</text>
+
   <use id="btn-start-pause" href="#combo-button-upper-right" fill="fb-green">
     <set href="combo-button-icon" attributeName="href" to="start.png"/>
     <set href="combo-button-icon-press" attributeName="href" to="start_press.png"/>

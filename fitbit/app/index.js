@@ -3,27 +3,71 @@
  */
 import document from "document";
 import { geolocation } from "geolocation";
+import { me } from "appbit";
+import distance from "@turf/distance"
+import { point } from "@turf/helpers"
+import * as messaging from "messaging";
+import { readFileSync, writeFileSync, writeFile } from "fs";
+
+let settings = {
+  useMetricUnits: false
+}
+
+try {
+  let settingsText = readFileSync("settings.json", "utf-8");
+  if (settingsText) {
+    try {
+      settings = JSON.parse(settingsText)
+      console.log('Read settings.json as', JSON.stringify(settings))
+    } catch(e) {
+      console.error('Unable to parse settings.json file!', e)
+    }
+  }
+} catch(e) {
+  console.warn('Unable to load settings.json file', e)
+}
 
 var watchID = null
-let location = document.getElementById("location");
-let altitude = document.getElementById("altitude");
-let speed = document.getElementById("speed");
+let locationText = document.getElementById("location");
+let altitudeText = document.getElementById("altitude");
+let distanceText = document.getElementById("distance");
+let elapsedText = document.getElementById("elapsed");
+let lastPosition = null
+let totalDistanceInKm = 0
+let totalTimestamps = 0
 
 function locationSuccess(position) {
-    console.log("Latitude: " + position.coords.latitude, "Longitude: " + position.coords.longitude);
-    location.text = position.coords.latitude.toFixed(4) + "," + position.coords.longitude.toFixed(4)
-    altitude.text = position.coords.altitude ? position.coords.altitude : "?"
-    speed.text = position.coords.speed ? position.coords.speed : "?"
-  
-    hasTrack = true
-    updateButtons()
+  storePosition(position)  
+  hasTrack = true
+  updateButtons()
 }
 
 function locationError(error) {
     console.error("GPS Location Error: " + error.code, "Message: " + error.message);
 }
 
-location.text = "Locating ...";
+function storePosition(position) {
+  
+
+  if (lastPosition) {
+    var from = point([lastPosition.coords.longitude, lastPosition.coords.latitude]);
+    var to = point([position.coords.longitude, position.coords.latitude]);
+    
+    let dist = distance(from, to)
+    totalDistanceInKm = totalDistanceInKm + dist
+    // console.log('~~ distance = ' + totalDistanceInKm + ' (+'+ dist +')')
+
+    
+
+    // Docs appear to be wrong and these are in ns instead of ms?
+    let timems = position.timestamp - lastPosition.timestamp // for simulator : position.timestamp / 1000 - lastPosition.timestamp / 1000
+    totalTimestamps = totalTimestamps + timems
+    // console.log('~~ elapsed = ' + totalTimestamps + ' (+'+ timems +')')
+  }
+  lastPosition = position
+
+  updateText()
+}
 
 let buttonStartPause = document.getElementById("btn-start-pause");
 let buttonFinish = document.getElementById("btn-finish");
@@ -52,11 +96,18 @@ function stopRecording() {
 }
 
 function startRecording() {
+  locationText.text = "Locating ...";
+
+  // TODO - fetch from store
+  totalDistanceInKm = 0
+  totalTimestamps = 0
+
   watchID = geolocation.watchPosition(locationSuccess, locationError, {
     enableHighAccuracy: true
   });
   recording = true
   updateButtons()
+  updateText()
 }
 
 function finishRecording() {
@@ -66,6 +117,33 @@ function finishRecording() {
   
   hasTrack = false
   updateButtons()
+}
+
+function updateText() {
+  if (lastPosition) {
+    console.log("Latitude: " + lastPosition.coords.latitude, "Longitude: " + lastPosition.coords.longitude, "Timestamp: " + lastPosition.timestamp);
+    locationText.text = lastPosition.coords.latitude.toFixed(4) + "," + lastPosition.coords.longitude.toFixed(4)
+
+    if(!settings.useMetricUnits || settings.useMetricUnits === 'false') {
+      altitudeText.text = lastPosition.coords.altitude ? ((lastPosition.coords.altitude * 3.28084).toFixed(2) + "ft") : "?"
+    } else {
+      altitudeText.text = lastPosition.coords.altitude ? (lastPosition.coords.altitude.toFixed(0) + "m") : "?"
+    }
+    // lastPosition.coords.speed
+    // lastPosition.coords.heading
+    // lastPosition.coords.altitudeAccuracy
+  }
+
+  if(!settings.useMetricUnits || settings.useMetricUnits === 'false') {
+    distanceText.text = (totalDistanceInKm * 0.621371).toFixed(2) + "mi"
+  } else {
+    distanceText.text = totalDistanceInKm.toFixed(2) + "km"
+  }
+
+  let date = new Date(null);
+  date.setSeconds(totalTimestamps / 1000); // specify value for SECONDS here
+  let resultHMS = date.toISOString().substr(11, 8);
+  elapsedText.text = resultHMS
 }
 
 function updateButtons() {
@@ -95,4 +173,21 @@ buttonFinish.onactivate = function(evt) {
   }
 }
 
+// https://dev.fitbit.com/blog/2018-10-05-announcing-fitbit-os-2.2/
 
+me.appTimeoutEnabled = false
+console.log("appTimeoutEnabled: " + me.appTimeoutEnabled);
+
+me.onunload = () => {
+    console.log("~~ app onunload");
+}
+
+messaging.peerSocket.onmessage = function(evt) {
+  if(evt.data.action == 'updateSettings') {
+    console.log('~~ new settings', JSON.stringify(evt.data.settings))
+    settings = evt.data.settings
+    // TODO - write settings.json
+    writeFileSync('settings.json', JSON.stringify(settings), "utf-8")
+    updateText()
+  }
+}

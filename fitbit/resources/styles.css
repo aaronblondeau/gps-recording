@@ -20,7 +20,16 @@
   text-length: 99;
 }
 
-#speed {
+#distance {
+  fill: #ff000f;
+  font-size: 32;
+  font-family: System-Regular;
+  font-weight: regular;
+  text-anchor: start;
+  text-length: 99;
+}
+
+#elapsed {
   fill: #ff000f;
   font-size: 32;
   font-family: System-Regular;
