@@ -20,7 +20,7 @@ settingsStorage.onchange = function(evt) {
   sendSettingsToDevice()
 }
 
-if (me.launchReasons.settingsChanged) {
+if (me.launchReasons.settingsChanged || me.launchReasons.peerAppLaunched) {
   // Settings were changed while the companion was not running
   sendSettingsToDevice()
 }
@@ -29,7 +29,9 @@ function sendSettingsToDevice() {
     let action = {
         action: 'updateSettings',
         settings: {
-            useMetricUnits: settingsStorage.getItem('useMetricUnits')
+            useMetricUnits: settingsStorage.getItem('useMetricUnits'),
+            distanceFilterInMeters: settingsStorage.getItem('distanceFilterInMeters'),
+            timeFilterInSeconds: settingsStorage.getItem('timeFilterInSeconds')
         }
     }
     if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
@@ -37,4 +39,11 @@ function sendSettingsToDevice() {
     } else {
         console.log("No peerSocket connection");
     }
+}
+
+if(settingsStorage.getItem('distanceFilterInMeters') == null) {
+    settingsStorage.setItem('distanceFilterInMeters', 10)
+}
+if(settingsStorage.getItem('timeFilterInSeconds') == null) {
+    settingsStorage.setItem('timeFilterInSeconds', 10)
 }

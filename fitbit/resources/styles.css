@@ -3,37 +3,37 @@
 }
 
 #location {
-  fill: #ff000f;
-  font-size: 32;
+  fill: white;
+  font-size: 20;
   font-family: System-Regular;
   font-weight: bold;
   text-anchor: start;
-  text-length: 99;
+  text-length: 24;
 }
 
 #altitude {
-  fill: #ff000f;
-  font-size: 32;
+  fill: white;
+  font-size: 20;
   font-family: System-Regular;
   font-weight: regular;
   text-anchor: start;
-  text-length: 99;
+  text-length: 10;
 }
 
 #distance {
-  fill: #ff000f;
-  font-size: 32;
+  fill: greenyellow;
+  font-size: 64;
   font-family: System-Regular;
-  font-weight: regular;
+  font-weight: bold;
   text-anchor: start;
-  text-length: 99;
+  text-length: 12;
 }
 
 #elapsed {
-  fill: #ff000f;
-  font-size: 32;
+  fill: greenyellow;
+  font-size: 64;
   font-family: System-Regular;
-  font-weight: regular;
+  font-weight: bold;
   text-anchor: start;
-  text-length: 99;
+  text-length: 8;
 }

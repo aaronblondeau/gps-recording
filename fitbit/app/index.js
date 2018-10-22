@@ -10,7 +10,9 @@ import * as messaging from "messaging";
 import { readFileSync, writeFileSync, writeFile } from "fs";
 
 let settings = {
-  useMetricUnits: false
+  useMetricUnits: false,
+  distanceFilterInMeters: 10,
+  timeFilterInSeconds: 10
 }
 
 try {
@@ -54,15 +56,21 @@ function storePosition(position) {
     var to = point([position.coords.longitude, position.coords.latitude]);
     
     let dist = distance(from, to)
-    totalDistanceInKm = totalDistanceInKm + dist
-    // console.log('~~ distance = ' + totalDistanceInKm + ' (+'+ dist +')')
-
     
-
     // Docs appear to be wrong and these are in ns instead of ms?
     let timems = position.timestamp - lastPosition.timestamp // for simulator : position.timestamp / 1000 - lastPosition.timestamp / 1000
-    totalTimestamps = totalTimestamps + timems
-    // console.log('~~ elapsed = ' + totalTimestamps + ' (+'+ timems +')')
+    
+    // Only record points if we are more than distance filter or time filter away from last point
+    if (((dist * 1000) > settings.distanceFilterInMeters) || ((timems / 1000) > settings.timeFilterInSeconds)) {
+      totalDistanceInKm = totalDistanceInKm + dist
+      // console.log('~~ distance = ' + totalDistanceInKm + ' (+'+ dist +')')
+
+      totalTimestamps = totalTimestamps + timems
+      // console.log('~~ elapsed = ' + totalTimestamps + ' (+'+ timems +')')
+
+      // TODO - save location to file
+
+    }
   }
   lastPosition = position
 
