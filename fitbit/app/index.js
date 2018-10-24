@@ -35,12 +35,12 @@ let altitudeText = document.getElementById("altitude");
 let distanceText = document.getElementById("distance");
 let elapsedText = document.getElementById("elapsed");
 let timeText = document.getElementById("time")
+let filesText = document.getElementById("files")
 let lastPosition = null
 let totalDistanceInKm = 0
 let totalTimestamps = 0
 let points = []
-let pointsLastTs = 0
-
+let pointsFileCount = 0
 let currentTrackId = ''
 
 try {
@@ -52,6 +52,7 @@ try {
       totalDistanceInKm = ct.totalDistanceInKm
       totalTimestamps = ct.totalTimestamps
       lastPosition = ct.lastPosition
+      pointsFileCount = ct.pointsFileCount ? ct.pointsFileCount : 0
       console.log('Read current_track.json as', JSON.stringify(ct))
     } catch(e) {
       console.error('Unable to parse current_track.json file!', e)
@@ -60,6 +61,8 @@ try {
 } catch(e) {
   console.warn('Unable to load current_track.json file', e)
 }
+
+let fileLog = readFileLog()
 
 function locationSuccess(position) {
   storePosition(position)  
@@ -73,7 +76,6 @@ function locationError(error) {
 
 function storePosition(position) {
   
-
   if (lastPosition) {
     var from = point([lastPosition.coords.longitude, lastPosition.coords.latitude]);
     var to = point([position.coords.longitude, position.coords.latitude]);
@@ -90,22 +92,21 @@ function storePosition(position) {
 
       totalTimestamps = totalTimestamps + timems
       // console.log('~~ elapsed = ' + totalTimestamps + ' (+'+ timems +')')
-
-      // TODO - save location to file
-      points.push({
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-        alt: position.coords.altitude,
-        ts: position.timestamp
-      })
-      pointsLastTs = position.timestamp
-
-      if(points.length >= 10) {
-        storePoints()
-      }
-
     }
   }
+
+  // save location to file
+  points.push({
+    lat: position.coords.latitude,
+    lng: position.coords.longitude,
+    alt: position.coords.altitude,
+    ts: position.timestamp
+  })
+
+  if(points.length >= 10) {
+    storePoints()
+  }
+
   lastPosition = position
 
   updateText()
@@ -121,7 +122,7 @@ let buttonStartPauseIconPress = buttonStartPause.getElementById("combo-button-ic
 let recording = false
 let hasTrack = false
 buttonStartPause.onactivate = function(evt) {
-  console.log("Start/Pause!");
+  // console.log("Start/Pause!");
   if (recording) {
     stopRecording()
   } else {
@@ -145,14 +146,9 @@ function stopRecording() {
 function startRecording() {
   locationText.text = "Locating ...";
 
-  // TODO - fetch from store
-  totalDistanceInKm = 0
-  totalTimestamps = 0
-  points = []
-  pointsLastTs = 0
-  lastPosition = null
-
-  currentTrackId = new Date().getTime()
+  if(!currentTrackId) {
+    currentTrackId = new Date().getTime()
+  }
   saveCurrentTrack()
 
   watchID = geolocation.watchPosition(locationSuccess, locationError, {
@@ -171,15 +167,15 @@ function finishRecording() {
   storePoints()
 
   // Create a flag file to indicate track id is no longer being recorded to
-  let filename = 'zzz_track_'+currentTrackId+'_finished.dat'
-  fs.writeFileSync(filename, new Date().getTime()+'', "utf-8")
+  let filename = 'finished_track_'+currentTrackId+'.json'
+  fs.writeFileSync(filename, JSON.stringify({pointsFileCount:pointsFileCount - 1}), "utf-8")
   appendToFileLog(filename)
 
   currentTrackId = ''
   totalDistanceInKm = 0
   totalTimestamps = 0
   points = []
-  pointsLastTs = 0
+  pointsFileCount = 0
   lastPosition = null
   saveCurrentTrack()
   
@@ -203,6 +199,9 @@ function updateText() {
     // lastPosition.coords.speed
     // lastPosition.coords.heading
     // lastPosition.coords.altitudeAccuracy
+  } else {
+    locationText.text = ''
+    altitudeText.text = ''
   }
 
   if(!settings.useMetricUnits || settings.useMetricUnits === 'false') {
@@ -236,7 +235,7 @@ function updateButtons() {
 }
 
 buttonFinish.onactivate = function(evt) {
-  console.log("Finish");
+  // console.log("Finish");
   if (hasTrack) {
     finishRecording()
   } else {
@@ -247,16 +246,17 @@ buttonFinish.onactivate = function(evt) {
 // https://dev.fitbit.com/blog/2018-10-05-announcing-fitbit-os-2.2/
 
 me.appTimeoutEnabled = false
-console.log("appTimeoutEnabled: " + me.appTimeoutEnabled);
+// console.log("appTimeoutEnabled: " + me.appTimeoutEnabled);
 
 me.onunload = () => {
     console.log("~~ app onunload");
     storePoints()
+    writeFileLog(fileLog)
 }
 
 messaging.peerSocket.onmessage = function(evt) {
   if(evt.data.action == 'updateSettings') {
-    console.log('~~ new settings', JSON.stringify(evt.data.settings))
+    // console.log('~~ new settings', JSON.stringify(evt.data.settings))
     settings = evt.data.settings
     // TODO - write settings.json
     fs.writeFileSync('settings.json', JSON.stringify(settings), "utf-8")
@@ -297,18 +297,19 @@ function saveCurrentTrack() {
     currentTrackId: currentTrackId,
     totalDistanceInKm: totalDistanceInKm,
     totalTimestamps: totalTimestamps,
-    lastPosition: lastPosition
+    lastPosition: lastPosition,
+    pointsFileCount: pointsFileCount
   }), "utf-8")
 }
 
 function storePoints() {
   if (points.length > 0) {
-    let filename = 'track_'+currentTrackId+'_points_'+pointsLastTs+'.json'
+    let filename = 'track_'+currentTrackId+'_points_'+pointsFileCount+'.json'
     fs.writeFileSync(filename, JSON.stringify(points), "utf-8")
     appendToFileLog(filename)
   }
   points = []
-  pointsLastTs = 0
+  pointsFileCount = pointsFileCount + 1
 }
 
 // These are here because fs.listDirSync does not seem to exist
@@ -324,6 +325,17 @@ function readFileLog() {
 }
 
 function writeFileLog(text) {
+  text = text.replace(/\n\n/g, "\n")  // Cleanup empty lines
+
+  let filenames = text.split("\n")
+  let count = 0
+  for (let filename of filenames) {
+    if (filename) {
+      count++
+    }
+  }
+  filesText.text = count + " files to transfer"
+
   fs.writeFileSync("files.log", text, "utf-8")
 }
 
@@ -336,17 +348,23 @@ function appendToFileLog(filename) {
 
   console.log('logging file ' + filename)
 
-  let text = readFileLog()
-  text = text + filename + "\n"
-  writeFileLog(text)
+  // let text = readFileLog()
+  // text = text + filename + "\n"
+  // writeFileLog(text)
+
+  fileLog = fileLog + filename + "\n"
+  writeFileLog(fileLog)
 }
 
 function removeFileFromLog(filename) {
   console.log('un-logging file ' + filename)
 
-  let text = readFileLog()
-  text = text.replace(filename + "\n", '')
-  writeFileLog(text)
+  // let text = readFileLog()
+  // text = text.replace(filename + "\n", '')
+  // writeFileLog(text)
+
+  fileLog = fileLog.replace(filename + "\n", '')
+  writeFileLog(fileLog)
 }
 
 setInterval(function() {
@@ -357,19 +375,19 @@ let pendingFilenames = {}
 
 function syncFiles() {
   if ((messaging.peerSocket.readyState === messaging.peerSocket.OPEN)) {
-    let filenames = readFileLog().split("\n")
+    let filenames = fileLog.split("\n")
     for (let filename of filenames) {
       if (messaging.peerSocket.bufferedAmount > 4096) {
         break
       }
       if (filename) {
-        console.log(filename)
+        // console.log(filename)
         if (!pendingFilenames[filename]){
 
           try {
             let pointsText = fs.readFileSync(filename, "utf-8");
 
-            console.log('loaded pointsText', pointsText)
+            // console.log('loaded pointsText', pointsText)
 
             try {
               let points = JSON.parse(pointsText)

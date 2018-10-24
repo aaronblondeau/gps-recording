@@ -1,9 +1,10 @@
 <svg class="background">
   <text id="time" x="0" y="24">Time</text>
+  <text id="files" x="0" y="44">Files</text>
   <text id="location" x="0" y="100% - 4">Location</text>
   <text id="altitude" x="0" y="100% - 24">Altitude</text>
-  <text id="distance" x="0" y="50% - 20">Distance</text>
-  <text id="elapsed" x="0" y="50% + 48">Elapsed</text>
+  <text id="distance" x="0" y="50% - 10">Distance</text>
+  <text id="elapsed" x="0" y="50% + 58">Elapsed</text>
 
   <use id="btn-start-pause" href="#combo-button-upper-right" fill="fb-green">
     <set href="combo-button-icon" attributeName="href" to="start.png"/>

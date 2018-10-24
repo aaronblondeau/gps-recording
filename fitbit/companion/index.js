@@ -4,6 +4,7 @@
 import { settingsStorage } from "settings";
 import * as messaging from "messaging";
 import { me } from "companion";
+import { localStorage } from "local-storage";
 
 console.log("Companion code started");
 
@@ -54,8 +55,14 @@ messaging.peerSocket.onmessage = function(evt) {
         let filename = evt.data.filename
         console.log('~~ new points from device', filename)
         
-        // TODO - copy to local fs
+        localStorage.setItem(filename, JSON.stringify(points));
+
         // If this is a "finished" filename, send data to server
+        let matches = filename.match(/^finished_track_(\d+)\.json/)
+        if(matches && matches.length == 2) {
+            let trackId = matches[1]
+            submitTrack(trackId)
+        }
 
         let action = {
             action: 'confirmPoints',
@@ -69,3 +76,93 @@ messaging.peerSocket.onmessage = function(evt) {
 
     }
 }
+
+function submitTrack(trackId) {
+    // Get expected file count
+    let filesToRemove = []
+    let finishedFilename = 'finished_track_'+trackId+'.json'
+    let expectedText = localStorage.getItem(finishedFilename)
+    filesToRemove.push(finishedFilename)
+    try {
+        let pointsFileCount = JSON.parse(expectedText).pointsFileCount
+        console.log("~~ looking for "+pointsFileCount+" point files for track "+trackId)
+
+        let geojson = {
+            type: "MultiLineString",
+            coordinates: []
+        }
+
+        var currentCoordinates = []
+
+        // Find each file segment for the track
+        for(let i = 0; i < pointsFileCount; i++) {
+            let filename = 'track_'+trackId+'_points_'+i+'.json'
+            let pointsText = localStorage.getItem(filename)
+            if (!pointsText) {
+                console.warn("Unable to submit track - missing file " + filename)
+                return
+            }
+            try {
+                let points = JSON.parse(pointsText)
+                filesToRemove.push(filename)
+                for (let point of points) {
+                    if(point.pause) {
+                        if(currentCoordinates.length > 1) {
+                            geojson.coordinates.push(currentCoordinates)
+                        }
+                        currentCoordinates = []
+                    } else {
+                        currentCoordinates.push([
+                            point.lng, point.lat, point.alt
+                        ])
+                    }
+                }
+                if(currentCoordinates.length > 1) {
+                    geojson.coordinates.push(currentCoordinates)
+                }
+            } catch (error) {
+                console.error("Unable to parse points file " + filename)
+                return
+            }
+        }
+
+        // console.log('submitting GEOJSON', JSON.stringify(geojson))
+
+        fetch('http://postb.in/NA7X8WJB', {
+            method: 'POST',
+            body: JSON.stringify(geojson),
+            headers:{
+              'Content-Type': 'application/json'
+            }
+          }).then((response) => {
+            console.log('Success submitting GeoJSON')
+
+            // Cleanup all keys after submit success
+            for (let fileToRemove of filesToRemove) {
+                localStorage.removeItem(fileToRemove)
+            }
+          })
+          .catch(error => console.error('Error:', error));
+
+    } catch (error) {
+        console.error('Unable to parse finished track', trackId, expectedText)
+    }
+}
+
+function scanForFinishedTracks() {
+    // Find each file segment for the track
+    console.log('scanForFinishedTracks', localStorage.length)
+    for(let i = 0; i < localStorage.length; i++) {
+        let key = localStorage.key(i)
+        // console.log(key, localStorage.getItem(key))
+        let matches = key.match(/^finished_track_(\d+)\.json/)
+        if(matches && matches.length == 2) {
+            let trackId = matches[1]
+            submitTrack(trackId)
+        }
+    }
+}
+setInterval(function() {
+    scanForFinishedTracks()
+}, 60000)
+scanForFinishedTracks()
