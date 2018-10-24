@@ -4,10 +4,10 @@
 import document from "document";
 import { geolocation } from "geolocation";
 import { me } from "appbit";
+import * as messaging from "messaging";
+import fs from "fs";
 import distance from "@turf/distance"
 import { point } from "@turf/helpers"
-import * as messaging from "messaging";
-import { readFileSync, writeFileSync, writeFile } from "fs";
 
 let settings = {
   useMetricUnits: false,
@@ -16,7 +16,7 @@ let settings = {
 }
 
 try {
-  let settingsText = readFileSync("settings.json", "utf-8");
+  let settingsText = fs.readFileSync("settings.json", "utf-8");
   if (settingsText) {
     try {
       settings = JSON.parse(settingsText)
@@ -38,6 +38,28 @@ let timeText = document.getElementById("time")
 let lastPosition = null
 let totalDistanceInKm = 0
 let totalTimestamps = 0
+let points = []
+let pointsLastTs = 0
+
+let currentTrackId = ''
+
+try {
+  let currentTrackText = fs.readFileSync("current_track.json", "utf-8");
+  if (currentTrackText) {
+    try {
+      let ct = JSON.parse(currentTrackText)
+      currentTrackId = ct.currentTrackId
+      totalDistanceInKm = ct.totalDistanceInKm
+      totalTimestamps = ct.totalTimestamps
+      lastPosition = ct.lastPosition
+      console.log('Read current_track.json as', JSON.stringify(ct))
+    } catch(e) {
+      console.error('Unable to parse current_track.json file!', e)
+    }
+  }
+} catch(e) {
+  console.warn('Unable to load current_track.json file', e)
+}
 
 function locationSuccess(position) {
   storePosition(position)  
@@ -70,6 +92,17 @@ function storePosition(position) {
       // console.log('~~ elapsed = ' + totalTimestamps + ' (+'+ timems +')')
 
       // TODO - save location to file
+      points.push({
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        alt: position.coords.altitude,
+        ts: position.timestamp
+      })
+      pointsLastTs = position.timestamp
+
+      if(points.length >= 10) {
+        storePoints()
+      }
 
     }
   }
@@ -101,8 +134,12 @@ function stopRecording() {
     geolocation.clearWatch(watchID)
   }
   recording = false
+  points.push({pause: true, ts: new Date().getTime()})
+  storePoints()
   updateButtons()
   updateText()
+  lastPosition = null
+  saveCurrentTrack()
 }
 
 function startRecording() {
@@ -111,6 +148,12 @@ function startRecording() {
   // TODO - fetch from store
   totalDistanceInKm = 0
   totalTimestamps = 0
+  points = []
+  pointsLastTs = 0
+  lastPosition = null
+
+  currentTrackId = new Date().getTime()
+  saveCurrentTrack()
 
   watchID = geolocation.watchPosition(locationSuccess, locationError, {
     enableHighAccuracy: true
@@ -124,6 +167,21 @@ function finishRecording() {
   stopRecording()
   
   //TODO = sync track to companion
+
+  storePoints()
+
+  // Create a flag file to indicate track id is no longer being recorded to
+  let filename = 'zzz_track_'+currentTrackId+'_finished.dat'
+  fs.writeFileSync(filename, new Date().getTime()+'', "utf-8")
+  appendToFileLog(filename)
+
+  currentTrackId = ''
+  totalDistanceInKm = 0
+  totalTimestamps = 0
+  points = []
+  pointsLastTs = 0
+  lastPosition = null
+  saveCurrentTrack()
   
   hasTrack = false
   updateButtons()
@@ -132,7 +190,7 @@ function finishRecording() {
 
 function updateText() {
   if (lastPosition) {
-    console.log("Latitude: " + lastPosition.coords.latitude, "Longitude: " + lastPosition.coords.longitude, "Timestamp: " + lastPosition.timestamp);
+    // console.log("Latitude: " + lastPosition.coords.latitude, "Longitude: " + lastPosition.coords.longitude, "Timestamp: " + lastPosition.timestamp);
     locationText.text = lastPosition.coords.latitude.toFixed(4) + "," + lastPosition.coords.longitude.toFixed(4)
 
     if(!settings.useMetricUnits || settings.useMetricUnits === 'false') {
@@ -140,6 +198,8 @@ function updateText() {
     } else {
       altitudeText.text = lastPosition.coords.altitude ? (lastPosition.coords.altitude.toFixed(0) + "m") : "?"
     }
+
+    // lastPosition.coords.accuracy
     // lastPosition.coords.speed
     // lastPosition.coords.heading
     // lastPosition.coords.altitudeAccuracy
@@ -191,6 +251,7 @@ console.log("appTimeoutEnabled: " + me.appTimeoutEnabled);
 
 me.onunload = () => {
     console.log("~~ app onunload");
+    storePoints()
 }
 
 messaging.peerSocket.onmessage = function(evt) {
@@ -198,8 +259,15 @@ messaging.peerSocket.onmessage = function(evt) {
     console.log('~~ new settings', JSON.stringify(evt.data.settings))
     settings = evt.data.settings
     // TODO - write settings.json
-    writeFileSync('settings.json', JSON.stringify(settings), "utf-8")
+    fs.writeFileSync('settings.json', JSON.stringify(settings), "utf-8")
     updateText()
+  }
+  if(evt.data.action == 'confirmPoints') {
+    let filename = evt.data.filename
+    console.log("confirmPoints", filename)
+    fs.unlinkSync(filename)
+    pendingFilenames[filename] = false
+    removeFileFromLog(filename)
   }
 }
 
@@ -223,3 +291,106 @@ setInterval(function(){
   showTime()
 }, 1000)
 showTime()
+
+function saveCurrentTrack() {
+  fs.writeFileSync('current_track.json', JSON.stringify({
+    currentTrackId: currentTrackId,
+    totalDistanceInKm: totalDistanceInKm,
+    totalTimestamps: totalTimestamps,
+    lastPosition: lastPosition
+  }), "utf-8")
+}
+
+function storePoints() {
+  if (points.length > 0) {
+    let filename = 'track_'+currentTrackId+'_points_'+pointsLastTs+'.json'
+    fs.writeFileSync(filename, JSON.stringify(points), "utf-8")
+    appendToFileLog(filename)
+  }
+  points = []
+  pointsLastTs = 0
+}
+
+// These are here because fs.listDirSync does not seem to exist
+
+function readFileLog() {
+  try {
+    let logText = fs.readFileSync("files.log", "utf-8");
+    return logText
+  } catch(e) {
+    console.warn('Unable to load files.log', e)
+  }
+  return ''
+}
+
+function writeFileLog(text) {
+  fs.writeFileSync("files.log", text, "utf-8")
+}
+
+function appendToFileLog(filename) {
+  // TODO - get this working
+  // let file = fs.openSync("files.log", "a+");
+  // let uint8array = encoder.encode(filename);
+  // fs.writeSync(file, uint8array)
+  // fs.closeSync(file);
+
+  console.log('logging file ' + filename)
+
+  let text = readFileLog()
+  text = text + filename + "\n"
+  writeFileLog(text)
+}
+
+function removeFileFromLog(filename) {
+  console.log('un-logging file ' + filename)
+
+  let text = readFileLog()
+  text = text.replace(filename + "\n", '')
+  writeFileLog(text)
+}
+
+setInterval(function() {
+  syncFiles()
+}, 10000)
+
+let pendingFilenames = {}
+
+function syncFiles() {
+  if ((messaging.peerSocket.readyState === messaging.peerSocket.OPEN)) {
+    let filenames = readFileLog().split("\n")
+    for (let filename of filenames) {
+      if (messaging.peerSocket.bufferedAmount > 4096) {
+        break
+      }
+      if (filename) {
+        console.log(filename)
+        if (!pendingFilenames[filename]){
+
+          try {
+            let pointsText = fs.readFileSync(filename, "utf-8");
+
+            console.log('loaded pointsText', pointsText)
+
+            try {
+              let points = JSON.parse(pointsText)
+              let action = {
+                action: 'receivePoints',
+                filename: filename,
+                points: points
+              }
+              messaging.peerSocket.send(action);
+
+              pendingFilenames[filename] = true
+            } catch(e) {
+              console.error('Unable to parse file ' + filename, e)
+              removeFileFromLog(filename)
+            }
+          } catch(e) {
+            console.error('Unable to load file ' + filename, e)
+            removeFileFromLog(filename)
+          }
+        }
+      }
+    }
+  }
+}
