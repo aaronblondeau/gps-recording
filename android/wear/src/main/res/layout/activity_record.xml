@@ -33,22 +33,32 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/textViewRecordCurrentTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="TextView"
+                    android:textAlignment="center"
+                    android:textSize="12sp" />
+
+                <TextView
                     android:id="@+id/trackRecordDistance"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@{track.distance, default=TrackDistance}"
-                    android:visibility="@{recording.recording || recording.hasCurrentTrack ? View.VISIBLE : View.GONE}"
+                    android:text="@{track.distance, default=Distance}"
                     android:textAlignment="center"
-                    android:textSize="18sp" />
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:visibility="@{recording.recording || recording.hasCurrentTrack ? View.VISIBLE : View.GONE}" />
 
                 <TextView
                     android:id="@+id/trackRecordDuration"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@{track.duration, default=TrackDuration}"
-                    android:visibility="@{recording.recording || recording.hasCurrentTrack ? View.VISIBLE : View.GONE}"
+                    android:text="@{track.duration, default=Duration}"
                     android:textAlignment="center"
-                    android:textSize="18sp" />
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:visibility="@{recording.recording || recording.hasCurrentTrack ? View.VISIBLE : View.GONE}" />
 
                 <Button
                     android:id="@+id/buttonStartRecording"

@@ -34,6 +34,7 @@ let locationText = document.getElementById("location");
 let altitudeText = document.getElementById("altitude");
 let distanceText = document.getElementById("distance");
 let elapsedText = document.getElementById("elapsed");
+let timeText = document.getElementById("time")
 let lastPosition = null
 let totalDistanceInKm = 0
 let totalTimestamps = 0
@@ -101,6 +102,7 @@ function stopRecording() {
   }
   recording = false
   updateButtons()
+  updateText()
 }
 
 function startRecording() {
@@ -125,6 +127,7 @@ function finishRecording() {
   
   hasTrack = false
   updateButtons()
+  updateText()
 }
 
 function updateText() {
@@ -199,3 +202,24 @@ messaging.peerSocket.onmessage = function(evt) {
     updateText()
   }
 }
+
+function formatTwoDigits(n) {
+  return n < 10 ? '0' + n : n;
+}
+
+function showTime() {
+  let date = new Date()
+  let hours = date.getHours()
+  let ampm = "am"
+  if (hours > 12) {
+    hours = hours - 12
+    ampm = "pm"
+  }
+  let minutes = date.getMinutes()
+  timeText.text = hours + ":" + formatTwoDigits(minutes) + " " + ampm  //date.toTimeString().split(' ')[0]
+}
+
+setInterval(function(){
+  showTime()
+}, 1000)
+showTime()

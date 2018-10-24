@@ -1,4 +1,5 @@
 <svg class="background">
+  <text id="time" x="0" y="24">Time</text>
   <text id="location" x="0" y="100% - 4">Location</text>
   <text id="altitude" x="0" y="100% - 24">Altitude</text>
   <text id="distance" x="0" y="50% - 20">Distance</text>

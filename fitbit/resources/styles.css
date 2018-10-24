@@ -20,6 +20,15 @@
   text-length: 10;
 }
 
+#time {
+  fill: white;
+  font-size: 20;
+  font-family: System-Regular;
+  font-weight: regular;
+  text-anchor: start;
+  text-length: 12;
+}
+
 #distance {
   fill: greenyellow;
   font-size: 64;

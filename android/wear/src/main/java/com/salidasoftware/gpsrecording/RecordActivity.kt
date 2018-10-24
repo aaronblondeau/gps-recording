@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.support.wearable.activity.WearableActivity
 import android.util.Log
+import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -22,7 +23,9 @@ import org.jetbrains.anko.custom.async
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.uiThread
+import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.concurrent.timerTask
 
 class RecordActivity : WearableActivity() {
 
@@ -35,6 +38,9 @@ class RecordActivity : WearableActivity() {
     var trackObserver: Observer<Track>? = null
     var observedTrack: LiveData<Track>? = null
 
+    val timer = Timer()
+    var ticker: TimerTask? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // setContentView(R.layout.activity_record)
@@ -42,6 +48,9 @@ class RecordActivity : WearableActivity() {
         binding  = DataBindingUtil.setContentView(this, R.layout.activity_record)
         val trackViewModel = TrackViewModel()
         binding.track = trackViewModel
+
+        textViewRecordCurrentTime.visibility = View.GONE
+        textViewRecordCurrentTime.text = ""
 
         val recordingViewModel = RecordingViewModel()
         binding.recording = recordingViewModel
@@ -113,6 +122,7 @@ class RecordActivity : WearableActivity() {
     override fun onResume() {
         super.onResume()
         startUpdates()
+        startClock()
     }
 
     fun startUpdates() {
@@ -140,7 +150,24 @@ class RecordActivity : WearableActivity() {
 
     override fun onPause() {
         stopUpdates()
+        stopClock()
+
         super.onPause()
+    }
+
+    fun startClock() {
+        textViewRecordCurrentTime.visibility = View.VISIBLE
+        ticker = timerTask{
+            textViewRecordCurrentTime.text = SimpleDateFormat("h:mm:ss a").format(Date())
+        }
+        timer.scheduleAtFixedRate(ticker, 0L, 1000L)
+    }
+
+    fun stopClock() {
+        ticker?.let {
+            it.cancel()
+            ticker = null
+        }
     }
 
     private fun startOrResumeRecording() {
