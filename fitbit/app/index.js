@@ -92,19 +92,31 @@ function storePosition(position) {
 
       totalTimestamps = totalTimestamps + timems
       // console.log('~~ elapsed = ' + totalTimestamps + ' (+'+ timems +')')
+
+        // save location to file
+        points.push({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          alt: position.coords.altitude,
+          ts: position.timestamp
+        })
+
+        if(points.length >= 10) {
+          storePoints()
+        }
     }
-  }
+  } else {
+    // save location to file
+    points.push({
+      lat: position.coords.latitude,
+      lng: position.coords.longitude,
+      alt: position.coords.altitude,
+      ts: position.timestamp
+    })
 
-  // save location to file
-  points.push({
-    lat: position.coords.latitude,
-    lng: position.coords.longitude,
-    alt: position.coords.altitude,
-    ts: position.timestamp
-  })
-
-  if(points.length >= 10) {
-    storePoints()
+    if(points.length >= 10) {
+      storePoints()
+    }
   }
 
   lastPosition = position

@@ -98,6 +98,7 @@ function submitTrack(trackId) {
         for(let i = 0; i < pointsFileCount; i++) {
             let filename = 'track_'+trackId+'_points_'+i+'.json'
             let pointsText = localStorage.getItem(filename)
+            // console.log("~~ A" + pointsText)
             if (!pointsText) {
                 console.warn("Unable to submit track - missing file " + filename)
                 return
@@ -126,10 +127,14 @@ function submitTrack(trackId) {
             }
         }
 
-        // console.log('submitting GEOJSON', JSON.stringify(geojson))
+        // console.log('submitting GEOJSON : ' + JSON.stringify(geojson))
 
-        fetch('http://postb.in/NA7X8WJB', {
+        // https://beeceptor.com/console/fitbitgps
+
+        fetch('https://fitbitgps.free.beeceptor.com', {
             method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
             body: JSON.stringify(geojson),
             headers:{
               'Content-Type': 'application/json'
@@ -142,7 +147,9 @@ function submitTrack(trackId) {
                 localStorage.removeItem(fileToRemove)
             }
           })
-          .catch(error => console.error('Error:', error));
+          .catch((error) => {
+              console.error('Track submit error: ' + error)
+          });
 
     } catch (error) {
         console.error('Unable to parse finished track', trackId, expectedText)
@@ -151,7 +158,9 @@ function submitTrack(trackId) {
 
 function scanForFinishedTracks() {
     // Find each file segment for the track
-    console.log('scanForFinishedTracks', localStorage.length)
+    // console.log('scanForFinishedTracks A')
+    console.log('scanForFinishedTracks ' + localStorage.length)
+    // console.log('scanForFinishedTracks B')
     for(let i = 0; i < localStorage.length; i++) {
         let key = localStorage.key(i)
         // console.log(key, localStorage.getItem(key))
@@ -165,4 +174,7 @@ function scanForFinishedTracks() {
 setInterval(function() {
     scanForFinishedTracks()
 }, 60000)
-scanForFinishedTracks()
+
+setTimeout(function(){
+    scanForFinishedTracks()
+}, 2000)
