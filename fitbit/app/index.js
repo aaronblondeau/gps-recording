@@ -104,6 +104,7 @@ function storePosition(position) {
         if(points.length >= 10) {
           storePoints()
         }
+        updateText()
     }
   } else {
     // save location to file
@@ -117,11 +118,10 @@ function storePosition(position) {
     if(points.length >= 10) {
       storePoints()
     }
+    updateText()
   }
 
   lastPosition = position
-
-  updateText()
 }
 
 let buttonStartPause = document.getElementById("btn-start-pause");
