@@ -169,6 +169,8 @@ function scanForFinishedTracks() {
             let trackId = matches[1]
             submitTrack(trackId)
         }
+        // Dev cleanup
+        // localStorage.removeItem(key)
     }
 }
 setInterval(function() {

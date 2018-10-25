@@ -84,27 +84,29 @@ function storePosition(position) {
     
     // Docs appear to be wrong and these are in ns instead of ms?
     let timems = position.timestamp - lastPosition.timestamp // for simulator : position.timestamp / 1000 - lastPosition.timestamp / 1000
+
+    console.log("~~ DELTA time=" + timems + " dist=" + dist)
     
     // Only record points if we are more than distance filter or time filter away from last point
-    if (((dist * 1000) > settings.distanceFilterInMeters) || ((timems / 1000) > settings.timeFilterInSeconds)) {
+    if (((dist * 1000) >= settings.distanceFilterInMeters) || ((timems / 1000) >= settings.timeFilterInSeconds)) {
       totalDistanceInKm = totalDistanceInKm + dist
       // console.log('~~ distance = ' + totalDistanceInKm + ' (+'+ dist +')')
 
       totalTimestamps = totalTimestamps + timems
       // console.log('~~ elapsed = ' + totalTimestamps + ' (+'+ timems +')')
 
-        // save location to file
-        points.push({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-          alt: position.coords.altitude,
-          ts: position.timestamp
-        })
-
-        if(points.length >= 10) {
-          storePoints()
-        }
-        updateText()
+      // save location to file
+      points.push({
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        alt: position.coords.altitude,
+        ts: position.timestamp
+      })
+      if(points.length >= 10) {
+        storePoints()
+      }
+      updateText()
+      lastPosition = position
     }
   } else {
     // save location to file
@@ -119,15 +121,15 @@ function storePosition(position) {
       storePoints()
     }
     updateText()
+    lastPosition = position
   }
-
-  lastPosition = position
 }
 
 let buttonStartPause = document.getElementById("btn-start-pause");
 let buttonFinish = document.getElementById("btn-finish");
 setTimeout(function() {
   updateButtons()
+  updateFileText()
 }, 500)
 let buttonStartPauseIcon = buttonStartPause.getElementById("combo-button-icon");
 let buttonStartPauseIconPress = buttonStartPause.getElementById("combo-button-icon-press");
@@ -266,6 +268,24 @@ me.onunload = () => {
     writeFileLog(fileLog)
 }
 
+var syncInterval = null
+messaging.peerSocket.onopen = function() {
+  console.log("Socket open")
+  syncInterval = setInterval(function() {
+    syncFiles()
+  }, 10000)
+  syncFiles()
+}
+
+messaging.peerSocket.onclose = function() {
+  console.log("Socket close")
+  if (syncInterval) {
+    clearInterval(syncInterval)
+    syncInterval = null
+  }
+}
+
+
 messaging.peerSocket.onmessage = function(evt) {
   if(evt.data.action == 'updateSettings') {
     // console.log('~~ new settings', JSON.stringify(evt.data.settings))
@@ -276,8 +296,7 @@ messaging.peerSocket.onmessage = function(evt) {
   }
   if(evt.data.action == 'confirmPoints') {
     let filename = evt.data.filename
-    console.log("confirmPoints", filename)
-    fs.unlinkSync(filename)
+    console.log("confirmPoints" + filename)
     pendingFilenames[filename] = false
     removeFileFromLog(filename)
   }
@@ -337,18 +356,28 @@ function readFileLog() {
 }
 
 function writeFileLog(text) {
-  text = text.replace(/\n\n/g, "\n")  // Cleanup empty lines
+  //console.log("writeFileLog A:" + text)
+  let textCleaned = text ? text.replace(/\n\n/g, "\n") : text  // Cleanup empty lines
+  //console.log("writeFileLog B:" + textCleaned)
+  if(textCleaned.length < 4) {
+    textCleaned = "--\n"  // Writing empty files causes crash on pyhsical ionic devices
+  }
+  fs.writeFileSync("files.log", textCleaned, "utf-8")
+  //console.log("writeFileLog C:" + textCleaned)
+  updateFileText()
+  //console.log("writeFileLog D:" + textCleaned)
+}
 
-  let filenames = text.split("\n")
+function updateFileText() {
+  let filenames = fileLog.split("\n")
   let count = 0
   for (let filename of filenames) {
-    if (filename) {
+    filename = filename.trim()
+    if ((filename) && (filename != "--")) {
       count++
     }
   }
-  filesText.text = count + " files to transfer"
-
-  fs.writeFileSync("files.log", text, "utf-8")
+  filesText.text = count + " pending sync"
 }
 
 function appendToFileLog(filename) {
@@ -369,30 +398,38 @@ function appendToFileLog(filename) {
 }
 
 function removeFileFromLog(filename) {
-  console.log('un-logging file ' + filename)
+  try {
+    filename = filename.trim()
 
-  // let text = readFileLog()
-  // text = text.replace(filename + "\n", '')
-  // writeFileLog(text)
+    try {
+      fs.unlinkSync(filename)
+    } catch(error) {
+      console.warn("~~ Unable to unlink " + error.message)
+    }
 
-  fileLog = fileLog.replace(filename + "\n", '')
-  writeFileLog(fileLog)
+    // let text = readFileLog()
+    // text = text.replace(filename + "\n", '')
+    // writeFileLog(text)
+
+    fileLog = fileLog.replace(filename + "\n", '')
+    writeFileLog(fileLog)
+  } catch(error) {
+    console.error("~~ removeFileFromLog " + error.message)
+  }
 }
-
-setInterval(function() {
-  syncFiles()
-}, 10000)
 
 let pendingFilenames = {}
 
 function syncFiles() {
+  // console.log("syncFiles A")
   if ((messaging.peerSocket.readyState === messaging.peerSocket.OPEN)) {
+    // console.log("syncFiles B")
     let filenames = fileLog.split("\n")
     for (let filename of filenames) {
       if (messaging.peerSocket.bufferedAmount > 4096) {
         break
       }
-      if (filename) {
+      if ((filename) && (filename != '--')) {
         // console.log(filename)
         if (!pendingFilenames[filename]){
 
