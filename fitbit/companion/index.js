@@ -88,9 +88,19 @@ function submitTrack(trackId) {
         console.log("~~ looking for "+pointsFileCount+" point files for track "+trackId)
 
         let geojson = {
-            type: "MultiLineString",
-            coordinates: []
+            "type": "Feature",
+            "properties": {
+                "stroke": "#ff0000",
+                "stroke-width": 4,
+                "stroke-opacity": 1,
+                "id": trackId
+            },
+            "geometry": {
+                type: "MultiLineString",
+                coordinates: []
+            }
         }
+
 
         var currentCoordinates = []
 
@@ -109,7 +119,7 @@ function submitTrack(trackId) {
                 for (let point of points) {
                     if(point.pause) {
                         if(currentCoordinates.length > 1) {
-                            geojson.coordinates.push(currentCoordinates)
+                            geojson.geometry.coordinates.push(currentCoordinates)
                         }
                         currentCoordinates = []
                     } else {
@@ -119,7 +129,7 @@ function submitTrack(trackId) {
                     }
                 }
                 if(currentCoordinates.length > 1) {
-                    geojson.coordinates.push(currentCoordinates)
+                    geojson.geometry.coordinates.push(currentCoordinates)
                 }
             } catch (error) {
                 console.error("Unable to parse points file " + filename)
@@ -127,11 +137,7 @@ function submitTrack(trackId) {
             }
         }
 
-        // console.log('submitting GEOJSON : ' + JSON.stringify(geojson))
-
-        // https://beeceptor.com/console/fitbitgps
-
-        fetch('https://fitbitgps.free.beeceptor.com', {
+        fetch('https://ablondeau.lib.id/fitbit-gps@dev/', {
             method: 'POST',
             mode: 'cors',
             cache: 'no-cache',
@@ -173,10 +179,10 @@ function scanForFinishedTracks() {
         // localStorage.removeItem(key)
     }
 }
-setInterval(function() {
-    scanForFinishedTracks()
-}, 60000)
 
 setTimeout(function(){
     scanForFinishedTracks()
+    setInterval(function() {
+        scanForFinishedTracks()
+    }, 10000)
 }, 2000)

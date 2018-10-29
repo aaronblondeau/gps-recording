@@ -134,7 +134,7 @@ setTimeout(function() {
 let buttonStartPauseIcon = buttonStartPause.getElementById("combo-button-icon");
 let buttonStartPauseIconPress = buttonStartPause.getElementById("combo-button-icon-press");
 let recording = false
-let hasTrack = false
+let hasTrack = currentTrackId ? true : false
 buttonStartPause.onactivate = function(evt) {
   // console.log("Start/Pause!");
   if (recording) {
@@ -276,6 +276,10 @@ messaging.peerSocket.onopen = function() {
   }, 10000)
   syncFiles()
 }
+
+setTimeout(function() {
+  console.log("~~ socket open = "+ (messaging.peerSocket.readyState === messaging.peerSocket.OPEN))
+}, 500)
 
 messaging.peerSocket.onclose = function() {
   console.log("Socket close")
@@ -420,44 +424,59 @@ function removeFileFromLog(filename) {
 
 let pendingFilenames = {}
 
+let syncingFiles = false
+
 function syncFiles() {
   // console.log("syncFiles A")
+  if (syncingFiles) {
+    return
+  }
+  // console.log("syncFiles B")
   if ((messaging.peerSocket.readyState === messaging.peerSocket.OPEN)) {
-    // console.log("syncFiles B")
+    // console.log("syncFiles C")
     let filenames = fileLog.split("\n")
-    for (let filename of filenames) {
-      if (messaging.peerSocket.bufferedAmount > 4096) {
-        break
-      }
-      if ((filename) && (filename != '--')) {
-        // console.log(filename)
-        if (!pendingFilenames[filename]){
-
-          try {
-            let pointsText = fs.readFileSync(filename, "utf-8");
-
-            // console.log('loaded pointsText', pointsText)
+    syncingFiles = true
+    try {
+      for (let filename of filenames) {
+        if (messaging.peerSocket.bufferedAmount > 4096) {
+          break
+        }
+        if ((filename) && (filename != '--')) {
+          console.log('Will try to sync '+filename)
+          if (!pendingFilenames[filename]){
 
             try {
-              let points = JSON.parse(pointsText)
-              let action = {
-                action: 'receivePoints',
-                filename: filename,
-                points: points
-              }
-              messaging.peerSocket.send(action);
+              let pointsText = fs.readFileSync(filename, "utf-8");
 
-              pendingFilenames[filename] = true
+              // console.log('loaded pointsText', pointsText)
+
+              try {
+                let points = JSON.parse(pointsText)
+                let action = {
+                  action: 'receivePoints',
+                  filename: filename,
+                  points: points
+                }
+                messaging.peerSocket.send(action);
+
+                pendingFilenames[filename] = true
+              } catch(e) {
+                console.error('Unable to parse file ' + filename, e)
+                removeFileFromLog(filename)
+              }
             } catch(e) {
-              console.error('Unable to parse file ' + filename, e)
+              console.error('Unable to load file ' + filename, e)
               removeFileFromLog(filename)
             }
-          } catch(e) {
-            console.error('Unable to load file ' + filename, e)
-            removeFileFromLog(filename)
           }
         }
       }
     }
+    catch (err) {
+      console.log("~~ error syncing files " + err.message)
+    }
+    syncingFiles = false
+  } else {
+    console.log("~~ no connection - will not sync")
   }
 }
