@@ -22,42 +22,46 @@ class DataLayerListenerService : WearableListenerService() {
 
                 val data = DataMapItem.fromDataItem(event.dataItem)
 
-                if (event.dataItem.uri.path.startsWith("/track_downstream")) {
-                    val wearNodeId = data.dataMap.getString("wearNodeId")
-                    val mobileNodeId = data.dataMap.getString("mobileNodeId")
-                    val mobileId = data.dataMap.getLong("mobileId")
-                    val wearId = data.dataMap.getLong("wearId")
+                event.dataItem.uri.path.let {
+                    if (it != null) {
+                        if (it.startsWith("/track_downstream")) {
+                            val wearNodeId = data.dataMap.getString("wearNodeId")
+                            val mobileNodeId = data.dataMap.getString("mobileNodeId")
+                            val mobileId = data.dataMap.getLong("mobileId")
+                            val wearId = data.dataMap.getLong("wearId")
 
-                    Log.d("Wear:DLLS", "~~ Got sync response from phone.  id=" + wearId + " mobileNodeId=" + mobileNodeId + " mobileId=" + mobileId)
+                            Log.d("Wear:DLLS", "~~ Got sync response from phone.  id=" + wearId + " mobileNodeId=" + mobileNodeId + " mobileId=" + mobileId)
 
-                    val nodeClient: NodeClient = Wearable.getNodeClient(this)
+                            val nodeClient: NodeClient = Wearable.getNodeClient(this)
 
-                    nodeClient.localNode.addOnCompleteListener {
+                            nodeClient.localNode.addOnCompleteListener {
 
-                        it.result?.let {
-                            val localNodeId = it.id
+                                it.result?.let {
+                                    val localNodeId = it.id
 
-                            // Make sure node id matches
-                            if (wearNodeId == localNodeId) {
+                                    // Make sure node id matches
+                                    if (wearNodeId == localNodeId) {
 
-                                doAsync {
-                                    try {
+                                        doAsync {
+                                            try {
 
-                                        val store = GPSRecordingWearApplication.store
-                                        val track = store.trackDAO.getById(wearId)
-                                        track?.let { track ->
-                                            if (mobileId < 0) {
-                                                // Track was deleted on downstream device
-                                                track.downstreamId = ""
-                                            } else {
-                                                track.downstreamId = mobileNodeId + ":" + mobileId
+                                                val store = GPSRecordingWearApplication.store
+                                                val track = store.trackDAO.getById(wearId)
+                                                track?.let { existingTrack ->
+                                                    if (mobileId < 0) {
+                                                        // Track was deleted on downstream device
+                                                        existingTrack.downstreamId = ""
+                                                    } else {
+                                                        existingTrack.downstreamId = mobileNodeId + ":" + mobileId
+                                                    }
+                                                    store.saveTrack(existingTrack)
+                                                    Log.d("Wear:DLLS", "~~ Saved sync response downstream id : " + existingTrack.downstreamId)
+                                                }
+
+                                            } catch (e: Exception) {
+                                                Log.e("Wear:DLLS", "~~ Failed to handle a sync response", e)
                                             }
-                                            store.saveTrack(track)
-                                            Log.d("Wear:DLLS", "~~ Saved sync response downstream id : " + track.downstreamId)
                                         }
-
-                                    } catch(e: Exception) {
-                                        Log.e("Wear:DLLS", "~~ Failed to handle a sync response", e)
                                     }
                                 }
                             }

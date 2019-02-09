@@ -3,13 +3,13 @@ package com.salidasoftware.gpsrecording.room
 import androidx.room.*
 
 @Entity(tableName = "points",
-        foreignKeys = arrayOf(
+        foreignKeys = [
                 ForeignKey(entity = Line::class, parentColumns = arrayOf("id"), childColumns = arrayOf("lineId"), onDelete = ForeignKey.CASCADE)
-        ),
-        indices = arrayOf(
-                Index(value = "lineId", name = "idx_point_trackId"),
-                Index(value = "time", name = "idx_point_time")
-                )
+        ],
+        indices = [
+                Index(value = ["lineId"], name = "idx_point_trackId"),
+                Index(value = ["time"], name = "idx_point_time")
+                ]
         )
 data class Point (
         @ColumnInfo(name="lineId") var lineId: Long,

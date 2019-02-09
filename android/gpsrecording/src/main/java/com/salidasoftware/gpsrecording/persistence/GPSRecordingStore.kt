@@ -203,9 +203,8 @@ class GPSRecordingStore(context: Context, inMemory: Boolean = false) {
             val lastLocation = Location("GPSRecording")
             lastLocation.latitude = lastPoint.latitude
             lastLocation.longitude = lastPoint.longitude
-            val altitude = lastPoint.altitude
-            if (altitude != null) {
-                lastLocation.altitude = altitude
+            lastPoint.altitude?.let { lastPointAltitude ->
+                lastLocation.altitude = lastPointAltitude
             }
 
             val distance = lastLocation.distanceTo(location)

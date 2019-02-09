@@ -147,6 +147,8 @@ class GPSRecordingService : Service() {
 
                 startForeground(ONGOING_NOTIFICATION_ID, notification)
             } else {
+                // in the future use:
+                // val notification = Notification.Builder(this@GPSRecordingService, , GPSRecordingWearApplication.CHANNEL_DEFAULT_IMPORTANCE)
                 val notification = Notification.Builder(this@GPSRecordingService)
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle(getText(R.string.record_notification_title))

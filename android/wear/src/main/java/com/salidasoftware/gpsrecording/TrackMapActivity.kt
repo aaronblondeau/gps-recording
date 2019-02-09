@@ -77,9 +77,9 @@ class TrackMapActivity : WearableActivity() {
 
                 val track = store.getTrack(trackId)
 
-                track?.let { track ->
+                track?.let { existingTrack ->
                     val boundsBuilder = LatLngBounds.Builder()
-                    val lines = store.lineDAO.getAllForTrack(track.id)
+                    val lines = store.lineDAO.getAllForTrack(existingTrack.id)
                     for (line in lines) {
                         val points = store.pointDAO.getAllForLine(line.id)
 

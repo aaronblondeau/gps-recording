@@ -45,7 +45,7 @@ class TrackActivity : WearableActivity() {
         buttonDeleteTrack.setOnClickListener {
             doAsync {
                 track.value?.let {
-                    store?.deleteTrack(it)
+                    store.deleteTrack(it)
                     this@TrackActivity.finish()
                 }
             }
@@ -146,7 +146,7 @@ class TrackActivity : WearableActivity() {
                             for (node in capabilityInfo.nodes) {
                                 if (node.isNearby) {
                                     node.id?.also { nodeId ->
-                                        val sendTask: Task<*> = Wearable.getMessageClient(this@TrackActivity).sendMessage(
+                                        Wearable.getMessageClient(this@TrackActivity).sendMessage(
                                                 nodeId,
                                                 "/open_downstream_track/" + track.downstreamId,
                                                 (track.downstreamId).toByteArray()
@@ -184,7 +184,7 @@ class TrackActivity : WearableActivity() {
         buttonDeleteTrack.isEnabled = false
         val trackId = intent.getLongExtra(TRACK_ID, -1)
         Log.d("TrackActivity", "~~ Got Track Id " + trackId)
-        if (trackId >= 0 && store != null) {
+        if (trackId >= 0) {
             doAsync {
                 try {
                     track = store.trackDAO.getByIdLive(trackId)

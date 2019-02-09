@@ -28,11 +28,7 @@ class TracksRecyclerViewAdapter (private var tracks: Array<Track>) : RecyclerVie
 
     override fun onBindViewHolder(holder: TrackViewHolder, position: Int) {
         val track = tracks.get(position)
-        if (track == null) {
-            holder.clear()
-        } else {
-            holder.bind(track, clickListener)
-        }
+        holder.bind(track, clickListener)
     }
 
     fun setOnTrackClickListener(cl: OnTrackClickListener) {
@@ -66,9 +62,7 @@ class TracksRecyclerViewAdapter (private var tracks: Array<Track>) : RecyclerVie
             val cl = clickListener
             if (view != null && cl != null) {
                 val track = view.tag as Track
-                if (track != null) {
-                    cl.onTrackClick(track)
-                }
+                cl.onTrackClick(track)
             }
         }
     }

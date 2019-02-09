@@ -16,7 +16,7 @@ class SettingsActivity : WearableActivity() {
         // Enables Always-on
         // setAmbientEnabled()
 
-        store?.let {
+        store.let {
             val df = GPSRecordingWearApplication.storeView.distanceFilterInMeters.get()
             if (df != null) {
                 seekBarDistanceFilter.progress = (df / 10).toInt()  // Using a scale of 10 on the seek bar

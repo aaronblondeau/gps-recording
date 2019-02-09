@@ -5,9 +5,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 @Entity(tableName = "tracks",
-        indices = arrayOf(
-                Index(value = "startedAt", name = "idx_track_startedAt")
-        ))
+        indices = [
+                Index(value = ["startedAt"], name = "idx_track_startedAt")
+        ])
 data class Track(
         @ColumnInfo(name="name") var name: String,
         @ColumnInfo(name="note") var note: String = "",
