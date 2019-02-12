@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width,user-scalable=no">
+	<title>Basic</title>
+	<link rel="stylesheet" href="lib/tau/wearable/theme/default/tau.min.css">
+	<link rel="stylesheet" media="all and (-tizen-geometric-shape: circle)" href="lib/tau/wearable/theme/default/tau.circle.min.css">
+	<!-- load theme file for your application -->
+	<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+	
+	<div id="app">
+	
+		<div class="ui-page ui-page-active">
+			<header>
+				<h2 class="ui-title">{{ appTitle }}</h2>
+			</header>
+			
+			<div class="ui-content ui-content-padding" v-show="page === 'home'">
+				<button v-on:click="page='record'">Record</button>
+	  			{{ message }}
+	  		</div>
+	  		
+	  		<div class="ui-content ui-content-padding" v-show="page === 'record'">
+				<button v-on:click="gpsStart" v-show="!isRecording">Start</button>
+				<button v-on:click="gpsResume" v-show="!isRecording">Resume</button>
+				<button v-on:click="gpsPause" v-show="isRecording">Pause</button>
+				<button v-on:click="gpsFinish" v-show="isRecording">Finish</button>
+			    <button v-on:click="page='home'">Prev</button>
+			</div>
+	  		
+		</div>
+	   
+	</div>
+		
+	<script src="lib/tau/wearable/js/tau.min.js"></script>
+	<script src="js/vue.js"></script>
+	<script src="js/app.js"></script>
+	<script src="js/lowBatteryCheck.js"></script>
+	<script src="js/circle-helper.js"></script>
+</body>
+</html>
