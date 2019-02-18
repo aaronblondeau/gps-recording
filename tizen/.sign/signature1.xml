@@ -2,13 +2,17 @@
 <SignedInfo>
 <CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"></CanonicalizationMethod>
 <SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"></SignatureMethod>
+<Reference URI=".gitignore">
+<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
+<DigestValue>aWBngAeLoONIZ4osFTjSjsHur7x08Bu43Nm49kXm/jU=</DigestValue>
+</Reference>
 <Reference URI="author-signature.xml">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>803TWBPoUXcQv6wKkeK29WxWCpZeNHQX40FKSxSZxrc=</DigestValue>
+<DigestValue>KPcG1x1Uw5dzxC3wFuA6lYr59e3qfe5glP51Um6cTRg=</DigestValue>
 </Reference>
 <Reference URI="config.xml">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>gM1VtGhkQJgvtrA3A/u9GizHjwGrWdWUqpL9ImVoCqA=</DigestValue>
+<DigestValue>nXTzrt9jU27o25FwScLFXqz5npsw8sYrqwg5EVUd9sY=</DigestValue>
 </Reference>
 <Reference URI="css%2Fstyle.css">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
@@ -20,11 +24,11 @@
 </Reference>
 <Reference URI="index.html">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>8A76Vm/vJlt0eQnRndLRI93cnDiZJvwrXFuQRSfdqeg=</DigestValue>
+<DigestValue>vK3fuv5xZBeTEkuAv031F1APaoCrcTUsTuvnfMW1rmc=</DigestValue>
 </Reference>
 <Reference URI="js%2Fapp.js">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>pFx2G8GosnokS20zwgVfyzuycGWefGMPJN8EqXjM8i8=</DigestValue>
+<DigestValue>7WaG2DJKGrkKvAhVdQgReb57ivpdfPhNSo2Ew+pR5Hs=</DigestValue>
 </Reference>
 <Reference URI="js%2Fcircle-helper.js">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
@@ -1375,9 +1379,9 @@
 </Reference>
 </SignedInfo>
 <SignatureValue>
-bsaBLEYpvrBSJgFhEG1qcbnIV2PRngxPdu2DBB6Y094yYwY4RHjbflzeQdv1nNnep80WF7wG5WFW
-xd9CRaXTaU693JD6kxl+xZOWwauwNPuRuCvzgWKtQrv5yHBImN3rPZcsRQlXoNp7gTjxeestf/cB
-fiK8OZEwfgIMh1spQbw=
+RYJQJdmnloSHTAWtNPLuXPbXZiZB3cpQPKGGZAp6bOTKWQbM0xX1j+WeT1r059Wtn1f0xguwdXBz
+Nr/FLWDGK1/f2oauf0jPMumHfLUEJbxNVK2vIGJUTYyAnC8XAzkBV87ixFxUCMWvxj0q9jdRYmWL
+ORSIaNH1U//Hcrr6tOk=
 </SignatureValue>
 <KeyInfo>
 <X509Data>

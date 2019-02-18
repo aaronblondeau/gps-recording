@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="http://salidasoftware.com/GPSRecording" version="1.0.0" viewmodes="maximized">
-    <tizen:application id="HlN0DcfSjX.GPSRecording" package="HlN0DcfSjX" required_version="5.0"/>
+    <tizen:application id="HlN0DcfSjX.GPSRecording" package="HlN0DcfSjX" required_version="3.0"/>
     <author href="https://www.salidasoftware.com" email="aaron@salidasoftware.com">Aaron Blondeau</author>
     <content src="index.html"/>
     <description>https://github.com/aaronblondeau/gps-recording</description>
     <feature name="http://tizen.org/feature/screen.size.normal"/>
+    <feature name="tizen.org/feature/location.gps"/>
+    <feature name="tizen.org/feature/network.internet"/>
     <icon src="icon.png"/>
     <name>GPSRecording</name>
-    <tizen:profile name="wearable"/>
-    <tizen:setting hwkey-event="enable"/>
-    <tizen:setting background-support="enable" />
     <tizen:privilege name="http://tizen.org/privilege/power"/>
     <tizen:privilege name="http://tizen.org/privilege/location"/>
-    
     <tizen:privilege name="http://tizen.org/privilege/mapservice"/>
-	<tizen:privilege name="http://tizen.org/privilege/internet"/>
-	<tizen:privilege name="http://tizen.org/privilege/network.get"/>
+    <tizen:privilege name="http://tizen.org/privilege/internet"/>
+    <tizen:privilege name="http://tizen.org/privilege/network.get"/>
+    <tizen:privilege name="http://tizen.org/privilege/filesystem.read"/>
+	<tizen:privilege name="http://tizen.org/privilege/filesystem.write"/>
+    <tizen:profile name="wearable"/>
+    <tizen:setting background-support="disable" encryption="disable" hwkey-event="enable"/>
+    <tizen:setting background-support="enable"/>
 </widget>

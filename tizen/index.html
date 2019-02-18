@@ -18,16 +18,18 @@
 			</header>
 			
 			<div class="ui-content ui-content-padding" v-show="page === 'home'">
-				<button v-on:click="page='record'">Record</button>
-	  			{{ message }}
+				<div><button v-on:click="page='record'">Record</button></div>
+	  			<div>{{ message }}</div>
+	  			<div><button v-on:click="resetAll">Reset</button></div>
 	  		</div>
 	  		
 	  		<div class="ui-content ui-content-padding" v-show="page === 'record'">
-				<button v-on:click="gpsStart" v-show="!isRecording">Start</button>
-				<button v-on:click="gpsResume" v-show="!isRecording">Resume</button>
+				<button v-on:click="gpsStart" v-show="!isRecording && canRecord && !currentTrackId">Start</button>
+				<button v-on:click="gpsResume" v-show="!isRecording && canRecord && currentTrackId">Resume</button>
 				<button v-on:click="gpsPause" v-show="isRecording">Pause</button>
 				<button v-on:click="gpsFinish" v-show="isRecording">Finish</button>
 			    <button v-on:click="page='home'">Prev</button>
+			    <div>Current Track Id : {{ currentTrackId }}</div>
 			</div>
 	  		
 		</div>
