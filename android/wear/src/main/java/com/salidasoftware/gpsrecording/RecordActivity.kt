@@ -156,9 +156,13 @@ class RecordActivity : WearableActivity() {
     }
 
     fun startClock() {
-        textViewRecordCurrentTime.visibility = View.VISIBLE
+        runOnUiThread {
+            textViewRecordCurrentTime.visibility = View.VISIBLE
+        }
         ticker = timerTask{
-            textViewRecordCurrentTime.text = SimpleDateFormat("h:mm:ss a").format(Date())
+            runOnUiThread {
+                textViewRecordCurrentTime.text = SimpleDateFormat("h:mm:ss a").format(Date())
+            }
         }
         timer.scheduleAtFixedRate(ticker, 0L, 1000L)
     }
